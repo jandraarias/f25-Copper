@@ -1,0 +1,20 @@
+created:
+    - database/factories/TravelerFactory.php
+    - database/factories/ItineraryFactory.php
+    - database/factories/PreferenceprofileFactory.php
+    - database/factories/PreferenceFactory.php
+    - database/migrations/2025_09_12_225601_create_travelers_table.php
+    - database/migrations/2025_09_12_225602_create_itineraries_table.php
+    - database/migrations/2025_09_12_225603_create_preferenceprofiles_table.php
+    - database/migrations/2025_09_12_225604_create_preferences_table.php
+    - database/migrations/2025_09_12_225605_create_preference_preference_profile_table.php
+    - app/Models/Traveler.php
+    - app/Models/Itinerary.php
+    - app/Models/Preferenceprofile.php
+    - app/Models/Preference.php
+models:
+    User: { name: string, email: string, email_verified_at: 'datetime nullable', password: string, remember_token: 'string nullable' }
+    Traveler: { name: string, date_of_birth: date, phone_number: string, email: string, relationships: { hasMany: 'Itinerary, Preferenceprofile' } }
+    Itinerary: { name: string, description: string, start_date: datetime, end_date: datetime, country: string, location: string, traveler_id: id, relationships: { belongsTo: Traveler } }
+    Preferenceprofile: { traveler_id: id, relationships: { belongsTo: Traveler, hasMany: Preference } }
+    Preference: { name: string, type: string, category: string, relationships: { belongsToMany: PreferenceProfile } }
