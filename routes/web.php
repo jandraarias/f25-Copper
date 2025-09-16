@@ -42,10 +42,10 @@ Route::middleware(['auth', 'role:admin'])
     ->prefix('admin')
     ->name('admin.')
     ->group(function () {
-        // Legacy Blade Admin Dashboard (kept for reference, not used in production redirects)
+        // Admin Dashboard
         Route::get('/dashboard', function () {
             return view('admin.dashboard');
-        })->name('blade-dashboard'); // renamed from admin.dashboard
+        })->name('dashboard');
 
         // User Management
         Route::get('/users/create', [UserManagementController::class, 'create'])->name('users.create');
