@@ -25,7 +25,7 @@ class RouteServiceProvider extends ServiceProvider
 
         switch ($user->role) {
             case 'admin':
-                return route('admin.dashboard');
+                return '/admin'; // Filament panel home
             case 'expert':
                 return route('expert.dashboard');
             case 'business':
