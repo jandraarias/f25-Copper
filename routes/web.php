@@ -30,11 +30,6 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-// Default dashboard (only for verified users)
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
-
 // Profile routes (accessible to all authenticated users)
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
