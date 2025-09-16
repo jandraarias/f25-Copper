@@ -12,6 +12,12 @@ class User extends Authenticatable
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
 
+    // Define role constants
+    const ROLE_TRAVELER = 'traveler';
+    const ROLE_EXPERT   = 'expert';
+    const ROLE_BUSINESS = 'business';
+    const ROLE_ADMIN    = 'admin';
+
     /**
      * The attributes that are mass assignable.
      *
@@ -21,6 +27,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role',   // <-- added role here
     ];
 
     /**
@@ -44,5 +51,26 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    // === Role helpers ===
+    public function isTraveler(): bool
+    {
+        return $this->role === self::ROLE_TRAVELER;
+    }
+
+    public function isExpert(): bool
+    {
+        return $this->role === self::ROLE_EXPERT;
+    }
+
+    public function isBusiness(): bool
+    {
+        return $this->role === self::ROLE_BUSINESS;
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->role === self::ROLE_ADMIN;
     }
 }
