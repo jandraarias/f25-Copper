@@ -12,9 +12,41 @@
 
                 <!-- Navigation Links -->
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                    <!-- Default dashboard (optional) -->
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                         {{ __('Dashboard') }}
                     </x-nav-link>
+
+                    <!-- Role-based dashboards -->
+                    @auth
+                        @if(auth()->user()->isAdmin())
+                            <x-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.dashboard')">
+                                {{ __('Admin Dashboard') }}
+                            </x-nav-link>
+
+                            <x-nav-link :href="route('admin.users.create')" :active="request()->routeIs('admin.users.create')">
+                                {{ __('Create User') }}
+                            </x-nav-link>
+                        @endif
+
+                        @if(auth()->user()->isExpert())
+                            <x-nav-link :href="route('expert.dashboard')" :active="request()->routeIs('expert.dashboard')">
+                                {{ __('Expert Dashboard') }}
+                            </x-nav-link>
+                        @endif
+
+                        @if(auth()->user()->isBusiness())
+                            <x-nav-link :href="route('business.dashboard')" :active="request()->routeIs('business.dashboard')">
+                                {{ __('Business Dashboard') }}
+                            </x-nav-link>
+                        @endif
+
+                        @if(auth()->user()->isTraveler())
+                            <x-nav-link :href="route('traveler.dashboard')" :active="request()->routeIs('traveler.dashboard')">
+                                {{ __('Traveler Dashboard') }}
+                            </x-nav-link>
+                        @endif
+                    @endauth
                 </div>
             </div>
 
@@ -41,7 +73,6 @@
                         <!-- Authentication -->
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
-
                             <x-dropdown-link :href="route('logout')"
                                     onclick="event.preventDefault();
                                                 this.closest('form').submit();">
@@ -67,9 +98,41 @@
     <!-- Responsive Navigation Menu -->
     <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
         <div class="pt-2 pb-3 space-y-1">
+            <!-- Default dashboard -->
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                 {{ __('Dashboard') }}
             </x-responsive-nav-link>
+
+            <!-- Role-based dashboards -->
+            @auth
+                @if(auth()->user()->isAdmin())
+                    <x-responsive-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.dashboard')">
+                        {{ __('Admin Dashboard') }}
+                    </x-responsive-nav-link>
+
+                    <x-responsive-nav-link :href="route('admin.users.create')" :active="request()->routeIs('admin.users.create')">
+                        {{ __('Create User') }}
+                    </x-responsive-nav-link>
+                @endif
+
+                @if(auth()->user()->isExpert())
+                    <x-responsive-nav-link :href="route('expert.dashboard')" :active="request()->routeIs('expert.dashboard')">
+                        {{ __('Expert Dashboard') }}
+                    </x-responsive-nav-link>
+                @endif
+
+                @if(auth()->user()->isBusiness())
+                    <x-responsive-nav-link :href="route('business.dashboard')" :active="request()->routeIs('business.dashboard')">
+                        {{ __('Business Dashboard') }}
+                    </x-responsive-nav-link>
+                @endif
+
+                @if(auth()->user()->isTraveler())
+                    <x-responsive-nav-link :href="route('traveler.dashboard')" :active="request()->routeIs('traveler.dashboard')">
+                        {{ __('Traveler Dashboard') }}
+                    </x-responsive-nav-link>
+                @endif
+            @endauth
         </div>
 
         <!-- Responsive Settings Options -->
@@ -87,7 +150,6 @@
                 <!-- Authentication -->
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
-
                     <x-responsive-nav-link :href="route('logout')"
                             onclick="event.preventDefault();
                                         this.closest('form').submit();">
