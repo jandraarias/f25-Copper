@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Resources\PreferenceProfiles\Tables;
+namespace App\Filament\Resources\Itineraries\Tables;
 
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
@@ -8,19 +8,27 @@ use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
-class PreferenceProfilesTable
+class ItinerariesTable
 {
     public static function configure(Table $table): Table
     {
         return $table
             ->columns([
-                TextColumn::make('traveler.name')
-                    ->searchable(),
                 TextColumn::make('name')
                     ->searchable(),
-                TextColumn::make('budget')
+                TextColumn::make('description')
                     ->searchable(),
-                TextColumn::make('preferred_climate')
+                TextColumn::make('start_date')
+                    ->dateTime()
+                    ->sortable(),
+                TextColumn::make('end_date')
+                    ->dateTime()
+                    ->sortable(),
+                TextColumn::make('country')
+                    ->searchable(),
+                TextColumn::make('location')
+                    ->searchable(),
+                TextColumn::make('traveler.name')
                     ->searchable(),
                 TextColumn::make('created_at')
                     ->dateTime()

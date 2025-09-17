@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Itinerary extends Model
 {
@@ -11,23 +13,27 @@ class Itinerary extends Model
 
     protected $fillable = [
         'traveler_id',
-        'title',
+        'name',
+        'description',
         'start_date',
         'end_date',
-        'notes',
+        'country',
+        'location',
     ];
 
     protected $casts = [
+        'id' => 'integer',
+        'traveler_id' => 'integer',
         'start_date' => 'date',
         'end_date' => 'date',
     ];
 
-    public function traveler()
+    public function traveler(): BelongsTo
     {
         return $this->belongsTo(Traveler::class);
     }
 
-    public function items()
+    public function items(): HasMany
     {
         return $this->hasMany(ItineraryItem::class);
     }

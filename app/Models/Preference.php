@@ -12,23 +12,18 @@ class Preference extends Model
 
     protected $fillable = [
         'name',
+        'category',
         'description',
     ];
 
-    protected function casts(): array
-    {
-        return [
-            'id' => 'integer',
-        ];
-    }
+    protected $casts = [
+        'id' => 'integer',
+    ];
 
-    /**
-     * A preference can belong to many preference profiles.
-     */
     public function preferenceProfiles(): BelongsToMany
     {
         return $this->belongsToMany(
-            Preferenceprofile::class,
+            PreferenceProfile::class,
             'preference_preference_profile',
             'preference_id',
             'preference_profile_id'

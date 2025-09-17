@@ -14,20 +14,17 @@ class ItineraryItem extends Model
         'itinerary_id',
         'title',
         'description',
-        'start_time',
-        'end_time',
+        'date',
+        'time',
         'location',
     ];
 
-    protected function casts(): array
-    {
-        return [
-            'id' => 'integer',
-            'itinerary_id' => 'integer',
-            'start_time' => 'datetime',
-            'end_time' => 'datetime',
-        ];
-    }
+    protected $casts = [
+        'id' => 'integer',
+        'itinerary_id' => 'integer',
+        'date' => 'date',
+        'time' => 'datetime:H:i',
+    ];
 
     public function itinerary(): BelongsTo
     {

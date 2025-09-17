@@ -5,16 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class PreferenceProfile extends Model
 {
     use HasFactory;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
     protected $fillable = [
         'traveler_id',
         'name',
@@ -23,21 +19,24 @@ class PreferenceProfile extends Model
         'preferred_climate',
     ];
 
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
     protected $casts = [
+        'id' => 'integer',
+        'traveler_id' => 'integer',
         'interests' => 'array',
-        'budget' => 'decimal:2',
     ];
 
-    /**
-     * Get the traveler that owns this preference profile.
-     */
     public function traveler(): BelongsTo
     {
         return $this->belongsTo(Traveler::class);
+    }
+
+    public function preferences(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            Preference::class,
+            'preference_preference_profile',
+            'preference_profile_id',
+            'preference_id'
+        );
     }
 }

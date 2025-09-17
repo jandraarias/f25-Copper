@@ -1,33 +1,35 @@
 <?php
 
-namespace App\Filament\Resources\Preferenceprofiles;
+namespace App\Filament\Resources\PreferenceProfiles;
 
-use App\Filament\Resources\Preferenceprofiles\Pages\CreatePreferenceprofile;
-use App\Filament\Resources\Preferenceprofiles\Pages\EditPreferenceprofile;
-use App\Filament\Resources\Preferenceprofiles\Pages\ListPreferenceprofiles;
-use App\Filament\Resources\Preferenceprofiles\Schemas\PreferenceprofileForm;
-use App\Filament\Resources\Preferenceprofiles\Tables\PreferenceprofilesTable;
-use App\Models\Preferenceprofile;
+use App\Filament\Resources\PreferenceProfiles\Pages\CreatePreferenceProfile;
+use App\Filament\Resources\PreferenceProfiles\Pages\EditPreferenceProfile;
+use App\Filament\Resources\PreferenceProfiles\Pages\ListPreferenceProfiles;
+use App\Filament\Resources\PreferenceProfiles\Schemas\PreferenceProfileForm;
+use App\Filament\Resources\PreferenceProfiles\Tables\PreferenceProfilesTable;
+use App\Models\PreferenceProfile;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 
-class PreferenceprofileResource extends Resource
+class PreferenceProfileResource extends Resource
 {
-    protected static ?string $model = Preferenceprofile::class;
+    protected static ?string $model = PreferenceProfile::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
+    protected static ?string $recordTitleAttribute = 'name';
+
     public static function form(Schema $schema): Schema
     {
-        return PreferenceprofileForm::configure($schema);
+        return PreferenceProfileForm::configure($schema);
     }
 
     public static function table(Table $table): Table
     {
-        return PreferenceprofilesTable::configure($table);
+        return PreferenceProfilesTable::configure($table);
     }
 
     public static function getRelations(): array
@@ -40,9 +42,9 @@ class PreferenceprofileResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => ListPreferenceprofiles::route('/'),
-            'create' => CreatePreferenceprofile::route('/create'),
-            'edit' => EditPreferenceprofile::route('/{record}/edit'),
+            'index' => ListPreferenceProfiles::route('/'),
+            'create' => CreatePreferenceProfile::route('/create'),
+            'edit' => EditPreferenceProfile::route('/{record}/edit'),
         ];
     }
 }

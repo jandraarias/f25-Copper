@@ -1,11 +1,13 @@
 <?php
 
-namespace App\Filament\Resources\Preferenceprofiles\Schemas;
+namespace App\Filament\Resources\PreferenceProfiles\Schemas;
 
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Textarea;
 use Filament\Schemas\Schema;
 
-class PreferenceprofileForm
+class PreferenceProfileForm
 {
     public static function configure(Schema $schema): Schema
     {
@@ -14,6 +16,12 @@ class PreferenceprofileForm
                 Select::make('traveler_id')
                     ->relationship('traveler', 'name')
                     ->required(),
+                TextInput::make('name')
+                    ->required(),
+                TextInput::make('budget'),
+                Textarea::make('interests')
+                    ->columnSpanFull(),
+                TextInput::make('preferred_climate'),
             ]);
     }
 }
