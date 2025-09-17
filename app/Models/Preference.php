@@ -10,22 +10,11 @@ class Preference extends Model
 {
     use HasFactory;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array
-     */
     protected $fillable = [
         'name',
-        'type',
-        'category',
+        'description',
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
     protected function casts(): array
     {
         return [
@@ -33,8 +22,16 @@ class Preference extends Model
         ];
     }
 
+    /**
+     * A preference can belong to many preference profiles.
+     */
     public function preferenceProfiles(): BelongsToMany
     {
-        return $this->belongsToMany(PreferenceProfile::class);
+        return $this->belongsToMany(
+            Preferenceprofile::class,
+            'preference_preference_profile',
+            'preference_id',
+            'preference_profile_id'
+        );
     }
 }

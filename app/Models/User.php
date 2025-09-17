@@ -73,4 +73,10 @@ class User extends Authenticatable
     {
         return $this->role === self::ROLE_ADMIN;
     }
+
+    // === Relationships ===
+    public function traveler()
+    {
+        return $this->hasOne(Traveler::class);
+    }
 }

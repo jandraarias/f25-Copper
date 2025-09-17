@@ -4,44 +4,36 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Traveler extends Model
 {
     use HasFactory;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array
-     */
     protected $fillable = [
-        'name',
-        'date_of_birth',
-        'phone_number',
-        'email',
+        'user_id',
+        'phone',
+        'dob',
+        'country',
+        'bio',
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
-    protected function casts(): array
+    protected $casts = [
+        'dob' => 'date',
+    ];
+
+    // Relationships
+    public function user()
     {
-        return [
-            'id' => 'integer',
-            'date_of_birth' => 'date',
-        ];
+        return $this->belongsTo(User::class);
     }
 
-    public function itineraries(): HasMany
+    public function itineraries()
     {
         return $this->hasMany(Itinerary::class);
     }
 
-    public function preferenceprofiles(): HasMany
+    public function preferenceProfiles()
     {
-        return $this->hasMany(Preferenceprofile::class);
+        return $this->hasMany(PreferenceProfile::class);
     }
 }

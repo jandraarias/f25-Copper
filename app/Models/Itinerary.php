@@ -4,44 +4,31 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Itinerary extends Model
 {
     use HasFactory;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array
-     */
     protected $fillable = [
-        'name',
-        'description',
+        'traveler_id',
+        'title',
         'start_date',
         'end_date',
-        'country',
-        'location',
-        'traveler_id',
+        'notes',
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
-    protected function casts(): array
-    {
-        return [
-            'id' => 'integer',
-            'start_date' => 'datetime',
-            'end_date' => 'datetime',
-            'traveler_id' => 'integer',
-        ];
-    }
+    protected $casts = [
+        'start_date' => 'date',
+        'end_date' => 'date',
+    ];
 
-    public function traveler(): BelongsTo
+    public function traveler()
     {
         return $this->belongsTo(Traveler::class);
+    }
+
+    public function items()
+    {
+        return $this->hasMany(ItineraryItem::class);
     }
 }
