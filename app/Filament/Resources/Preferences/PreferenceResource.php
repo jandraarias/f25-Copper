@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Resources\Preferences;
+namespace App\Filament\Resources;
 
 use App\Filament\Resources\Preferences\Pages;
 use App\Models\Preference;
@@ -9,7 +9,6 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
-use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -20,7 +19,8 @@ class PreferenceResource extends Resource
 {
     protected static ?string $model = Preference::class;
 
-    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-rectangle-stack';
+    // Match Filament v4 base: BackedEnum|string|null
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-adjustments-horizontal';
 
     protected static ?string $recordTitleAttribute = 'name';
 
@@ -31,18 +31,8 @@ class PreferenceResource extends Resource
                 ->required()
                 ->maxLength(255),
 
-            Select::make('type')
-                ->options([
-                    'activity' => 'Activity',
-                    'food'     => 'Food',
-                    'lodging'  => 'Lodging',
-                    'other'    => 'Other',
-                ])
-                ->required(),
-
             TextInput::make('value')
                 ->label('Value')
-                ->required()
                 ->maxLength(255),
         ]);
     }
@@ -52,8 +42,7 @@ class PreferenceResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('name')->searchable()->sortable(),
-                TextColumn::make('type')->sortable(),
-                TextColumn::make('value')->sortable(),
+                TextColumn::make('value')->label('Value')->sortable(),
                 TextColumn::make('created_at')->dateTime()->sortable(),
             ])
             ->recordActions([
