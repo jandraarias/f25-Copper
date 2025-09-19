@@ -28,12 +28,26 @@ class ItineraryResource extends Resource
     public static function form(Schema $schema): Schema
     {
         return $schema->schema([
-            TextInput::make('name')->required()->maxLength(255),
-            Textarea::make('description')->columnSpanFull(),
-            DatePicker::make('start_date')->required(),
-            DatePicker::make('end_date')->required(),
-            TextInput::make('country')->maxLength(255),
-            TextInput::make('location')->maxLength(255),
+            TextInput::make('name')
+                ->required()
+                ->maxLength(255),
+
+            Textarea::make('description')
+                ->columnSpanFull(),
+
+            DatePicker::make('start_date')
+                ->label('Start Date')
+                ->required(),
+
+            DatePicker::make('end_date')
+                ->label('End Date')
+                ->required(),
+
+            TextInput::make('country')
+                ->maxLength(255),
+
+            TextInput::make('location')
+                ->maxLength(255),
         ]);
     }
 
@@ -44,8 +58,8 @@ class ItineraryResource extends Resource
                 TextColumn::make('name')->searchable()->sortable(),
                 TextColumn::make('country')->sortable(),
                 TextColumn::make('location')->sortable(),
-                TextColumn::make('start_date')->date(),
-                TextColumn::make('end_date')->date(),
+                TextColumn::make('start_date')->date()->sortable(),
+                TextColumn::make('end_date')->date()->sortable(),
                 TextColumn::make('created_at')->dateTime()->sortable(),
             ])
             ->recordActions([
@@ -62,7 +76,7 @@ class ItineraryResource extends Resource
     public static function getRelations(): array
     {
         return [
-            // add relation managers later if needed
+            // add relation managers later
         ];
     }
 
