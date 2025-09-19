@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Resources;
+namespace App\Filament\Resources\Preferences;
 
 use App\Filament\Resources\Preferences\Pages;
 use App\Models\Preference;
