@@ -21,18 +21,22 @@ class ItineraryItemResource extends Resource
 {
     protected static ?string $model = ItineraryItem::class;
 
-    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-list-bullet';
 
     protected static ?string $recordTitleAttribute = 'name';
 
     public static function form(Schema $schema): Schema
     {
         return $schema->schema([
-            TextInput::make('name')->required()->maxLength(255),
-            Textarea::make('description')->columnSpanFull(),
-            DatePicker::make('start_time')->label('Start Time'),
-            DatePicker::make('end_time')->label('End Time'),
-            TextInput::make('location')->maxLength(255),
+            TextInput::make('name')
+                ->required()
+                ->maxLength(255),
+
+            Textarea::make('description')
+                ->columnSpanFull(),
+
+            DatePicker::make('date')
+                ->label('Date'),
         ]);
     }
 
@@ -41,9 +45,7 @@ class ItineraryItemResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('name')->searchable()->sortable(),
-                TextColumn::make('location')->sortable(),
-                TextColumn::make('start_time')->dateTime(),
-                TextColumn::make('end_time')->dateTime(),
+                TextColumn::make('date')->date(),
                 TextColumn::make('created_at')->dateTime()->sortable(),
             ])
             ->recordActions([
