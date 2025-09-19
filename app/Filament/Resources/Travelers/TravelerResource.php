@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Resources;
+namespace App\Filament\Resources\Travelers;
 
 use App\Filament\Resources\Travelers\Pages;
 use App\Models\Traveler;

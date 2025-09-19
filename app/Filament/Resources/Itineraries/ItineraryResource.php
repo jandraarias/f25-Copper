@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Resources;
+namespace App\Filament\Resources\Itineraries;
 
 use App\Filament\Resources\Itineraries\Pages;
 use App\Models\Itinerary;
