@@ -4,29 +4,28 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * @mixin IdeHelperPreference
+ */
 class Preference extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'name',
-        'category',
-        'description',
+        'preference_profile_id',
+        'key',
+        'value',
     ];
 
     protected $casts = [
         'id' => 'integer',
+        'preference_profile_id' => 'integer',
     ];
 
-    public function preferenceProfiles(): BelongsToMany
+    public function preferenceProfile(): BelongsTo
     {
-        return $this->belongsToMany(
-            PreferenceProfile::class,
-            'preference_preference_profile',
-            'preference_id',
-            'preference_profile_id'
-        );
+        return $this->belongsTo(PreferenceProfile::class);
     }
 }

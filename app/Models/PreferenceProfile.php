@@ -5,8 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/**
+ * @mixin IdeHelperPreferenceProfile
+ */
 class PreferenceProfile extends Model
 {
     use HasFactory;
@@ -30,13 +33,8 @@ class PreferenceProfile extends Model
         return $this->belongsTo(Traveler::class);
     }
 
-    public function preferences(): BelongsToMany
+    public function preferences(): HasMany
     {
-        return $this->belongsToMany(
-            Preference::class,
-            'preference_preference_profile',
-            'preference_profile_id',
-            'preference_id'
-        );
+        return $this->hasMany(Preference::class);
     }
 }

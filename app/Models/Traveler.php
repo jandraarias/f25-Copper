@@ -7,6 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/**
+ * @mixin IdeHelperTraveler
+ */
 class Traveler extends Model
 {
     use HasFactory;
@@ -30,13 +33,14 @@ class Traveler extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function itineraries(): HasMany
+    public function itineraries()
     {
         return $this->hasMany(Itinerary::class);
     }
 
-    public function preferenceProfiles(): HasMany
+    public function preferenceProfiles()
     {
         return $this->hasMany(PreferenceProfile::class);
     }
+
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace app\Filament\Resources\PreferenceProfiles;
+namespace App\Filament\Resources\PreferenceProfiles;
 
 use App\Filament\Resources\PreferenceProfiles\Pages;
 use App\Models\PreferenceProfile;
@@ -20,7 +20,7 @@ class PreferenceProfileResource extends Resource
 {
     protected static ?string $model = PreferenceProfile::class;
 
-    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-adjustments-vertical';
 
     protected static ?string $recordTitleAttribute = 'name';
 
@@ -31,19 +31,9 @@ class PreferenceProfileResource extends Resource
                 ->required()
                 ->maxLength(255),
 
-            TextInput::make('budget')
-                ->numeric()
-                ->label('Budget'),
-
-            // Your model casts `interests` to array; keeping Textarea for now.
-            // Later you can swap this to TagsInput or KeyValue if you prefer structured input.
-            Textarea::make('interests')
-                ->label('Interests')
-                ->columnSpanFull(),
-
-            TextInput::make('preferred_climate')
-                ->label('Preferred Climate')
-                ->maxLength(255),
+            Textarea::make('preferences')
+                ->label('Preferences (JSON or text)')
+                ->rows(4),
         ]);
     }
 
@@ -52,8 +42,6 @@ class PreferenceProfileResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('name')->searchable()->sortable(),
-                TextColumn::make('budget')->sortable(),
-                TextColumn::make('preferred_climate')->label('Climate'),
                 TextColumn::make('created_at')->dateTime()->sortable(),
             ])
             ->recordActions([
@@ -75,9 +63,9 @@ class PreferenceProfileResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index'  => Pages\ListPreferenceProfiles::route('/'),
-            'create' => Pages\CreatePreferenceProfile::route('/create'),
-            'edit'   => Pages\EditPreferenceProfile::route('/{record}/edit'),
+            'index' => Pages\ListPreferenceProfiles::route('/'),
+            // Creation is handled in Traveler relation manager
+            'edit'  => Pages\EditPreferenceProfile::route('/{record}/edit'),
         ];
     }
 }

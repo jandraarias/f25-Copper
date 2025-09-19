@@ -1,72 +1,43 @@
-<?php
-
-namespace App\Filament\Resources;
-
-use App\Filament\Resources\Preferences\Pages;
-use App\Models\Preference;
-use BackedEnum;
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteAction;
-use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\EditAction;
+use Filament\Forms\Form;
 use Filament\Forms\Components\TextInput;
-use Filament\Resources\Resource;
-use Filament\Schemas\Schema;
 use Filament\Tables;
+use Filament\Tables\Table;
 use Filament\Tables\Columns\TextColumn;
 
 class PreferenceResource extends Resource
 {
     protected static ?string $model = Preference::class;
 
-    // Match Filament v4 base: BackedEnum|string|null
-    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-adjustments-horizontal';
+    protected static ?string $navigationIcon = 'heroicon-o-adjustments-horizontal';
 
-    protected static ?string $recordTitleAttribute = 'name';
-
-    public static function form(Schema $schema): Schema
+    public static function form(Form $form): Form
     {
-        return $schema->schema([
-            TextInput::make('name')
+        return $form->schema([
+            TextInput::make('key')
                 ->required()
                 ->maxLength(255),
 
             TextInput::make('value')
-                ->label('Value')
+                ->required()
                 ->maxLength(255),
         ]);
     }
 
-    public static function table(Tables\Table $table): Tables\Table
+    public static function table(Table $table): Table
     {
         return $table
             ->columns([
-                TextColumn::make('name')->searchable()->sortable(),
-                TextColumn::make('value')->label('Value')->sortable(),
-                TextColumn::make('created_at')->dateTime()->sortable(),
+                TextColumn::make('key')->searchable(),
+                TextColumn::make('value')->searchable(),
+                TextColumn::make('preferenceProfile.name')->label('Profile'),
             ])
-            ->recordActions([
-                EditAction::make(),
-                DeleteAction::make(),
+            ->filters([])
+            ->actions([
+                Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
             ])
-            ->toolbarActions([
-                BulkActionGroup::make([
-                    DeleteBulkAction::make(),
-                ]),
+            ->bulkActions([
+                Tables\Actions\DeleteBulkAction::make(),
             ]);
-    }
-
-    public static function getRelations(): array
-    {
-        return [];
-    }
-
-    public static function getPages(): array
-    {
-        return [
-            'index'  => Pages\ListPreferences::route('/'),
-            'create' => Pages\CreatePreference::route('/create'),
-            'edit'   => Pages\EditPreference::route('/{record}/edit'),
-        ];
     }
 }

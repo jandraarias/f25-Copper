@@ -21,6 +21,7 @@ class ItineraryResource extends Resource
 {
     protected static ?string $model = Itinerary::class;
 
+    // Keep the same union type shape we used elsewhere.
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-map';
 
     protected static ?string $recordTitleAttribute = 'name';
@@ -33,20 +34,17 @@ class ItineraryResource extends Resource
                 ->maxLength(255),
 
             Textarea::make('description')
-                ->columnSpanFull(),
+                ->rows(3),
 
-            DatePicker::make('start_date')
-                ->label('Start Date')
-                ->required(),
-
-            DatePicker::make('end_date')
-                ->label('End Date')
-                ->required(),
+            DatePicker::make('start_date')->required(),
+            DatePicker::make('end_date')->required(),
 
             TextInput::make('country')
-                ->maxLength(255),
+                ->required()
+                ->maxLength(100),
 
             TextInput::make('location')
+                ->required()
                 ->maxLength(255),
         ]);
     }
@@ -56,10 +54,10 @@ class ItineraryResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('name')->searchable()->sortable(),
-                TextColumn::make('country')->sortable(),
-                TextColumn::make('location')->sortable(),
-                TextColumn::make('start_date')->date()->sortable(),
-                TextColumn::make('end_date')->date()->sortable(),
+                TextColumn::make('start_date')->date(),
+                TextColumn::make('end_date')->date(),
+                TextColumn::make('country'),
+                TextColumn::make('location'),
                 TextColumn::make('created_at')->dateTime()->sortable(),
             ])
             ->recordActions([
@@ -76,16 +74,16 @@ class ItineraryResource extends Resource
     public static function getRelations(): array
     {
         return [
-            // add relation managers later
+            // e.g., RelationManagers\ItemsRelationManager::class,
         ];
     }
 
     public static function getPages(): array
     {
         return [
-            'index'  => Pages\ListItineraries::route('/'),
-            'create' => Pages\CreateItinerary::route('/create'),
-            'edit'   => Pages\EditItinerary::route('/{record}/edit'),
+            'index' => Pages\ListItineraries::route('/'),
+            // no standalone create page (creation happens under Traveler relation manager)
+            'edit'  => Pages\EditItinerary::route('/{record}/edit'),
         ];
     }
 }
