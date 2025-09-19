@@ -9,9 +9,8 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables;
@@ -28,17 +27,23 @@ class PreferenceProfileResource extends Resource
     public static function form(Schema $schema): Schema
     {
         return $schema->schema([
-            TextInput::make('name')->required()->maxLength(255),
-            TextInput::make('budget')->numeric()->suffix('$'),
-            Textarea::make('interests')->label('Interests (JSON or comma separated)')->columnSpanFull(),
-            Select::make('preferred_climate')
-                ->options([
-                    'warm' => 'Warm',
-                    'cold' => 'Cold',
-                    'temperate' => 'Temperate',
-                ])
+            TextInput::make('name')
+                ->required()
+                ->maxLength(255),
+
+            TextInput::make('budget')
+                ->numeric()
+                ->label('Budget'),
+
+            // Your model casts `interests` to array; keeping Textarea for now.
+            // Later you can swap this to TagsInput or KeyValue if you prefer structured input.
+            Textarea::make('interests')
+                ->label('Interests')
+                ->columnSpanFull(),
+
+            TextInput::make('preferred_climate')
                 ->label('Preferred Climate')
-                ->nullable(),
+                ->maxLength(255),
         ]);
     }
 
@@ -48,7 +53,7 @@ class PreferenceProfileResource extends Resource
             ->columns([
                 TextColumn::make('name')->searchable()->sortable(),
                 TextColumn::make('budget')->sortable(),
-                TextColumn::make('preferred_climate')->sortable(),
+                TextColumn::make('preferred_climate')->label('Climate'),
                 TextColumn::make('created_at')->dateTime()->sortable(),
             ])
             ->recordActions([
