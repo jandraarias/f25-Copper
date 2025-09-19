@@ -1,50 +1,73 @@
 <?php
 
-namespace App\Filament\Resources\ItineraryItems;
+namespace App\Filament\Resources;
 
-use App\Filament\Resources\ItineraryItems\Pages\CreateItineraryItem;
-use App\Filament\Resources\ItineraryItems\Pages\EditItineraryItem;
-use App\Filament\Resources\ItineraryItems\Pages\ListItineraryItems;
-use App\Filament\Resources\ItineraryItems\Schemas\ItineraryItemForm;
-use App\Filament\Resources\ItineraryItems\Tables\ItineraryItemsTable;
+use App\Filament\Resources\ItineraryItems\Pages;
 use App\Models\ItineraryItem;
 use BackedEnum;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
-use Filament\Support\Icons\Heroicon;
-use Filament\Tables\Table;
+use Filament\Tables;
+use Filament\Tables\Columns\TextColumn;
 
 class ItineraryItemResource extends Resource
 {
     protected static ?string $model = ItineraryItem::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-rectangle-stack';
 
     protected static ?string $recordTitleAttribute = 'name';
 
     public static function form(Schema $schema): Schema
     {
-        return ItineraryItemForm::configure($schema);
+        return $schema->schema([
+            TextInput::make('name')->required()->maxLength(255),
+            Textarea::make('description')->columnSpanFull(),
+            DatePicker::make('start_time')->label('Start Time'),
+            DatePicker::make('end_time')->label('End Time'),
+            TextInput::make('location')->maxLength(255),
+        ]);
     }
 
-    public static function table(Table $table): Table
+    public static function table(Tables\Table $table): Tables\Table
     {
-        return ItineraryItemsTable::configure($table);
+        return $table
+            ->columns([
+                TextColumn::make('name')->searchable()->sortable(),
+                TextColumn::make('location')->sortable(),
+                TextColumn::make('start_time')->dateTime(),
+                TextColumn::make('end_time')->dateTime(),
+                TextColumn::make('created_at')->dateTime()->sortable(),
+            ])
+            ->recordActions([
+                EditAction::make(),
+                DeleteAction::make(),
+            ])
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
+                ]),
+            ]);
     }
 
     public static function getRelations(): array
     {
-        return [
-            //
-        ];
+        return [];
     }
 
     public static function getPages(): array
     {
         return [
-            'index' => ListItineraryItems::route('/'),
-            'create' => CreateItineraryItem::route('/create'),
-            'edit' => EditItineraryItem::route('/{record}/edit'),
+            'index'  => Pages\ListItineraryItems::route('/'),
+            'create' => Pages\CreateItineraryItem::route('/create'),
+            'edit'   => Pages\EditItineraryItem::route('/{record}/edit'),
         ];
     }
 }

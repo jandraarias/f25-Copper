@@ -2,7 +2,7 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\TravelerResource\Pages;
+use App\Filament\Resources\Travelers\Pages;
 use App\Models\Traveler;
 use BackedEnum;
 use Filament\Actions\BulkActionGroup;
