@@ -2,28 +2,20 @@
 
 namespace Database\Factories;
 
-use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Str;
 use App\Models\Preference;
+use App\Models\PreferenceProfile;
+use Illuminate\Database\Eloquent\Factories\Factory;
 
 class PreferenceFactory extends Factory
 {
-    /**
-     * The name of the factory's corresponding model.
-     *
-     * @var string
-     */
     protected $model = Preference::class;
 
-    /**
-     * Define the model's default state.
-     */
     public function definition(): array
     {
         return [
-            'name' => fake()->name(),
-            'type' => fake()->word(),
-            'category' => fake()->word(),
+            'preference_profile_id' => PreferenceProfile::factory(),
+            'key' => $this->faker->word(),
+            'value' => $this->faker->word(),
         ];
     }
 }
