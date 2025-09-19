@@ -3,7 +3,6 @@
 namespace Database\Factories;
 
 use App\Models\Preference;
-use App\Models\PreferenceProfile;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class PreferenceFactory extends Factory
@@ -13,8 +12,8 @@ class PreferenceFactory extends Factory
     public function definition(): array
     {
         return [
-            'preference_profile_id' => PreferenceProfile::factory(),
-            'key' => $this->faker->word(),
+            'preference_profile_id' => null, // seeder will override
+            'key' => $this->faker->unique()->word(),
             'value' => $this->faker->word(),
         ];
     }

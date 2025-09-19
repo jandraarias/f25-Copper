@@ -16,7 +16,7 @@ class ItineraryItemFactory extends Factory
         $end = (clone $start)->modify('+2 hours');
 
         return [
-            'itinerary_id' => Itinerary::factory(),
+            'itinerary_id' => null, // seeder will fill this in
             'type' => $this->faker->randomElement(['Flight', 'Hotel', 'Activity']),
             'title' => $this->faker->sentence(3),
             'start_time' => $start,

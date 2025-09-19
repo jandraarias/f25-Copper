@@ -59,6 +59,7 @@ namespace App\Models{
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Itinerary $itinerary
+ * @method static \Database\Factories\ItineraryItemFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ItineraryItem newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ItineraryItem newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ItineraryItem query()

@@ -2,42 +2,52 @@
 
 namespace Database\Seeders;
 
-use App\Models\Traveler;
-use App\Models\Itinerary;
-use App\Models\ItineraryItem;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
+
+use Database\Factories\TravelerFactory;
+use Database\Factories\ItineraryFactory;
+use Database\Factories\ItineraryItemFactory;
+use Database\Factories\PreferenceProfileFactory;
+use Database\Factories\PreferenceFactory;
 
 class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        // Create an admin user for Filament login
+        // Admin user
         \App\Models\User::query()->updateOrCreate(
             ['email' => 'admin@example.com'],
             [
                 'name' => 'Admin User',
-                'password' => Hash::make('password'), // change in production
+                'password' => Hash::make('password'),
             ]
         );
 
-        // Seed a few Travelers
-        $travelers = Traveler::factory()->count(3)->create([
-            // override if your factory doesn’t have email/name
-        ]);
+        // Travelers
+        $travelers = TravelerFactory::new()->count(3)->create();
 
-        $travelers->each(function (Traveler $traveler) {
-            // Each Traveler gets 1–2 Itineraries
-            $itineraries = Itinerary::factory()->count(rand(1, 2))->create([
+        foreach ($travelers as $traveler) {
+            // Force exactly 2 itineraries per traveler
+            $itineraries = ItineraryFactory::new()->count(2)->create([
                 'traveler_id' => $traveler->id,
             ]);
 
-            $itineraries->each(function (Itinerary $itinerary) {
-                // Each Itinerary gets 2–4 Itinerary Items
-                ItineraryItem::factory()->count(rand(2, 4))->create([
+            foreach ($itineraries as $itinerary) {
+                // Force exactly 3 items per itinerary
+                ItineraryItemFactory::new()->count(3)->create([
                     'itinerary_id' => $itinerary->id,
                 ]);
-            });
-        });
+            }
+        }
+
+        // Preference profiles
+        $profiles = PreferenceProfileFactory::new()->count(2)->create();
+
+        foreach ($profiles as $profile) {
+            PreferenceFactory::new()->count(3)->create([
+                'preference_profile_id' => $profile->id,
+            ]);
+        }
     }
 }

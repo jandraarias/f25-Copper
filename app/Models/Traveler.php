@@ -28,4 +28,10 @@ class Traveler extends Model
     {
         return $this->hasMany(Itinerary::class);
     }
+
+    protected static function newFactory()
+    {
+        return \Database\Factories\TravelerFactory::new();
+    }
+
 }

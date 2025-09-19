@@ -16,7 +16,7 @@ class ItineraryFactory extends Factory
         $end = (clone $start)->modify('+1 week');
 
         return [
-            'traveler_id' => Traveler::factory(),
+            'traveler_id' => null, // seeder will fill this in
             'name' => $this->faker->words(3, true),
             'description' => $this->faker->sentence(12),
             'start_date' => $start,
