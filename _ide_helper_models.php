@@ -52,8 +52,8 @@ namespace App\Models{
  * @property int $itinerary_id
  * @property string $type
  * @property string $title
- * @property string|null $start_time
- * @property string|null $end_time
+ * @property \Illuminate\Support\Carbon|null $start_time
+ * @property \Illuminate\Support\Carbon|null $end_time
  * @property string|null $location
  * @property string|null $details
  * @property \Illuminate\Support\Carbon|null $created_at
@@ -135,20 +135,18 @@ namespace App\Models{
  * @mixin IdeHelperTraveler
  * @property int $id
  * @property string $name
- * @property string $date_of_birth
+ * @property \Illuminate\Support\Carbon $date_of_birth
  * @property string $phone_number
  * @property string $email
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property string|null $bio
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Itinerary> $itineraries
  * @property-read int|null $itineraries_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PreferenceProfile> $preferenceProfiles
- * @property-read int|null $preference_profiles_count
- * @property-read \App\Models\User|null $user
- * @method static \Database\Factories\TravelerFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Traveler newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Traveler newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Traveler query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Traveler whereBio($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Traveler whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Traveler whereDateOfBirth($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Traveler whereEmail($value)

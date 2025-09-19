@@ -14,37 +14,50 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
-use Filament\Tables;
+use Filament\Tables\Table;
 use Filament\Tables\Columns\TextColumn;
 
 class TravelerResource extends Resource
 {
     protected static ?string $model = Traveler::class;
 
-    // Note: property type matches Filament v4 base class.
-    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-user-group';
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-user';
 
     protected static ?string $recordTitleAttribute = 'name';
 
     public static function form(Schema $schema): Schema
     {
-        return $schema->schema([
-            TextInput::make('name')->required()->maxLength(255),
-            TextInput::make('email')->email()->required()->maxLength(255),
-            DatePicker::make('date_of_birth')->label('Date of Birth'),
-            TextInput::make('phone_number')->label('Phone')->tel()->maxLength(20),
-            Textarea::make('bio')->label('Biography')->columnSpanFull(),
+        return $schema->components([
+            TextInput::make('name')
+                ->required()
+                ->maxLength(255),
+
+            TextInput::make('email')
+                ->email()
+                ->required()
+                ->maxLength(255),
+
+            DatePicker::make('date_of_birth')
+                ->label('Date of Birth'),
+
+            TextInput::make('phone_number')
+                ->label('Phone Number')
+                ->maxLength(50),
+
+            Textarea::make('bio')
+                ->label('Bio')
+                ->rows(3),
         ]);
     }
 
-    public static function table(Tables\Table $table): Tables\Table
+    public static function table(Table $table): Table
     {
         return $table
             ->columns([
-                TextColumn::make('name')->searchable()->sortable(),
-                TextColumn::make('email')->searchable()->sortable(),
+                TextColumn::make('name')->sortable()->searchable(),
+                TextColumn::make('email')->sortable()->searchable(),
                 TextColumn::make('date_of_birth')->date(),
-                TextColumn::make('phone_number')->label('Phone'),
+                TextColumn::make('phone_number'),
                 TextColumn::make('created_at')->dateTime()->sortable(),
             ])
             ->recordActions([
@@ -53,7 +66,7 @@ class TravelerResource extends Resource
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make(), // prebuilt bulk delete action
+                    DeleteBulkAction::make(),
                 ]),
             ]);
     }

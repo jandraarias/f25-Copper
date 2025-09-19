@@ -10,52 +10,62 @@ use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
-use Filament\Tables;
+use Filament\Tables\Table;
 use Filament\Tables\Columns\TextColumn;
 
 class ItineraryResource extends Resource
 {
     protected static ?string $model = Itinerary::class;
 
-    // Keep the same union type shape we used elsewhere.
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-map';
 
     protected static ?string $recordTitleAttribute = 'name';
 
     public static function form(Schema $schema): Schema
     {
-        return $schema->schema([
+        return $schema->components([
+            // required foreign key
+            Select::make('traveler_id')
+                ->relationship('traveler', 'name')
+                ->required()
+                ->label('Traveler'),
+
             TextInput::make('name')
                 ->required()
                 ->maxLength(255),
 
             Textarea::make('description')
-                ->rows(3),
+                ->columnSpanFull(),
 
-            DatePicker::make('start_date')->required(),
-            DatePicker::make('end_date')->required(),
+            DatePicker::make('start_date')
+                ->label('Start Date')
+                ->required(),
+
+            DatePicker::make('end_date')
+                ->label('End Date')
+                ->required(),
 
             TextInput::make('country')
-                ->required()
-                ->maxLength(100),
+                ->maxLength(255),
 
             TextInput::make('location')
-                ->required()
                 ->maxLength(255),
         ]);
     }
 
-    public static function table(Tables\Table $table): Tables\Table
+    public static function table(Table $table): Table
     {
         return $table
             ->columns([
-                TextColumn::make('name')->searchable()->sortable(),
-                TextColumn::make('start_date')->date(),
-                TextColumn::make('end_date')->date(),
+                TextColumn::make('name')->sortable()->searchable(),
+                TextColumn::make('traveler.name')->label('Traveler'),
+                TextColumn::make('start_date')->date()->sortable(),
+                TextColumn::make('end_date')->date()->sortable(),
                 TextColumn::make('country'),
                 TextColumn::make('location'),
                 TextColumn::make('created_at')->dateTime()->sortable(),
@@ -73,17 +83,15 @@ class ItineraryResource extends Resource
 
     public static function getRelations(): array
     {
-        return [
-            // e.g., RelationManagers\ItemsRelationManager::class,
-        ];
+        return [];
     }
 
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListItineraries::route('/'),
-            // no standalone create page (creation happens under Traveler relation manager)
-            'edit'  => Pages\EditItinerary::route('/{record}/edit'),
+            'index'  => Pages\ListItineraries::route('/'),
+            'create' => Pages\CreateItinerary::route('/create'),
+            'edit'   => Pages\EditItinerary::route('/{record}/edit'),
         ];
     }
 }

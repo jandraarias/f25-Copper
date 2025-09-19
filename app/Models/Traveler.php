@@ -12,35 +12,20 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  */
 class Traveler extends Model
 {
-    use HasFactory;
-
     protected $fillable = [
-        'user_id',
-        'phone',
-        'dob',
-        'country',
+        'name',
+        'email',
+        'date_of_birth',
+        'phone_number',
         'bio',
     ];
 
     protected $casts = [
-        'id' => 'integer',
-        'user_id' => 'integer',
-        'dob' => 'date',
+        'date_of_birth' => 'date',
     ];
-
-    public function user(): BelongsTo
-    {
-        return $this->belongsTo(User::class);
-    }
 
     public function itineraries()
     {
         return $this->hasMany(Itinerary::class);
     }
-
-    public function preferenceProfiles()
-    {
-        return $this->hasMany(PreferenceProfile::class);
-    }
-
 }

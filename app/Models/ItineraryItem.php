@@ -15,18 +15,19 @@ class ItineraryItem extends Model
 
     protected $fillable = [
         'itinerary_id',
+        'type',
         'title',
-        'description',
-        'date',
-        'time',
+        'start_time',
+        'end_time',
         'location',
+        'details',
     ];
 
     protected $casts = [
         'id' => 'integer',
         'itinerary_id' => 'integer',
-        'date' => 'date',
-        'time' => 'datetime:H:i',
+        'start_time' => 'datetime',
+        'end_time' => 'datetime',
     ];
 
     public function itinerary(): BelongsTo
