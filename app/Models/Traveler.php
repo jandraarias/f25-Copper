@@ -16,6 +16,7 @@ class Traveler extends Model
      * @var array
      */
     protected $fillable = [
+        'user_id',
         'name',
         'date_of_birth',
         'phone_number',
@@ -40,8 +41,13 @@ class Traveler extends Model
         return $this->hasMany(Itinerary::class);
     }
 
-    public function preferenceprofiles(): HasMany
+    public function preferenceProfile()
     {
-        return $this->hasMany(Preferenceprofile::class);
+        return $this->hasOne(PreferenceProfile::class);
+    }
+    
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 }
