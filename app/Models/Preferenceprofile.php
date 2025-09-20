@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Preferenceprofile extends Model
 {
@@ -38,8 +39,13 @@ class Preferenceprofile extends Model
         return $this->belongsTo(Traveler::class);
     }
 
-    public function preferences(): HasMany
+    public function preferences(): BelongsToMany
     {
-        return $this->hasMany(Preference::class);
+        return $this->belongsToMany(
+            Preference::class,
+            'preference_preference_profile',
+            'preference_profile_id', // foreign key for this model in pivot table
+            'preference_id'          // foreign key for related model in pivot table
+        );
     }
 }

@@ -35,6 +35,11 @@ class Preference extends Model
 
     public function preferenceProfiles(): BelongsToMany
     {
-        return $this->belongsToMany(PreferenceProfile::class);
+        return $this->belongsToMany(
+            PreferenceProfile::class,
+            'preference_preference_profile',
+            'preference_id',         // foreign key for this model in pivot table
+            'preference_profile_id'  // foreign key for related model in pivot table
+        );
     }
 }
