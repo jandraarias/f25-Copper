@@ -1,73 +1,65 @@
 <?php
 
-namespace App\Filament\Resources\Itineraries;
+namespace App\Filament\Resources;
 
-use App\Filament\Resources\Itineraries\Pages;
 use App\Models\Itinerary;
-use BackedEnum;
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteAction;
-use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\EditAction;
-use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Textarea;
-use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
-use Filament\Tables\Table;
+use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Textarea;
+use Filament\Actions\EditAction;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
+
+// ✅ Point to plural namespace
+use App\Filament\Resources\Itineraries\Pages as ItinerariesPages;
 
 class ItineraryResource extends Resource
 {
     protected static ?string $model = Itinerary::class;
 
-    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-map';
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-map';
 
-    protected static ?string $recordTitleAttribute = 'name';
+    protected static ?string $recordTitleAttribute = 'title';
 
     public static function form(Schema $schema): Schema
     {
-        return $schema->components([
-            // required foreign key
-            Select::make('traveler_id')
-                ->relationship('traveler', 'name')
-                ->required()
-                ->label('Traveler'),
-
-            TextInput::make('name')
+        return $schema->schema([
+            TextInput::make('title')
                 ->required()
                 ->maxLength(255),
 
             Textarea::make('description')
-                ->columnSpanFull(),
+                ->label('Description')
+                ->rows(3),
 
-            DatePicker::make('start_date')
+            TextInput::make('destination')
+                ->label('Destination')
+                ->maxLength(255),
+
+            TextInput::make('start_date')
                 ->label('Start Date')
-                ->required(),
+                ->type('date'),
 
-            DatePicker::make('end_date')
+            TextInput::make('end_date')
                 ->label('End Date')
-                ->required(),
-
-            TextInput::make('country')
-                ->maxLength(255),
-
-            TextInput::make('location')
-                ->maxLength(255),
+                ->type('date'),
         ]);
     }
 
-    public static function table(Table $table): Table
+    public static function table(Tables\Table $table): Tables\Table
     {
         return $table
             ->columns([
-                TextColumn::make('name')->sortable()->searchable(),
-                TextColumn::make('traveler.name')->label('Traveler'),
+                TextColumn::make('title')->searchable()->sortable(),
+                TextColumn::make('destination')->sortable(),
                 TextColumn::make('start_date')->date()->sortable(),
                 TextColumn::make('end_date')->date()->sortable(),
-                TextColumn::make('country'),
-                TextColumn::make('location'),
                 TextColumn::make('created_at')->dateTime()->sortable(),
             ])
             ->recordActions([
@@ -83,15 +75,27 @@ class ItineraryResource extends Resource
 
     public static function getRelations(): array
     {
-        return [];
+        return [
+            // You could add ItineraryItems relation manager here if desired
+        ];
     }
 
     public static function getPages(): array
     {
         return [
-            'index'  => Pages\ListItineraries::route('/'),
-            'create' => Pages\CreateItinerary::route('/create'),
-            'edit'   => Pages\EditItinerary::route('/{record}/edit'),
+            'index'  => ItinerariesPages\ListItineraries::route('/'),
+            'create' => ItinerariesPages\CreateItinerary::route('/create'),
+            'edit'   => ItinerariesPages\EditItinerary::route('/{record}/edit'),
         ];
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        $travelerId = Auth::user()?->traveler?->id;
+
+        return parent::getEloquentQuery()
+            ->when($travelerId, fn (Builder $q) =>
+                $q->where('traveler_id', $travelerId)
+            );
     }
 }
