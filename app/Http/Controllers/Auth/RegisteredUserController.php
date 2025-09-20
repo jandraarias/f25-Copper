@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Models\Traveler;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
@@ -35,9 +36,11 @@ class RegisteredUserController extends Controller
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
             'role' => ['required', 'in:traveler,expert,business,admin'],
+            'date_of_birth' => ['required', 'date'],
+            'phone_number' => ['required', 'string', 'max:20'],
         ]);
 
-        // 🔒 Prevent public users from self-registering as Admin
+        // Prevent non-admins from registering as admin
         if ($request->role === 'admin' && (!Auth::check() || Auth::user()->role !== 'admin')) {
             abort(403, 'Unauthorized action.');
         }
@@ -49,8 +52,19 @@ class RegisteredUserController extends Controller
             'role' => $request->role,
         ]);
 
-        event(new Registered($user));
+        // 🔹 If user is a traveler, also create a Traveler profile
+        if ($user->role === 'traveler') {
+            \App\Models\Traveler::create([
+                'user_id'       => $user->id,
+                'name'          => $user->name,
+                'email'         => $user->email,
+                'bio'           => null,
+                'date_of_birth' => $request->date_of_birth,
+                'phone_number'  => $request->phone_number,
+            ]);
+        }
 
+        event(new Registered($user));
         Auth::login($user);
 
         return redirect()->intended(RouteServiceProvider::redirectTo());

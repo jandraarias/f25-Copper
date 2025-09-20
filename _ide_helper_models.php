@@ -142,8 +142,12 @@ namespace App\Models{
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property string|null $bio
+ * @property int $user_id
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Itinerary> $itineraries
  * @property-read int|null $itineraries_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PreferenceProfile> $preferenceProfiles
+ * @property-read int|null $preference_profiles_count
+ * @property-read \App\Models\User $user
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Traveler newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Traveler newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Traveler query()
@@ -155,6 +159,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Traveler whereName($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Traveler wherePhoneNumber($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Traveler whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Traveler whereUserId($value)
  */
 	class Traveler extends \Eloquent {}
 }

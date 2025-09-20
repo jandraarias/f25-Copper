@@ -2,12 +2,17 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class TravelerController extends Controller
 {
     public function index()
     {
-        return view('traveler.dashboard');
+        $traveler = Auth::user()
+            ->traveler()
+            ->with(['itineraries.items', 'preferenceProfiles.preferences'])
+            ->first();
+
+        return view('traveler.dashboard', compact('traveler'));
     }
 }

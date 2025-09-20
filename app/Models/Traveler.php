@@ -13,12 +13,18 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Traveler extends Model
 {
     protected $fillable = [
+        'user_id',
         'name',
         'email',
         'date_of_birth',
         'phone_number',
         'bio',
     ];
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
 
     protected $casts = [
         'date_of_birth' => 'date',
@@ -32,6 +38,11 @@ class Traveler extends Model
     protected static function newFactory()
     {
         return \Database\Factories\TravelerFactory::new();
+    }
+
+        public function preferenceProfiles()
+    {
+        return $this->hasMany(\App\Models\PreferenceProfile::class);
     }
 
 }
