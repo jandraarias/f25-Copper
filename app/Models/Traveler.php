@@ -43,11 +43,12 @@ class Traveler extends Model
 
     public function preferenceProfile()
     {
-        return $this->hasOne(Preferenceprofile::class);
+        return $this->hasOne(Preference[rofile::class);
     }
     
     public function user()
     {
         return $this->belongsTo(User::class);
     }
+	
 }
