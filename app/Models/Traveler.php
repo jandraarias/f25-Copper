@@ -43,7 +43,7 @@ class Traveler extends Model
 
     public function preferenceProfile()
     {
-        return $this->hasOne(PreferenceProfile::class);
+        return $this->hasOne(Preferenceprofile::class);
     }
     
     public function user()
