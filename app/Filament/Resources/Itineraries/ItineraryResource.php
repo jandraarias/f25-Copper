@@ -93,6 +93,11 @@ class ItineraryResource extends Resource
                         $record->save();
                         Notification::make()->title('Share link disabled')->success()->send();
                     }),
+                Action::make('pdf')
+                    ->label('Export PDF')
+                    ->icon('heroicon-m-arrow-down-tray')
+                    ->url(fn (Itinerary $record) => route('itineraries.pdf', $record))
+                    ->openUrlInNewTab(),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

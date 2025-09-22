@@ -17,10 +17,10 @@ use App\Policies\PreferencePolicy;
 class AuthServiceProvider extends ServiceProvider
 {
     protected $policies = [
-        Itinerary::class         => ItineraryPolicy::class,
-        ItineraryItem::class     => ItineraryItemPolicy::class,
-        PreferenceProfile::class => PreferenceProfilePolicy::class,
-        Preference::class        => PreferencePolicy::class,
+        \App\Models\Itinerary::class         => \App\Policies\ItineraryPolicy::class,
+        \App\Models\ItineraryItem::class     => \App\Policies\ItineraryItemPolicy::class,
+        \App\Models\PreferenceProfile::class => \App\Policies\PreferenceProfilePolicy::class,
+        \App\Models\Preference::class        => \App\Policies\PreferencePolicy::class,
     ];
 
     public function boot(): void

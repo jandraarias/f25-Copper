@@ -2,8 +2,8 @@
 
 namespace App\Policies;
 
-use App\Models\User;
 use App\Models\Itinerary;
+use App\Models\User;
 
 class ItineraryPolicy
 {
@@ -15,7 +15,6 @@ class ItineraryPolicy
 
     public function viewAny(User $user): bool
     {
-        // Travelers can view their own itineraries (index is further scoped in Resource).
         return in_array($user->role, ['admin', 'traveler'], true);
     }
 
@@ -26,7 +25,6 @@ class ItineraryPolicy
 
     public function create(User $user): bool
     {
-        // Travelers can create their own itineraries.
         return in_array($user->role, ['admin', 'traveler'], true) && (bool) $user->traveler;
     }
 

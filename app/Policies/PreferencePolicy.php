@@ -2,8 +2,8 @@
 
 namespace App\Policies;
 
-use App\Models\User;
 use App\Models\Preference;
+use App\Models\User;
 
 class PreferencePolicy
 {

@@ -2,8 +2,8 @@
 
 namespace App\Policies;
 
-use App\Models\User;
 use App\Models\ItineraryItem;
+use App\Models\User;
 
 class ItineraryItemPolicy
 {
@@ -19,6 +19,7 @@ class ItineraryItemPolicy
 
     public function view(User $user, ItineraryItem $item): bool
     {
+        // Assumes $item->itinerary relation exists
         return $user->traveler && $item->itinerary?->traveler_id === $user->traveler->id;
     }
 
