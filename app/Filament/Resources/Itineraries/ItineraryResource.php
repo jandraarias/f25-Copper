@@ -3,8 +3,9 @@
 namespace App\Filament\Resources\Itineraries;
 
 use App\Models\Itinerary;
-use Filament\Resources\Resource;
 use App\Filament\Resources\Itineraries\RelationManagers\ItineraryItemsRelationManager;
+use Filament\Resources\Resource;
+use Filament\Actions\Action;
 use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
@@ -16,6 +17,8 @@ use Filament\Actions\EditAction;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
+use Illuminate\Support\Str;
+use Filament\Notifications\Notification;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 
@@ -67,6 +70,29 @@ class ItineraryResource extends Resource
             ->recordActions([
                 EditAction::make(),
                 DeleteAction::make(),
+                // (keep Duplicate from step 1)
+                Action::make('share')
+                    ->label('Share link')
+                    ->icon('heroicon-m-link')
+                    ->action(function (Itinerary $record) {
+                        if (!$record->public_uuid) {
+                            $record->public_uuid = (string) Str::uuid();
+                            $record->save();
+                        }
+                        $url = route('public.itinerary.show', ['uuid' => $record->public_uuid]);
+                        Notification::make()->title('Share link ready')->body($url)->success()->send();
+                    }),
+                Action::make('unshare')
+                    ->label('Disable link')
+                    ->icon('heroicon-m-no-symbol')
+                    ->color('danger')
+                    ->requiresConfirmation()
+                    ->visible(fn (Itinerary $record) => filled($record->public_uuid))
+                    ->action(function (Itinerary $record) {
+                        $record->public_uuid = null;
+                        $record->save();
+                        Notification::make()->title('Share link disabled')->success()->send();
+                    }),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

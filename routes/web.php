@@ -8,6 +8,11 @@ use App\Http\Controllers\ExpertController;
 use App\Http\Controllers\BusinessController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\Admin\UserManagementController;
+use App\Http\Controllers\PublicItineraryController;
+use App\Http\Controllers\ItineraryPdfController;
+
+Route::get('/i/{uuid}', [PublicItineraryController::class, 'show'])
+    ->name('public.itinerary.show');
 
 Route::get('/', function () {
     if (Auth::check()) {
@@ -63,6 +68,10 @@ Route::middleware(['auth', 'role:business'])->group(function () {
 Route::middleware(['auth', 'role:traveler'])->group(function () {
     Route::get('/traveler/dashboard', [TravelerController::class, 'index'])->name('traveler.dashboard');
 });
+
+Route::get('/itineraries/{itinerary}/pdf', ItineraryPdfController::class)
+    ->middleware(['web', 'auth'])
+    ->name('itineraries.pdf');
 
 // Breeze authentication routes
 require __DIR__.'/auth.php';
