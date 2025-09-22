@@ -2,52 +2,66 @@
 
 namespace App\Filament\Resources\PreferenceProfiles;
 
-use App\Filament\Resources\PreferenceProfiles\Pages;
 use App\Models\PreferenceProfile;
-use BackedEnum;
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteAction;
-use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\EditAction;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Textarea;
-use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\TagsInput;
+use Filament\Forms\Components\Hidden;
+use Filament\Actions\EditAction;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
+
+use App\Filament\Resources\PreferenceProfiles\Pages as PreferenceProfilesPages;
 
 class PreferenceProfileResource extends Resource
 {
     protected static ?string $model = PreferenceProfile::class;
 
-    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-adjustments-vertical';
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-user-circle';
 
     protected static ?string $recordTitleAttribute = 'name';
 
     public static function form(Schema $schema): Schema
     {
         return $schema->schema([
-            Select::make('traveler_id')
-                ->relationship('traveler', 'name')
-                ->required()
-                ->label('Traveler'),
+            // Auto-attach to the signed-in user's traveler record (if present)
+            Hidden::make('traveler_id')
+                ->default(fn () => Auth::user()?->traveler?->id)
+                ->dehydrated(),
 
             TextInput::make('name')
+                ->label('Profile Name')
                 ->required()
                 ->maxLength(255),
 
+            // Keep these flexible to avoid enum mismatches; you can switch to Select later if desired.
             TextInput::make('budget')
-                ->numeric()
-                ->nullable(),
-
-            Textarea::make('interests')
-                ->label('Interests')
-                ->rows(4),
+                ->placeholder('e.g., budget / moderate / luxury')
+                ->maxLength(50),
 
             TextInput::make('preferred_climate')
-                ->maxLength(255)
-                ->nullable(),
+                ->placeholder('e.g., temperate, tropical, arid')
+                ->maxLength(50),
+
+            // Store as JSON string safely even if the model doesn’t define a cast.
+            // If your model casts interests => 'array', this still works (DB holds valid JSON).
+            TagsInput::make('interests')
+                ->placeholder('Add interests…')
+                ->suggestions(['food', 'museums', 'hiking', 'beach', 'nightlife', 'history'])
+                ->separator(',')
+                ->nullable()
+                ->dehydrateStateUsing(function ($state) {
+                    if (is_string($state)) {
+                        return $state; // already a JSON/string (or empty)
+                    }
+                    return $state ? json_encode(array_values((array) $state)) : null;
+                }),
         ]);
     }
 
@@ -55,11 +69,10 @@ class PreferenceProfileResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('traveler.name')->label('Traveler'),
-                TextColumn::make('name')->sortable()->searchable(),
-                TextColumn::make('budget'),
-                TextColumn::make('preferred_climate'),
-                TextColumn::make('created_at')->dateTime()->sortable(),
+                TextColumn::make('name')->searchable()->sortable(),
+                TextColumn::make('budget')->toggleable()->sortable(),
+                TextColumn::make('preferred_climate')->label('Climate')->toggleable()->sortable(),
+                TextColumn::make('created_at')->dateTime()->sortable()->toggleable(),
             ])
             ->recordActions([
                 EditAction::make(),
@@ -75,16 +88,26 @@ class PreferenceProfileResource extends Resource
     public static function getRelations(): array
     {
         return [
-            // Later: add PreferencesRelationManager if needed
+            // You can add a RelationManager here for Preferences if you want inline management.
         ];
     }
 
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListPreferenceProfiles::route('/'),
-            // creation/edit via Traveler relation manager or directly
-            'edit'  => Pages\EditPreferenceProfile::route('/{record}/edit'),
+            'index'  => PreferenceProfilesPages\ListPreferenceProfiles::route('/'),
+            'create' => PreferenceProfilesPages\CreatePreferenceProfile::route('/create'),
+            'edit'   => PreferenceProfilesPages\EditPreferenceProfile::route('/{record}/edit'),
         ];
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        $travelerId = Auth::user()?->traveler?->id;
+
+        return parent::getEloquentQuery()
+            ->when($travelerId, fn (Builder $q) =>
+                $q->where('traveler_id', $travelerId)
+            );
     }
 }

@@ -1,15 +1,13 @@
 <?php
 
-namespace App\Filament\Resources;
+namespace App\Filament\Resources\Preferences;
 
 use App\Models\Preference;
-use App\Models\PreferenceProfile;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\Select;
 use Filament\Actions\EditAction;
 use Filament\Actions\DeleteAction;
@@ -18,7 +16,6 @@ use Filament\Actions\DeleteBulkAction;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 
-// ✅ point to the existing pages namespace (plural)
 use App\Filament\Resources\Preferences\Pages as PreferencesPages;
 
 class PreferenceResource extends Resource
@@ -27,6 +24,7 @@ class PreferenceResource extends Resource
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-adjustments-horizontal';
 
+    // Display the key as the record title
     protected static ?string $recordTitleAttribute = 'key';
 
     public static function form(Schema $schema): Schema
@@ -34,22 +32,25 @@ class PreferenceResource extends Resource
         return $schema->schema([
             Select::make('preference_profile_id')
                 ->label('Profile')
-                ->required()
+                ->relationship(
+                    'preferenceProfile',
+                    'name',
+                    fn (Builder $query) => $query->when(
+                        Auth::user()?->traveler?->id,
+                        fn ($q, $travelerId) => $q->where('traveler_id', $travelerId)
+                    )
+                )
                 ->searchable()
-                ->options(fn () => PreferenceProfile::query()
-                    ->where('traveler_id', Auth::user()?->traveler?->id)
-                    ->orderBy('name')
-                    ->pluck('name', 'id')
-                    ->all()
-                ),
+                ->preload()
+                ->required(),
 
             TextInput::make('key')
                 ->required()
                 ->maxLength(255),
 
-            Textarea::make('value')
-                ->label('Value')
-                ->rows(3),
+            TextInput::make('value')
+                ->required()
+                ->maxLength(255),
         ]);
     }
 
@@ -58,9 +59,9 @@ class PreferenceResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('key')->searchable()->sortable(),
-                TextColumn::make('value')->limit(50),
-                TextColumn::make('preferenceProfile.name')->label('Profile')->sortable(),
-                TextColumn::make('created_at')->dateTime()->sortable(),
+                TextColumn::make('value')->searchable(),
+                TextColumn::make('preferenceProfile.name')->label('Profile')->sortable()->toggleable(),
+                TextColumn::make('created_at')->dateTime()->sortable()->toggleable(),
             ])
             ->recordActions([
                 EditAction::make(),
@@ -75,12 +76,13 @@ class PreferenceResource extends Resource
 
     public static function getRelations(): array
     {
-        return [];
+        return [
+            // Add RelationManagers here if you want inline management from profiles
+        ];
     }
 
     public static function getPages(): array
     {
-        // ✅ now using PreferencesPages\* (plural) which already exist in your project
         return [
             'index'  => PreferencesPages\ListPreferences::route('/'),
             'create' => PreferencesPages\CreatePreference::route('/create'),
