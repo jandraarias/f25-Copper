@@ -1,14 +1,17 @@
 <?php
 
-namespace App\Filament\Resources;
+namespace App\Filament\Resources\Itineraries;
 
 use App\Models\Itinerary;
 use Filament\Resources\Resource;
+use App\Filament\Resources\Itineraries\RelationManagers\ItineraryItemsRelationManager;
 use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Hidden;
 use Filament\Actions\EditAction;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\BulkActionGroup;
@@ -16,7 +19,6 @@ use Filament\Actions\DeleteBulkAction;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 
-// ✅ Point to plural namespace
 use App\Filament\Resources\Itineraries\Pages as ItinerariesPages;
 
 class ItineraryResource extends Resource
@@ -25,30 +27,29 @@ class ItineraryResource extends Resource
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-map';
 
-    protected static ?string $recordTitleAttribute = 'title';
+    protected static ?string $recordTitleAttribute = 'name';
 
     public static function form(Schema $schema): Schema
     {
         return $schema->schema([
-            TextInput::make('title')
+            // Optional: auto-attach to the signed-in traveler
+            Hidden::make('traveler_id')
+                ->default(fn () => Auth::user()?->traveler?->id)
+                ->dehydrated(),
+
+            TextInput::make('name')
+                ->label('Itinerary Name')
                 ->required()
                 ->maxLength(255),
 
             Textarea::make('description')
-                ->label('Description')
                 ->rows(3),
 
-            TextInput::make('destination')
-                ->label('Destination')
-                ->maxLength(255),
+            DatePicker::make('start_date')->required(),
+            DatePicker::make('end_date')->afterOrEqual('start_date'),
 
-            TextInput::make('start_date')
-                ->label('Start Date')
-                ->type('date'),
-
-            TextInput::make('end_date')
-                ->label('End Date')
-                ->type('date'),
+            TextInput::make('country')->maxLength(100),
+            TextInput::make('location')->label('City / Location')->maxLength(100),
         ]);
     }
 
@@ -56,8 +57,9 @@ class ItineraryResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('title')->searchable()->sortable(),
-                TextColumn::make('destination')->sortable(),
+                TextColumn::make('name')->searchable()->sortable(),
+                TextColumn::make('location')->toggleable(),
+                TextColumn::make('country')->toggleable(),
                 TextColumn::make('start_date')->date()->sortable(),
                 TextColumn::make('end_date')->date()->sortable(),
                 TextColumn::make('created_at')->dateTime()->sortable(),
@@ -76,7 +78,7 @@ class ItineraryResource extends Resource
     public static function getRelations(): array
     {
         return [
-            // You could add ItineraryItems relation manager here if desired
+            ItineraryItemsRelationManager::class,
         ];
     }
 
