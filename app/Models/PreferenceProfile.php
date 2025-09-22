@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\Auth;
 
 /**
  * @mixin IdeHelperPreferenceProfile
@@ -36,5 +37,15 @@ class PreferenceProfile extends Model
     public function preferences(): HasMany
     {
         return $this->hasMany(Preference::class);
+    }
+
+    protected static function booted(): void
+    {
+        static::creating(function (self $model): void {
+            $user = Auth::user();
+            if (! $model->traveler_id && $user && $user->traveler) {
+                $model->traveler_id = $user->traveler->id;
+            }
+        });
     }
 }

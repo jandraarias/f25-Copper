@@ -24,6 +24,16 @@ class TravelerPanelProvider extends PanelProvider
                 PreferenceProfileResource::class,
                 PreferenceResource::class,
             ])
+            ->brandName('Itinerease')
+            ->favicon(asset('favicon.ico'))
+            ->colors([
+                'primary' => '#2563EB', // tailwind blue-600
+            ])
+            ->globalSearch(false) // travelers don’t need global search
+            ->navigationGroups([
+                'Trips',
+                'Preferences',
+            ])
             ->middleware([
                 'web',
                 'auth',
