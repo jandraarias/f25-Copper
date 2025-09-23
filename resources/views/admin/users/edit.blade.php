@@ -56,7 +56,7 @@
                                 <input
                                     name="phone_number"
                                     type="tel"
-                                    value="{{ old('phone_number', optional($user->traveler)->phone_number) }}"
+                                    value="{{ old('phone_number', $user->phone_number ?? optional($user->traveler)->phone_number) }}"
                                     class="mt-1 w-full border rounded p-2 dark:bg-gray-900 dark:border-gray-700"
                                     x-bind:required="role !== 'admin'"
                                     x-bind:disabled="role === 'admin'"
@@ -70,7 +70,7 @@
                                 <input
                                     name="date_of_birth"
                                     type="date"
-                                    value="{{ old('date_of_birth', optional($user->traveler)->date_of_birth) }}"
+                                    value="{{ old('date_of_birth', optional($user->date_of_birth ?? optional($user->traveler)->date_of_birth)->format('Y-m-d')) }}"
                                     class="mt-1 w-full border rounded p-2 dark:bg-gray-900 dark:border-gray-700"
                                     x-bind:required="role !== 'business' && role !== 'admin'"
                                     x-bind:disabled="role === 'business' || role === 'admin'"

@@ -37,7 +37,12 @@ class UserManagementController extends Controller
             'role'     => $request->input('role'),
         ]);
 
-        // Persist profile data for Travelers (existing schema)
+        // Persist on users table for ALL roles (respecting your policy)
+        $user->phone_number  = $request->input('phone_number');  // may be null for admin
+        $user->date_of_birth = $request->input('date_of_birth'); // may be null for business/admin
+        $user->save();
+
+        // Also ensure Traveler profile exists/updated if role = traveler
         if ($user->role === 'traveler') {
             Traveler::firstOrCreate(
                 ['user_id' => $user->id],
@@ -48,11 +53,13 @@ class UserManagementController extends Controller
                     'phone_number'  => $request->input('phone_number'),
                     'bio'           => null,
                 ]
-            );
+            )->update([
+                'name'          => $user->name,
+                'email'         => $user->email,
+                'date_of_birth' => $request->input('date_of_birth'),
+                'phone_number'  => $request->input('phone_number'),
+            ]);
         }
-
-        // NOTE: If you want to store phone/DOB for experts/business too,
-        // add columns on `users` (or dedicated profiles) and fill them here.
 
         return redirect()->route('admin.users.index')->with('success', 'User created successfully!');
     }
@@ -95,20 +102,22 @@ class UserManagementController extends Controller
             'date_of_birth' => ['nullable', 'required_unless:role,business,admin', 'date'],
         ]);
 
-        $user->fill([
-            'name'  => $request->input('name'),
-            'email' => $request->input('email'),
-            'role'  => $request->input('role'),
-        ]);
+        $user->name  = $request->input('name');
+        $user->email = $request->input('email');
+        $user->role  = $request->input('role');
 
         if ($request->filled('password')) {
             $user->password = Hash::make($request->input('password'));
         }
 
+        // Persist on users table for ALL roles
+        $user->phone_number  = $request->input('phone_number');  // null for admin
+        $user->date_of_birth = $request->input('date_of_birth'); // null for business/admin
         $user->save();
 
+        // Keep Traveler profile synced when role = traveler
         if ($user->role === 'traveler') {
-            $traveler = Traveler::firstOrCreate(
+            Traveler::firstOrCreate(
                 ['user_id' => $user->id],
                 [
                     'name'          => $user->name,
@@ -117,9 +126,7 @@ class UserManagementController extends Controller
                     'phone_number'  => $request->input('phone_number'),
                     'bio'           => optional($user->traveler)->bio,
                 ]
-            );
-
-            $traveler->update([
+            )->update([
                 'name'          => $user->name,
                 'email'         => $user->email,
                 'date_of_birth' => $request->input('date_of_birth'),
@@ -132,11 +139,12 @@ class UserManagementController extends Controller
 
     public function destroy(User $user)
     {
-        /* prevent self-deletion
+        /* Avoid self-deletion
         if (auth()->id() === $user->id) {
             return back()->with('error', 'You cannot delete your own account.');
         }
         */
+        
         $user->delete();
 
         return redirect()->route('admin.users.index')->with('success', 'User deleted.');

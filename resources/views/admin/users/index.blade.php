@@ -57,12 +57,28 @@
                                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Name</th>
                                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Email</th>
                                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Role</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Phone</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">DOB</th>
                                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Created</th>
                                     <th class="px-4 py-3"></th>
                                 </tr>
                             </thead>
                             <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                                 @forelse ($users as $user)
+                                    @php
+                                        // Format DOB safely whether it's cast or a string
+                                        $dob = $user->date_of_birth
+                                            ? \Illuminate\Support\Carbon::parse($user->date_of_birth)->format('M j, Y')
+                                            : null;
+                                        $role = (string) $user->role;
+                                        $colors = [
+                                            'traveler' => 'bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-200',
+                                            'expert'   => 'bg-purple-100 text-purple-800 dark:bg-purple-900/40 dark:text-purple-200',
+                                            'business' => 'bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-200',
+                                            'admin'    => 'bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-200',
+                                        ];
+                                        $badge = $colors[$role] ?? 'bg-gray-100 text-gray-800 dark:bg-gray-900/40 dark:text-gray-200';
+                                    @endphp
                                     <tr>
                                         <td class="px-4 py-3 whitespace-nowrap">
                                             <div class="font-medium text-gray-900 dark:text-gray-100">{{ $user->name }}</div>
@@ -71,19 +87,15 @@
                                             <div class="text-gray-700 dark:text-gray-300">{{ $user->email }}</div>
                                         </td>
                                         <td class="px-4 py-3 whitespace-nowrap">
-                                            @php
-                                                $role = (string) $user->role;
-                                                $colors = [
-                                                    'traveler' => 'bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-200',
-                                                    'expert'   => 'bg-purple-100 text-purple-800 dark:bg-purple-900/40 dark:text-purple-200',
-                                                    'business' => 'bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-200',
-                                                    'admin'    => 'bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-200',
-                                                ];
-                                                $badge = $colors[$role] ?? 'bg-gray-100 text-gray-800 dark:bg-gray-900/40 dark:text-gray-200';
-                                            @endphp
                                             <span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-semibold {{ $badge }}">
                                                 {{ ucfirst($role) }}
                                             </span>
+                                        </td>
+                                        <td class="px-4 py-3 whitespace-nowrap">
+                                            <span class="text-gray-700 dark:text-gray-300">{{ $user->phone_number ?? '—' }}</span>
+                                        </td>
+                                        <td class="px-4 py-3 whitespace-nowrap">
+                                            <span class="text-gray-700 dark:text-gray-300">{{ $dob ?? '—' }}</span>
                                         </td>
                                         <td class="px-4 py-3 whitespace-nowrap">
                                             <span class="text-gray-700 dark:text-gray-300">
@@ -115,7 +127,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="5" class="px-4 py-8 text-center text-gray-600 dark:text-gray-300">
+                                        <td colspan="7" class="px-4 py-8 text-center text-gray-600 dark:text-gray-300">
                                             No users found.
                                         </td>
                                     </tr>

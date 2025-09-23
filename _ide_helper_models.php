@@ -24,6 +24,7 @@ namespace App\Models{
  * @property int $traveler_id
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property string|null $public_uuid
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ItineraryItem> $items
  * @property-read int|null $items_count
  * @property-read \App\Models\Traveler|null $traveler
@@ -38,6 +39,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Itinerary whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Itinerary whereLocation($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Itinerary whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Itinerary wherePublicUuid($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Itinerary whereStartDate($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Itinerary whereTravelerId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Itinerary whereUpdatedAt($value)
@@ -176,6 +178,8 @@ namespace App\Models{
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property string $role
+ * @property string|null $phone_number
+ * @property \Illuminate\Support\Carbon|null $date_of_birth
  * @property-read \Illuminate\Notifications\DatabaseNotificationCollection<int, \Illuminate\Notifications\DatabaseNotification> $notifications
  * @property-read int|null $notifications_count
  * @property-read \App\Models\Traveler|null $traveler
@@ -184,11 +188,13 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User query()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereDateOfBirth($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereEmail($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereEmailVerifiedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereName($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User wherePassword($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|User wherePhoneNumber($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereRememberToken($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereRole($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereUpdatedAt($value)
