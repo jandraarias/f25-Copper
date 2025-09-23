@@ -5,8 +5,8 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TravelerController;
 use App\Http\Controllers\ExpertController;
 use App\Http\Controllers\BusinessController;
-use App\Http\Controllers\AdminController;
 use App\Http\Controllers\Admin\UserManagementController;
+use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\PublicItineraryController;
 use App\Http\Controllers\ItineraryPdfController;
 
@@ -47,9 +47,7 @@ Route::middleware(['auth', 'role:admin'])
     ->name('admin.')
     ->group(function () {
         // Admin Dashboard
-        Route::get('/dashboard', function () {
-            return view('admin.dashboard');
-        })->name('dashboard');
+        Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
         // User Management
         Route::get('/users', [UserManagementController::class, 'index'])->name('users.index');        // NEW: list

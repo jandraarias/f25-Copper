@@ -28,10 +28,10 @@ class UserManagementController extends Controller
         ]);
 
         $user = User::create([
-            'name'     => $request->input('name'),
-            'email'    => $request->input('email'),
-            'password' => Hash::make($request->input('password')),
-            'role'     => $request->input('role'),
+            'name'          => $request->input('name'),
+            'email'         => $request->input('email'),
+            'password'      => Hash::make($request->input('password')),
+            'role'          => $request->input('role'),
             'phone_number'  => $request->input('phone_number'),
             'date_of_birth' => $request->input('date_of_birth'),
         ]);
@@ -117,17 +117,18 @@ class UserManagementController extends Controller
 
     public function destroy(User $user)
     {
-        /* Prevent admin from deleting their own account
+        /* Prevent self-deletion
         if (auth()->id() === $user->id) {
             return back()->with('error', 'You cannot delete your own account.');
         }
         */
+
         $user->delete();
 
         return redirect()->route('admin.users.index')->with('success', 'User deleted.');
     }
 
-    /** NEW: Export current filtered results as CSV */
+    /** Export current filtered results as CSV */
     public function export(Request $request)
     {
         $filename = 'users_' . now()->format('Ymd_His') . '.csv';
@@ -152,20 +153,20 @@ class UserManagementController extends Controller
             });
 
             fclose($out);
-        }, $filename, [
-            'Content-Type' => 'text/csv',
-        ]);
+        }, $filename, ['Content-Type' => 'text/csv']);
     }
 
     /** Build the filtered users query (shared by index & export). */
     protected function filteredUsersQuery(Request $request)
     {
-        $q       = trim((string) $request->query('q', ''));
-        $role    = (string) $request->query('role', '');
-        $userId  = (string) $request->query('user_id', '');
-        $phone   = (string) $request->query('phone', '');
-        $dobFrom = (string) $request->query('dob_from', '');
-        $dobTo   = (string) $request->query('dob_to', '');
+        $q            = trim((string) $request->query('q', ''));
+        $role         = (string) $request->query('role', '');
+        $userId       = (string) $request->query('user_id', '');
+        $phone        = (string) $request->query('phone', '');
+        $dobFrom      = (string) $request->query('dob_from', '');
+        $dobTo        = (string) $request->query('dob_to', '');
+        $createdFrom  = (string) $request->query('created_from', '');
+        $createdTo    = (string) $request->query('created_to', '');
 
         return User::query()
             ->when($q !== '', function ($qry) use ($q) {
@@ -178,6 +179,8 @@ class UserManagementController extends Controller
             ->when($userId !== '', fn ($qry) => $qry->where('id', $userId))
             ->when($phone !== '', fn ($qry) => $qry->where('phone_number', 'like', "%{$phone}%"))
             ->when($dobFrom !== '', fn ($qry) => $qry->whereDate('date_of_birth', '>=', $dobFrom))
-            ->when($dobTo !== '', fn ($qry) => $qry->whereDate('date_of_birth', '<=', $dobTo));
+            ->when($dobTo !== '', fn ($qry) => $qry->whereDate('date_of_birth', '<=', $dobTo))
+            ->when($createdFrom !== '', fn ($qry) => $qry->whereDate('created_at', '>=', $createdFrom))
+            ->when($createdTo !== '', fn ($qry) => $qry->whereDate('created_at', '<=', $createdTo));
     }
 }

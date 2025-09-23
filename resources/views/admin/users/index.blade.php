@@ -81,6 +81,26 @@
                                 />
                             </div>
 
+                            <div class="flex flex-col">
+                                <label class="text-xs text-gray-500 dark:text-gray-400">Created From</label>
+                                <input
+                                    type="date"
+                                    name="created_from"
+                                    value="{{ request('created_from') }}"
+                                    class="w-full sm:w-44 border rounded px-3 py-2 dark:bg-gray-900 dark:border-gray-700"
+                                />
+                            </div>
+
+                            <div class="flex flex-col">
+                                <label class="text-xs text-gray-500 dark:text-gray-400">Created To</label>
+                                <input
+                                    type="date"
+                                    name="created_to"
+                                    value="{{ request('created_to') }}"
+                                    class="w-full sm:w-44 border rounded px-3 py-2 dark:bg-gray-900 dark:border-gray-700"
+                                />
+                            </div>
+
                             <div class="flex gap-2">
                                 <button
                                     type="submit"
