@@ -23,10 +23,7 @@ class UserManagementController extends Controller
             'email'    => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
             'password' => ['required', 'confirmed', 'min:8'],
             'role'     => ['required', Rule::in(['traveler', 'expert', 'business', 'admin'])],
-
-            // Phone: required for all except admin
             'phone_number'  => ['nullable', 'required_unless:role,admin', 'string', 'max:20'],
-            // DOB: required for all except business and admin
             'date_of_birth' => ['nullable', 'required_unless:role,business,admin', 'date'],
         ]);
 
@@ -35,14 +32,10 @@ class UserManagementController extends Controller
             'email'    => $request->input('email'),
             'password' => Hash::make($request->input('password')),
             'role'     => $request->input('role'),
+            'phone_number'  => $request->input('phone_number'),
+            'date_of_birth' => $request->input('date_of_birth'),
         ]);
 
-        // Persist on users table for ALL roles (respecting your policy)
-        $user->phone_number  = $request->input('phone_number');  // may be null for admin
-        $user->date_of_birth = $request->input('date_of_birth'); // may be null for business/admin
-        $user->save();
-
-        // Also ensure Traveler profile exists/updated if role = traveler
         if ($user->role === 'traveler') {
             Traveler::firstOrCreate(
                 ['user_id' => $user->id],
@@ -66,17 +59,7 @@ class UserManagementController extends Controller
 
     public function index(Request $request)
     {
-        $q    = (string) $request->query('q', '');
-        $role = (string) $request->query('role', '');
-
-        $users = User::query()
-            ->when($q !== '', function ($qry) use ($q) {
-                $qry->where(function ($w) use ($q) {
-                    $w->where('name', 'like', "%{$q}%")
-                      ->orWhere('email', 'like', "%{$q}%");
-                });
-            })
-            ->when($role !== '', fn ($qry) => $qry->where('role', $role))
+        $users = $this->filteredUsersQuery($request)
             ->latest()
             ->paginate(15);
 
@@ -95,10 +78,7 @@ class UserManagementController extends Controller
             'email'    => ['required', 'string', 'email', 'max:255', Rule::unique('users', 'email')->ignore($user->id)],
             'role'     => ['required', Rule::in(['traveler', 'expert', 'business', 'admin'])],
             'password' => ['nullable', 'confirmed', 'min:8'],
-
-            // Phone: required for all except admin
             'phone_number'  => ['nullable', 'required_unless:role,admin', 'string', 'max:20'],
-            // DOB: required for all except business and admin
             'date_of_birth' => ['nullable', 'required_unless:role,business,admin', 'date'],
         ]);
 
@@ -110,12 +90,10 @@ class UserManagementController extends Controller
             $user->password = Hash::make($request->input('password'));
         }
 
-        // Persist on users table for ALL roles
-        $user->phone_number  = $request->input('phone_number');  // null for admin
-        $user->date_of_birth = $request->input('date_of_birth'); // null for business/admin
+        $user->phone_number  = $request->input('phone_number');
+        $user->date_of_birth = $request->input('date_of_birth');
         $user->save();
 
-        // Keep Traveler profile synced when role = traveler
         if ($user->role === 'traveler') {
             Traveler::firstOrCreate(
                 ['user_id' => $user->id],
@@ -139,14 +117,67 @@ class UserManagementController extends Controller
 
     public function destroy(User $user)
     {
-        /* Avoid self-deletion
+        /* Prevent admin from deleting their own account
         if (auth()->id() === $user->id) {
             return back()->with('error', 'You cannot delete your own account.');
         }
         */
-        
         $user->delete();
 
         return redirect()->route('admin.users.index')->with('success', 'User deleted.');
+    }
+
+    /** NEW: Export current filtered results as CSV */
+    public function export(Request $request)
+    {
+        $filename = 'users_' . now()->format('Ymd_His') . '.csv';
+        $query = $this->filteredUsersQuery($request)->orderBy('id');
+
+        return response()->streamDownload(function () use ($query) {
+            $out = fopen('php://output', 'w');
+            fputcsv($out, ['id','name','email','role','phone_number','date_of_birth','created_at']);
+
+            $query->chunk(500, function ($rows) use ($out) {
+                foreach ($rows as $u) {
+                    fputcsv($out, [
+                        $u->id,
+                        $u->name,
+                        $u->email,
+                        $u->role,
+                        $u->phone_number,
+                        optional($u->date_of_birth)->format('Y-m-d'),
+                        optional($u->created_at)->toDateTimeString(),
+                    ]);
+                }
+            });
+
+            fclose($out);
+        }, $filename, [
+            'Content-Type' => 'text/csv',
+        ]);
+    }
+
+    /** Build the filtered users query (shared by index & export). */
+    protected function filteredUsersQuery(Request $request)
+    {
+        $q       = trim((string) $request->query('q', ''));
+        $role    = (string) $request->query('role', '');
+        $userId  = (string) $request->query('user_id', '');
+        $phone   = (string) $request->query('phone', '');
+        $dobFrom = (string) $request->query('dob_from', '');
+        $dobTo   = (string) $request->query('dob_to', '');
+
+        return User::query()
+            ->when($q !== '', function ($qry) use ($q) {
+                $qry->where(function ($w) use ($q) {
+                    $w->where('name', 'like', "%{$q}%")
+                      ->orWhere('email', 'like', "%{$q}%");
+                });
+            })
+            ->when($role !== '', fn ($qry) => $qry->where('role', $role))
+            ->when($userId !== '', fn ($qry) => $qry->where('id', $userId))
+            ->when($phone !== '', fn ($qry) => $qry->where('phone_number', 'like', "%{$phone}%"))
+            ->when($dobFrom !== '', fn ($qry) => $qry->whereDate('date_of_birth', '>=', $dobFrom))
+            ->when($dobTo !== '', fn ($qry) => $qry->whereDate('date_of_birth', '<=', $dobTo));
     }
 }

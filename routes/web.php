@@ -58,6 +58,8 @@ Route::middleware(['auth', 'role:admin'])
         Route::get('/users/{user}/edit', [UserManagementController::class, 'edit'])->name('users.edit'); // NEW: edit form
         Route::put('/users/{user}', [UserManagementController::class, 'update'])->name('users.update');  // NEW: update
         Route::delete('/users/{user}', [UserManagementController::class, 'destroy'])->name('users.destroy'); // NEW: delete
+        Route::get('/users/export', [UserManagementController::class, 'export'])->name('users.export');
+        Route::get('/users/search', [UserManagementController::class, 'search'])->name('users.search');
     });
 
 Route::middleware(['auth', 'role:expert'])->group(function () {

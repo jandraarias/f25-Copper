@@ -12,41 +12,108 @@
                 <div class="p-6 text-gray-900 dark:text-gray-100">
                     {{-- Toolbar --}}
                     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-6">
-                        <form method="GET" class="flex flex-col sm:flex-row gap-2 sm:items-center">
-                            <input
-                                type="text"
-                                name="q"
-                                value="{{ request('q') }}"
-                                placeholder="Search name or email…"
-                                class="w-full sm:w-64 border rounded px-3 py-2 dark:bg-gray-900 dark:border-gray-700"
-                            />
+                        <form method="GET" class="flex flex-col gap-2 sm:flex-row sm:items-end sm:flex-wrap">
+                            <div class="flex flex-col">
+                                <label class="text-xs text-gray-500 dark:text-gray-400">Search</label>
+                                <input
+                                    type="text"
+                                    name="q"
+                                    value="{{ request('q') }}"
+                                    placeholder="Name or email…"
+                                    class="w-full sm:w-56 border rounded px-3 py-2 dark:bg-gray-900 dark:border-gray-700"
+                                />
+                            </div>
 
-                            <select
-                                name="role"
-                                class="w-full sm:w-44 border rounded px-3 py-2 dark:bg-gray-900 dark:border-gray-700"
-                            >
-                                @php $r = request('role'); @endphp
-                                <option value="">All roles</option>
-                                <option value="traveler" @selected($r==='traveler')>Traveler</option>
-                                <option value="expert" @selected($r==='expert')>Expert</option>
-                                <option value="business" @selected($r==='business')>Business</option>
-                                <option value="admin" @selected($r==='admin')>Admin</option>
-                            </select>
+                            <div class="flex flex-col">
+                                <label class="text-xs text-gray-500 dark:text-gray-400">Role</label>
+                                <select
+                                    name="role"
+                                    class="w-full sm:w-40 border rounded px-3 py-2 dark:bg-gray-900 dark:border-gray-700"
+                                >
+                                    @php $r = request('role'); @endphp
+                                    <option value="">All roles</option>
+                                    <option value="traveler" @selected($r==='traveler')>Traveler</option>
+                                    <option value="expert" @selected($r==='expert')>Expert</option>
+                                    <option value="business" @selected($r==='business')>Business</option>
+                                    <option value="admin" @selected($r==='admin')>Admin</option>
+                                </select>
+                            </div>
 
-                            <button
-                                type="submit"
-                                class="inline-flex items-center justify-center rounded bg-blue-600 text-white px-4 py-2"
-                            >
-                                Filter
-                            </button>
+                            <div class="flex flex-col">
+                                <label class="text-xs text-gray-500 dark:text-gray-400">User ID</label>
+                                <input
+                                    type="number"
+                                    name="user_id"
+                                    value="{{ request('user_id') }}"
+                                    placeholder="e.g. 42"
+                                    class="w-full sm:w-28 border rounded px-3 py-2 dark:bg-gray-900 dark:border-gray-700"
+                                />
+                            </div>
+
+                            <div class="flex flex-col">
+                                <label class="text-xs text-gray-500 dark:text-gray-400">Phone</label>
+                                <input
+                                    type="text"
+                                    name="phone"
+                                    value="{{ request('phone') }}"
+                                    placeholder="Phone contains…"
+                                    class="w-full sm:w-44 border rounded px-3 py-2 dark:bg-gray-900 dark:border-gray-700"
+                                />
+                            </div>
+
+                            <div class="flex flex-col">
+                                <label class="text-xs text-gray-500 dark:text-gray-400">DOB From</label>
+                                <input
+                                    type="date"
+                                    name="dob_from"
+                                    value="{{ request('dob_from') }}"
+                                    class="w-full sm:w-44 border rounded px-3 py-2 dark:bg-gray-900 dark:border-gray-700"
+                                />
+                            </div>
+
+                            <div class="flex flex-col">
+                                <label class="text-xs text-gray-500 dark:text-gray-400">DOB To</label>
+                                <input
+                                    type="date"
+                                    name="dob_to"
+                                    value="{{ request('dob_to') }}"
+                                    class="w-full sm:w-44 border rounded px-3 py-2 dark:bg-gray-900 dark:border-gray-700"
+                                />
+                            </div>
+
+                            <div class="flex gap-2">
+                                <button
+                                    type="submit"
+                                    class="inline-flex items-center justify-center rounded bg-blue-600 text-white px-4 py-2 h-[38px] sm:self-end"
+                                >
+                                    Filter
+                                </button>
+
+                                @if (count(request()->query()) > 0)
+                                    <a href="{{ route('admin.users.index') }}"
+                                       class="inline-flex items-center justify-center rounded border border-gray-300 dark:border-gray-600 px-4 py-2 h-[38px] sm:self-end">
+                                        Reset
+                                    </a>
+                                @endif
+                            </div>
                         </form>
 
-                        <a
-                            href="{{ route('admin.users.create') }}"
-                            class="inline-flex items-center justify-center rounded bg-green-600 text-white px-4 py-2"
-                        >
-                            + Create User
-                        </a>
+                        <div class="flex gap-2">
+                            <a
+                                href="{{ route('admin.users.export', request()->query()) }}"
+                                class="inline-flex items-center justify-center rounded border border-gray-300 dark:border-gray-600 px-4 py-2"
+                                title="Export current results as CSV"
+                            >
+                                Export CSV
+                            </a>
+
+                            <a
+                                href="{{ route('admin.users.create') }}"
+                                class="inline-flex items-center justify-center rounded bg-green-600 text-white px-4 py-2"
+                            >
+                                + Create User
+                            </a>
+                        </div>
                     </div>
 
                     {{-- Table --}}
@@ -54,6 +121,7 @@
                         <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                             <thead class="bg-gray-50 dark:bg-gray-900">
                                 <tr>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">ID</th>
                                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Name</th>
                                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Email</th>
                                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Role</th>
@@ -66,7 +134,6 @@
                             <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                                 @forelse ($users as $user)
                                     @php
-                                        // Format DOB safely whether it's cast or a string
                                         $dob = $user->date_of_birth
                                             ? \Illuminate\Support\Carbon::parse($user->date_of_birth)->format('M j, Y')
                                             : null;
@@ -80,6 +147,9 @@
                                         $badge = $colors[$role] ?? 'bg-gray-100 text-gray-800 dark:bg-gray-900/40 dark:text-gray-200';
                                     @endphp
                                     <tr>
+                                        <td class="px-4 py-3 whitespace-nowrap text-gray-700 dark:text-gray-300">
+                                            #{{ $user->id }}
+                                        </td>
                                         <td class="px-4 py-3 whitespace-nowrap">
                                             <div class="font-medium text-gray-900 dark:text-gray-100">{{ $user->name }}</div>
                                         </td>
@@ -127,7 +197,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="7" class="px-4 py-8 text-center text-gray-600 dark:text-gray-300">
+                                        <td colspan="8" class="px-4 py-8 text-center text-gray-600 dark:text-gray-300">
                                             No users found.
                                         </td>
                                     </tr>
