@@ -18,7 +18,7 @@
         <div class="min-h-screen bg-gray-100 dark:bg-gray-900">
             @include('layouts.navigation')
 
-            <!-- ✅ Flash Messages (auto dismiss with Alpine) -->
+            <!-- Flash Messages (auto dismiss with Alpine) -->
             @if (session('success'))
                 <div 
                     x-data="{ show: true }" 

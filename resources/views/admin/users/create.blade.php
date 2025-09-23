@@ -1,63 +1,75 @@
+{{-- resources/views/admin/users/create.blade.php --}}
+
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            {{ __('Create New User') }}
+            {{ __('Create User') }}
         </h2>
     </x-slot>
 
     <div class="py-12">
-        <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg p-6">
-                <form method="POST" action="{{ route('admin.users.store') }}">
-                    @csrf
+        <div class="mx-auto max-w-3xl sm:px-6 lg:px-8">
+            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
+                <div class="p-6 text-gray-900 dark:text-gray-100">
 
-                    <!-- Name -->
-                    <div>
-                        <x-input-label for="name" :value="__('Name')" />
-                        <x-text-input id="name" name="name" type="text" class="block mt-1 w-full" required />
-                        <x-input-error :messages="$errors->get('name')" class="mt-2" />
-                    </div>
+                    <form method="POST" action="{{ route('admin.users.store') }}" x-data="{ role: @js(old('role', 'traveler')) }">
+                        @csrf
 
-                    <!-- Email -->
-                    <div class="mt-4">
-                        <x-input-label for="email" :value="__('Email')" />
-                        <x-text-input id="email" name="email" type="email" class="block mt-1 w-full" required />
-                        <x-input-error :messages="$errors->get('email')" class="mt-2" />
-                    </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="col-span-1 md:col-span-2">
+                                <label class="block text-sm font-medium">Name</label>
+                                <input name="name" type="text" value="{{ old('name') }}" class="mt-1 w-full border rounded p-2 dark:bg-gray-900 dark:border-gray-700">
+                                @error('name')<p class="text-red-600 text-sm mt-1">{{ $message }}</p>@enderror
+                            </div>
 
-                    <!-- Role -->
-                    <div class="mt-4">
-                        <x-input-label for="role" :value="__('Role')" />
-                        <select id="role" name="role" required
-                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-                            <option value="traveler">Traveler</option>
-                            <option value="expert">Local Expert</option>
-                            <option value="business">Business</option>
-                            <option value="admin">Admin</option>
-                        </select>
-                        <x-input-error :messages="$errors->get('role')" class="mt-2" />
-                    </div>
+                            <div>
+                                <label class="block text-sm font-medium">Email</label>
+                                <input name="email" type="email" value="{{ old('email') }}" class="mt-1 w-full border rounded p-2 dark:bg-gray-900 dark:border-gray-700">
+                                @error('email')<p class="text-red-600 text-sm mt-1">{{ $message }}</p>@enderror
+                            </div>
 
-                    <!-- Password -->
-                    <div class="mt-4">
-                        <x-input-label for="password" :value="__('Password')" />
-                        <x-text-input id="password" name="password" type="password" class="block mt-1 w-full" required />
-                        <x-input-error :messages="$errors->get('password')" class="mt-2" />
-                    </div>
+                            <div>
+                                <label class="block text-sm font-medium">Role</label>
+                                <select name="role" x-model="role" class="mt-1 w-full border rounded p-2 dark:bg-gray-900 dark:border-gray-700">
+                                    <option value="traveler">Traveler</option>
+                                    <option value="expert" @selected(old('role')==='expert')>Expert</option>
+                                    <option value="business" @selected(old('role')==='business')>Business</option>
+                                    <option value="admin" @selected(old('role')==='admin')>Admin</option>
+                                </select>
+                                @error('role')<p class="text-red-600 text-sm mt-1">{{ $message }}</p>@enderror
+                            </div>
 
-                    <!-- Confirm Password -->
-                    <div class="mt-4">
-                        <x-input-label for="password_confirmation" :value="__('Confirm Password')" />
-                        <x-text-input id="password_confirmation" name="password_confirmation" type="password" class="block mt-1 w-full" required />
-                        <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
-                    </div>
+                            <div>
+                                <label class="block text-sm font-medium">Password</label>
+                                <input name="password" type="password" class="mt-1 w-full border rounded p-2 dark:bg-gray-900 dark:border-gray-700">
+                                @error('password')<p class="text-red-600 text-sm mt-1">{{ $message }}</p>@enderror
+                            </div>
 
-                    <div class="mt-6">
-                        <x-primary-button>
-                            {{ __('Create User') }}
-                        </x-primary-button>
-                    </div>
-                </form>
+                            <div>
+                                <label class="block text-sm font-medium">Confirm Password</label>
+                                <input name="password_confirmation" type="password" class="mt-1 w-full border rounded p-2 dark:bg-gray-900 dark:border-gray-700">
+                            </div>
+
+                            {{-- Traveler-only required fields --}}
+                            <div class="col-span-1" x-show="role === 'traveler'">
+                                <label class="block text-sm font-medium">Date of Birth</label>
+                                <input name="date_of_birth" type="date" value="{{ old('date_of_birth') }}" class="mt-1 w-full border rounded p-2 dark:bg-gray-900 dark:border-gray-700">
+                                @error('date_of_birth')<p class="text-red-600 text-sm mt-1">{{ $message }}</p>@enderror
+                            </div>
+
+                            <div class="col-span-1" x-show="role === 'traveler'">
+                                <label class="block text-sm font-medium">Phone Number</label>
+                                <input name="phone_number" type="tel" value="{{ old('phone_number') }}" class="mt-1 w-full border rounded p-2 dark:bg-gray-900 dark:border-gray-700">
+                                @error('phone_number')<p class="text-red-600 text-sm mt-1">{{ $message }}</p>@enderror
+                            </div>
+                        </div>
+
+                        <div class="mt-6">
+                            <button type="submit" class="px-4 py-2 rounded bg-blue-600 text-white">Create</button>
+                        </div>
+                    </form>
+
+                </div>
             </div>
         </div>
     </div>

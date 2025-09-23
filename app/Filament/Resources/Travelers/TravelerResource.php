@@ -14,7 +14,7 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
-use Filament\Tables\Table;
+use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 
 class TravelerResource extends Resource
@@ -37,11 +37,15 @@ class TravelerResource extends Resource
                 ->required()
                 ->maxLength(255),
 
+            // Make DOB required to match DB constraints
             DatePicker::make('date_of_birth')
-                ->label('Date of Birth'),
+                ->label('Date of Birth')
+                ->required(),
 
+            // Make phone required to match DB constraints
             TextInput::make('phone_number')
                 ->label('Phone Number')
+                ->required()
                 ->maxLength(50),
 
             Textarea::make('bio')
@@ -50,15 +54,15 @@ class TravelerResource extends Resource
         ]);
     }
 
-    public static function table(Table $table): Table
+    public static function table(Tables\Table $table): Tables\Table
     {
         return $table
             ->columns([
-                TextColumn::make('name')->sortable()->searchable(),
-                TextColumn::make('email')->sortable()->searchable(),
-                TextColumn::make('date_of_birth')->date(),
-                TextColumn::make('phone_number'),
-                TextColumn::make('created_at')->dateTime()->sortable(),
+                TextColumn::make('name')->searchable()->sortable(),
+                TextColumn::make('email')->searchable()->sortable(),
+                TextColumn::make('date_of_birth')->date()->sortable(),
+                TextColumn::make('phone_number')->sortable(),
+                TextColumn::make('created_at')->dateTime()->toggleable()->sortable(),
             ])
             ->recordActions([
                 EditAction::make(),

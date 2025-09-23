@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\ItineraryItems;
 
+use App\Filament\Resources\ItineraryItems\Pages;
 use App\Models\ItineraryItem;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -17,8 +18,6 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
-
-use App\Filament\Resources\ItineraryItems\Pages as ItineraryItemsPages;
 
 class ItineraryItemResource extends Resource
 {
@@ -45,6 +44,19 @@ class ItineraryItemResource extends Resource
                 ->searchable()
                 ->preload()
                 ->required(),
+
+            // Add missing required 'type' field to match NOT NULL column
+            Select::make('type')
+                ->label('Type')
+                ->options([
+                    'flight'   => 'Flight',
+                    'hotel'    => 'Hotel',
+                    'activity' => 'Activity',
+                    'transfer' => 'Transfer',
+                    'note'     => 'Note',
+                ])
+                ->required()
+                ->native(false),
 
             TextInput::make('title')
                 ->required()
@@ -91,32 +103,23 @@ class ItineraryItemResource extends Resource
             ]);
     }
 
-    public static function getRelations(): array
-    {
-        return [
-            // No RelationManagers for items by default
-        ];
-    }
-
     public static function getPages(): array
     {
         return [
-            'index'  => ItineraryItemsPages\ListItineraryItems::route('/'),
-            'create' => ItineraryItemsPages\CreateItineraryItem::route('/create'),
-            'edit'   => ItineraryItemsPages\EditItineraryItem::route('/{record}/edit'),
+            'index'  => Pages\ListItineraryItems::route('/'),
+            'create' => Pages\CreateItineraryItem::route('/create'),
+            'edit'   => Pages\EditItineraryItem::route('/{record}/edit'),
         ];
     }
 
-    public static function getEloquentQuery(): Builder
+    public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
     {
         $travelerId = Auth::user()?->traveler?->id;
 
-        // Only show items whose parent itinerary belongs to the signed-in traveler
         return parent::getEloquentQuery()
-            ->when($travelerId, fn (Builder $q) =>
-                $q->whereHas('itinerary', fn (Builder $i) =>
-                    $i->where('traveler_id', $travelerId)
-                )
+            ->when(
+                $travelerId,
+                fn (Builder $q) => $q->whereHas('itinerary', fn ($iq) => $iq->where('traveler_id', $travelerId))
             );
     }
 }

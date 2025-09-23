@@ -13,6 +13,12 @@ class TravelerController extends Controller
             ->with(['itineraries.items', 'preferenceProfiles.preferences'])
             ->first();
 
+        if (! $traveler) {
+            return redirect()
+                ->route('profile.edit')
+                ->with('warning', 'Please complete your traveler profile before using the dashboard.');
+        }
+
         return view('traveler.dashboard', compact('traveler'));
     }
 }

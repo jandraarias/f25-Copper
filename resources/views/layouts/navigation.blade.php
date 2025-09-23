@@ -17,6 +17,15 @@
                             <x-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.dashboard')">
                                 {{ __('Admin Dashboard') }}
                             </x-nav-link>
+
+                            {{-- NEW: Users index (admin) --}}
+                            <x-nav-link
+                                :href="route('admin.users.index')"
+                                :active="request()->routeIs(['admin.users.index','admin.users.edit'])"
+                            >
+                                {{ __('Users') }}
+                            </x-nav-link>
+
                             <x-nav-link :href="route('admin.users.create')" :active="request()->routeIs('admin.users.create')">
                                 {{ __('Create User') }}
                             </x-nav-link>
@@ -94,6 +103,15 @@
                     <x-responsive-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.dashboard')">
                         {{ __('Admin Dashboard') }}
                     </x-responsive-nav-link>
+
+                    {{-- NEW: Users index (admin, mobile) --}}
+                    <x-responsive-nav-link
+                        :href="route('admin.users.index')"
+                        :active="request()->routeIs(['admin.users.index','admin.users.edit'])"
+                    >
+                        {{ __('Users') }}
+                    </x-responsive-nav-link>
+
                     <x-responsive-nav-link :href="route('admin.users.create')" :active="request()->routeIs('admin.users.create')">
                         {{ __('Create User') }}
                     </x-responsive-nav-link>

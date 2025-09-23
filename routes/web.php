@@ -52,8 +52,12 @@ Route::middleware(['auth', 'role:admin'])
         })->name('dashboard');
 
         // User Management
+        Route::get('/users', [UserManagementController::class, 'index'])->name('users.index');        // NEW: list
         Route::get('/users/create', [UserManagementController::class, 'create'])->name('users.create');
         Route::post('/users', [UserManagementController::class, 'store'])->name('users.store');
+        Route::get('/users/{user}/edit', [UserManagementController::class, 'edit'])->name('users.edit'); // NEW: edit form
+        Route::put('/users/{user}', [UserManagementController::class, 'update'])->name('users.update');  // NEW: update
+        Route::delete('/users/{user}', [UserManagementController::class, 'destroy'])->name('users.destroy'); // NEW: delete
     });
 
 Route::middleware(['auth', 'role:expert'])->group(function () {
