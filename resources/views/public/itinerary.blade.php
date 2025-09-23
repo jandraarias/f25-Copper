@@ -1,4 +1,3 @@
-// resources/views/public/itinerary.blade.php
 <!doctype html>
 <html>
 <head>
