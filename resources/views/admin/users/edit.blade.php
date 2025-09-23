@@ -10,26 +10,26 @@
         <div class="mx-auto max-w-3xl sm:px-6 lg:px-8">
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900 dark:text-gray-100">
-                    <form method="POST" action="{{ route('admin.users.update', $user) }}" x-data="{ role: @js(old('role', $user->role)) }">
+                    <form method="POST" action="{{ route('admin.users.update', $user) }}" x-data="{ role: @js(old('role', $user->role)) }" x-cloak>
                         @csrf
                         @method('PUT')
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div class="col-span-1 md:col-span-2">
                                 <label class="block text-sm font-medium">Name</label>
-                                <input name="name" type="text" value="{{ old('name', $user->name) }}" class="mt-1 w-full border rounded p-2 dark:bg-gray-900 dark:border-gray-700">
+                                <input name="name" type="text" value="{{ old('name', $user->name) }}" class="mt-1 w-full border rounded p-2 dark:bg-gray-900 dark:border-gray-700" required>
                                 @error('name')<p class="text-red-600 text-sm mt-1">{{ $message }}</p>@enderror
                             </div>
 
                             <div>
                                 <label class="block text-sm font-medium">Email</label>
-                                <input name="email" type="email" value="{{ old('email', $user->email) }}" class="mt-1 w-full border rounded p-2 dark:bg-gray-900 dark:border-gray-700">
+                                <input name="email" type="email" value="{{ old('email', $user->email) }}" class="mt-1 w-full border rounded p-2 dark:bg-gray-900 dark:border-gray-700" required>
                                 @error('email')<p class="text-red-600 text-sm mt-1">{{ $message }}</p>@enderror
                             </div>
 
                             <div>
                                 <label class="block text-sm font-medium">Role</label>
-                                <select name="role" x-model="role" class="mt-1 w-full border rounded p-2 dark:bg-gray-900 dark:border-gray-700">
+                                <select name="role" x-model="role" class="mt-1 w-full border rounded p-2 dark:bg-gray-900 dark:border-gray-700" required>
                                     @php $r = old('role', $user->role); @endphp
                                     <option value="traveler" @selected($r==='traveler')>Traveler</option>
                                     <option value="expert" @selected($r==='expert')>Expert</option>
@@ -50,17 +50,32 @@
                                 <input name="password_confirmation" type="password" class="mt-1 w-full border rounded p-2 dark:bg-gray-900 dark:border-gray-700" autocomplete="new-password">
                             </div>
 
-                            {{-- Traveler-only fields (required if role = traveler) --}}
-                            <div class="col-span-1" x-show="role === 'traveler'">
-                                <label class="block text-sm font-medium">Date of Birth</label>
-                                <input name="date_of_birth" type="date" value="{{ old('date_of_birth', optional($user->traveler)->date_of_birth) }}" class="mt-1 w-full border rounded p-2 dark:bg-gray-900 dark:border-gray-700">
-                                @error('date_of_birth')<p class="text-red-600 text-sm mt-1">{{ $message }}</p>@enderror
+                            {{-- Phone: required for everyone EXCEPT admin --}}
+                            <div class="col-span-1" x-show="role !== 'admin'">
+                                <label class="block text-sm font-medium">Phone Number</label>
+                                <input
+                                    name="phone_number"
+                                    type="tel"
+                                    value="{{ old('phone_number', optional($user->traveler)->phone_number) }}"
+                                    class="mt-1 w-full border rounded p-2 dark:bg-gray-900 dark:border-gray-700"
+                                    x-bind:required="role !== 'admin'"
+                                    x-bind:disabled="role === 'admin'"
+                                >
+                                @error('phone_number')<p class="text-red-600 text-sm mt-1">{{ $message }}</p>@enderror
                             </div>
 
-                            <div class="col-span-1" x-show="role === 'traveler'">
-                                <label class="block text-sm font-medium">Phone Number</label>
-                                <input name="phone_number" type="tel" value="{{ old('phone_number', optional($user->traveler)->phone_number) }}" class="mt-1 w-full border rounded p-2 dark:bg-gray-900 dark:border-gray-700">
-                                @error('phone_number')<p class="text-red-600 text-sm mt-1">{{ $message }}</p>@enderror
+                            {{-- DOB: required for everyone EXCEPT business and admin --}}
+                            <div class="col-span-1" x-show="role !== 'business' && role !== 'admin'">
+                                <label class="block text-sm font-medium">Date of Birth</label>
+                                <input
+                                    name="date_of_birth"
+                                    type="date"
+                                    value="{{ old('date_of_birth', optional($user->traveler)->date_of_birth) }}"
+                                    class="mt-1 w-full border rounded p-2 dark:bg-gray-900 dark:border-gray-700"
+                                    x-bind:required="role !== 'business' && role !== 'admin'"
+                                    x-bind:disabled="role === 'business' || role === 'admin'"
+                                >
+                                @error('date_of_birth')<p class="text-red-600 text-sm mt-1">{{ $message }}</p>@enderror
                             </div>
                         </div>
 

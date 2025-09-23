@@ -24,9 +24,10 @@ class UserManagementController extends Controller
             'password' => ['required', 'confirmed', 'min:8'],
             'role'     => ['required', Rule::in(['traveler', 'expert', 'business', 'admin'])],
 
-            // Only required when creating a traveler user:
-            'date_of_birth' => [Rule::requiredIf(fn () => $request->role === 'traveler'), 'date'],
-            'phone_number'  => [Rule::requiredIf(fn () => $request->role === 'traveler'), 'string', 'max:20'],
+            // Phone: required for all except admin
+            'phone_number'  => ['nullable', 'required_unless:role,admin', 'string', 'max:20'],
+            // DOB: required for all except business and admin
+            'date_of_birth' => ['nullable', 'required_unless:role,business,admin', 'date'],
         ]);
 
         $user = User::create([
@@ -36,6 +37,7 @@ class UserManagementController extends Controller
             'role'     => $request->input('role'),
         ]);
 
+        // Persist profile data for Travelers (existing schema)
         if ($user->role === 'traveler') {
             Traveler::firstOrCreate(
                 ['user_id' => $user->id],
@@ -49,10 +51,12 @@ class UserManagementController extends Controller
             );
         }
 
+        // NOTE: If you want to store phone/DOB for experts/business too,
+        // add columns on `users` (or dedicated profiles) and fill them here.
+
         return redirect()->route('admin.users.index')->with('success', 'User created successfully!');
     }
 
-    // NEW: list users
     public function index(Request $request)
     {
         $q    = (string) $request->query('q', '');
@@ -72,13 +76,11 @@ class UserManagementController extends Controller
         return view('admin.users.index', compact('users'));
     }
 
-    // NEW: edit form
     public function edit(User $user)
     {
         return view('admin.users.edit', compact('user'));
     }
 
-    // NEW: update user
     public function update(Request $request, User $user)
     {
         $request->validate([
@@ -87,14 +89,17 @@ class UserManagementController extends Controller
             'role'     => ['required', Rule::in(['traveler', 'expert', 'business', 'admin'])],
             'password' => ['nullable', 'confirmed', 'min:8'],
 
-            // If setting/keeping traveler role, ensure these exist:
-            'date_of_birth' => [Rule::requiredIf(fn () => $request->role === 'traveler'), 'nullable', 'date'],
-            'phone_number'  => [Rule::requiredIf(fn () => $request->role === 'traveler'), 'nullable', 'string', 'max:20'],
+            // Phone: required for all except admin
+            'phone_number'  => ['nullable', 'required_unless:role,admin', 'string', 'max:20'],
+            // DOB: required for all except business and admin
+            'date_of_birth' => ['nullable', 'required_unless:role,business,admin', 'date'],
         ]);
 
-        $user->name = $request->input('name');
-        $user->email = $request->input('email');
-        $user->role = $request->input('role');
+        $user->fill([
+            'name'  => $request->input('name'),
+            'email' => $request->input('email'),
+            'role'  => $request->input('role'),
+        ]);
 
         if ($request->filled('password')) {
             $user->password = Hash::make($request->input('password'));
@@ -102,7 +107,6 @@ class UserManagementController extends Controller
 
         $user->save();
 
-        // Ensure traveler profile exists/updated when role is traveler
         if ($user->role === 'traveler') {
             $traveler = Traveler::firstOrCreate(
                 ['user_id' => $user->id],
@@ -115,7 +119,6 @@ class UserManagementController extends Controller
                 ]
             );
 
-            // If it already existed, update the fields that might have changed
             $traveler->update([
                 'name'          => $user->name,
                 'email'         => $user->email,
@@ -127,14 +130,13 @@ class UserManagementController extends Controller
         return redirect()->route('admin.users.index')->with('success', 'User updated.');
     }
 
-    // NEW: delete user
     public function destroy(User $user)
     {
-        /* Optional safety: prevent self-deletion
+        /* prevent self-deletion
         if (auth()->id() === $user->id) {
             return back()->with('error', 'You cannot delete your own account.');
-        } */
-
+        }
+        */
         $user->delete();
 
         return redirect()->route('admin.users.index')->with('success', 'User deleted.');
