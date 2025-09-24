@@ -42,7 +42,7 @@
             <!-- Itineraries -->
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900 dark:text-gray-100">
-                    <h3 class="text-lg font-semibold mb-4">Your Itineraries</h3>
+                    <h3 class="text-lg font-semibold mb-4">Itineraries</h3>
 
                     @forelse ($itineraries as $itinerary)
                         @php
@@ -99,7 +99,7 @@
             <!-- Preferences -->
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900 dark:text-gray-100">
-                    <h3 class="text-lg font-semibold mb-4">Your Preferences</h3>
+                    <h3 class="text-lg font-semibold mb-4">Preference Profiles</h3>
 
                     @forelse ($preferenceProfiles as $profile)
                         <div class="mb-4 border-b border-gray-200 dark:border-gray-700 pb-2">
