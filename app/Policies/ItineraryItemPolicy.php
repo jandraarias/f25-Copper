@@ -7,6 +7,9 @@ use App\Models\User;
 
 class ItineraryItemPolicy
 {
+    /**
+     * Admin override: allow all abilities.
+     */
     public function before(User $user, string $ability): ?bool
     {
         return $user->role === 'admin' ? true : null;
@@ -14,18 +17,13 @@ class ItineraryItemPolicy
 
     public function viewAny(User $user): bool
     {
-        return in_array($user->role, ['admin', 'traveler'], true);
+        return in_array($user->role, ['traveler', 'expert', 'business', 'admin'], true);
     }
 
     public function view(User $user, ItineraryItem $item): bool
     {
-        // Assumes $item->itinerary relation exists
-        return $user->traveler && $item->itinerary?->traveler_id === $user->traveler->id;
-    }
-
-    public function create(User $user): bool
-    {
-        return in_array($user->role, ['admin', 'traveler'], true) && (bool) $user->traveler;
+        // User must own the parent itinerary.
+        return $item->itinerary && $item->itinerary->user_id === $user->id;
     }
 
     public function update(User $user, ItineraryItem $item): bool

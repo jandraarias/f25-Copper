@@ -7,34 +7,39 @@ use App\Models\User;
 
 class ItineraryPolicy
 {
+    /**
+     * Admin override: allow all abilities.
+     */
     public function before(User $user, string $ability): ?bool
     {
-        // Admins can do anything.
         return $user->role === 'admin' ? true : null;
     }
 
     public function viewAny(User $user): bool
     {
-        return in_array($user->role, ['admin', 'traveler'], true);
+        // Travelers can view their own list (controller queries by auth()->id()).
+        // Other roles can be tightened via middleware; we keep this permissive.
+        return in_array($user->role, ['traveler', 'expert', 'business', 'admin'], true);
     }
 
     public function view(User $user, Itinerary $itinerary): bool
     {
-        return $user->traveler && $itinerary->traveler_id === $user->traveler->id;
+        return $itinerary->user_id === $user->id;
     }
 
     public function create(User $user): bool
     {
-        return in_array($user->role, ['admin', 'traveler'], true) && (bool) $user->traveler;
+        // Traveler creates their own itineraries (your routes already require role:traveler).
+        return $user->role === 'traveler';
     }
 
     public function update(User $user, Itinerary $itinerary): bool
     {
-        return $this->view($user, $itinerary);
+        return $itinerary->user_id === $user->id;
     }
 
     public function delete(User $user, Itinerary $itinerary): bool
     {
-        return $this->view($user, $itinerary);
+        return $itinerary->user_id === $user->id;
     }
 }
