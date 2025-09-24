@@ -28,7 +28,7 @@
                             <thead class="bg-gray-50 dark:bg-gray-900">
                                 <tr>
                                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">ID</th>
-                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Title</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Name</th>
                                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Destination</th>
                                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Dates</th>
                                     <th class="px-4 py-3"></th>
@@ -41,7 +41,7 @@
                                             #{{ $itinerary->id }}
                                         </td>
                                         <td class="px-4 py-3">
-                                            <div class="font-medium">{{ $itinerary->title }}</div>
+                                            <div class="font-medium">{{ $itinerary->name }}</div>
                                         </td>
                                         <td class="px-4 py-3">
                                             <div class="text-gray-700 dark:text-gray-300">{{ $itinerary->destination ?? '—' }}</div>

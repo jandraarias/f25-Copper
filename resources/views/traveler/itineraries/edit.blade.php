@@ -22,39 +22,81 @@
                         @method('PUT')
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {{-- Name (required) --}}
                             <div class="md:col-span-2">
-                                <label class="block text-sm font-medium">Title</label>
-                                <input name="title" type="text" value="{{ old('title', $itinerary->title) }}" required
-                                       class="mt-1 w-full border rounded p-2 dark:bg-gray-900 dark:border-gray-700">
-                                @error('title')<p class="text-red-600 text-sm mt-1">{{ $message }}</p>@enderror
+                                <label class="block text-sm font-medium">Name</label>
+                                <input
+                                    name="name"
+                                    type="text"
+                                    value="{{ old('name', $itinerary->name) }}"
+                                    required
+                                    class="mt-1 w-full border rounded p-2 dark:bg-gray-900 dark:border-gray-700"
+                                >
+                                @error('name')<p class="text-red-600 text-sm mt-1">{{ $message }}</p>@enderror
                             </div>
 
-                            <div>
-                                <label class="block text-sm font-medium">Start Date</label>
-                                <input name="start_date" type="date" value="{{ old('start_date', optional($itinerary->start_date)->format('Y-m-d')) }}"
-                                       class="mt-1 w-full border rounded p-2 dark:bg-gray-900 dark:border-gray-700">
-                                @error('start_date')<p class="text-red-600 text-sm mt-1">{{ $message }}</p>@enderror
-                            </div>
-
-                            <div>
-                                <label class="block text-sm font-medium">End Date</label>
-                                <input name="end_date" type="date" value="{{ old('end_date', optional($itinerary->end_date)->format('Y-m-d')) }}"
-                                       class="mt-1 w-full border rounded p-2 dark:bg-gray-900 dark:border-gray-700">
-                                @error('end_date')<p class="text-red-600 text-sm mt-1">{{ $message }}</p>@enderror
-                            </div>
-
+                            {{-- Description (optional) --}}
                             <div class="md:col-span-2">
-                                <label class="block text-sm font-medium">Destination</label>
-                                <input name="destination" type="text" value="{{ old('destination', $itinerary->destination) }}"
-                                       class="mt-1 w-full border rounded p-2 dark:bg-gray-900 dark:border-gray-700">
+                                <label class="block text-sm font-medium">Description <span class="text-xs text-gray-500">(optional)</span></label>
+                                <textarea
+                                    name="description"
+                                    rows="5"
+                                    class="mt-1 w-full border rounded p-2 dark:bg-gray-900 dark:border-gray-700"
+                                >{{ old('description', $itinerary->description) }}</textarea>
+                                @error('description')<p class="text-red-600 text-sm mt-1">{{ $message }}</p>@enderror
+                            </div>
+
+                            {{-- Country (required) --}}
+                            <div>
+                                <label class="block text-sm font-medium">Country</label>
+                                <input
+                                    name="country"
+                                    type="text"
+                                    value="{{ old('country', $itinerary->country) }}"
+                                    required
+                                    placeholder="e.g., United States or FR"
+                                    class="mt-1 w-full border rounded p-2 dark:bg-gray-900 dark:border-gray-700"
+                                >
+                                @error('country')<p class="text-red-600 text-sm mt-1">{{ $message }}</p>@enderror
+                            </div>
+
+                            {{-- Destination (optional) --}}
+                            <div>
+                                <label class="block text-sm font-medium">Destination <span class="text-xs text-gray-500">(optional)</span></label>
+                                <input
+                                    name="destination"
+                                    type="text"
+                                    value="{{ old('destination', $itinerary->destination ?? '') }}"
+                                    placeholder="City / Region (optional)"
+                                    class="mt-1 w-full border rounded p-2 dark:bg-gray-900 dark:border-gray-700"
+                                >
                                 @error('destination')<p class="text-red-600 text-sm mt-1">{{ $message }}</p>@enderror
                             </div>
 
-                            <div class="md:col-span-2">
-                                <label class="block text-sm font-medium">Notes</label>
-                                <textarea name="notes" rows="5"
-                                          class="mt-1 w-full border rounded p-2 dark:bg-gray-900 dark:border-gray-700">{{ old('notes', $itinerary->notes) }}</textarea>
-                                @error('notes')<p class="text-red-600 text-sm mt-1">{{ $message }}</p>@enderror
+                            {{-- Start Date (required) --}}
+                            <div>
+                                <label class="block text-sm font-medium">Start Date</label>
+                                <input
+                                    name="start_date"
+                                    type="date"
+                                    value="{{ old('start_date', optional($itinerary->start_date)->format('Y-m-d')) }}"
+                                    required
+                                    class="mt-1 w-full border rounded p-2 dark:bg-gray-900 dark:border-gray-700"
+                                >
+                                @error('start_date')<p class="text-red-600 text-sm mt-1">{{ $message }}</p>@enderror
+                            </div>
+
+                            {{-- End Date (required) --}}
+                            <div>
+                                <label class="block text-sm font-medium">End Date</label>
+                                <input
+                                    name="end_date"
+                                    type="date"
+                                    value="{{ old('end_date', optional($itinerary->end_date)->format('Y-m-d')) }}"
+                                    required
+                                    class="mt-1 w-full border rounded p-2 dark:bg-gray-900 dark:border-gray-700"
+                                >
+                                @error('end_date')<p class="text-red-600 text-sm mt-1">{{ $message }}</p>@enderror
                             </div>
                         </div>
 
@@ -70,7 +112,7 @@
                 </div>
             </div>
 
-            {{-- Items manager --}}
+            {{-- Items manager (unchanged) --}}
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900 dark:text-gray-100">
                     <div class="flex items-center justify-between mb-4">

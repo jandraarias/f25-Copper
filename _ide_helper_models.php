@@ -13,7 +13,6 @@
 
 namespace App\Models{
 /**
- * @mixin IdeHelperItinerary
  * @property int $id
  * @property string $name
  * @property string $description
@@ -25,6 +24,7 @@ namespace App\Models{
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property string|null $public_uuid
+ * @property string|null $destination
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ItineraryItem> $items
  * @property-read int|null $items_count
  * @property-read \App\Models\Traveler|null $traveler
@@ -35,6 +35,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Itinerary whereCountry($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Itinerary whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Itinerary whereDescription($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Itinerary whereDestination($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Itinerary whereEndDate($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Itinerary whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Itinerary whereLocation($value)

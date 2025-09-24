@@ -8,28 +8,23 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Auth;
 
-/**
- * @mixin IdeHelperItinerary
- */
 class Itinerary extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'traveler_id',
         'name',
         'description',
+        'country',      // required column
+        'destination',  // optional
         'start_date',
         'end_date',
-        'country',
-        'location',
+        'traveler_id',
     ];
 
     protected $casts = [
-        'id' => 'integer',
-        'traveler_id' => 'integer',
         'start_date' => 'date',
-        'end_date' => 'date',
+        'end_date'   => 'date',
     ];
 
     public function traveler(): BelongsTo
