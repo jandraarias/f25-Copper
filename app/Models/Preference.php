@@ -6,9 +6,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-/**
- * @mixin IdeHelperPreference
- */
 class Preference extends Model
 {
     use HasFactory;
@@ -24,8 +21,8 @@ class Preference extends Model
         'preference_profile_id' => 'integer',
     ];
 
-    public function preferenceProfile(): BelongsTo
+    public function profile(): BelongsTo
     {
-        return $this->belongsTo(PreferenceProfile::class);
+        return $this->belongsTo(PreferenceProfile::class, 'preference_profile_id');
     }
 }

@@ -17,6 +17,8 @@ use App\Http\Controllers\ItineraryPdfController;
 use App\Http\Controllers\Traveler\DashboardController as TravelerDashboardController;
 use App\Http\Controllers\Traveler\ItineraryController as TravelerItineraryController;
 use App\Http\Controllers\Traveler\ItineraryItemController as TravelerItineraryItemController;
+use App\Http\Controllers\Traveler\PreferenceProfileController;
+use App\Http\Controllers\Traveler\PreferenceController;
 
 /*
 |--------------------------------------------------------------------------
@@ -27,7 +29,7 @@ use App\Http\Controllers\Traveler\ItineraryItemController as TravelerItineraryIt
 Route::middleware(['throttle:20,1'])->get('/i/{uuid}', [PublicItineraryController::class, 'show'])
     ->name('public.itinerary.short');
 
-// (Optional) keep original name but apply throttling too
+// Optional original long form, also throttled
 Route::middleware(['throttle:20,1'])->get('/public/itineraries/{uuid}', [PublicItineraryController::class, 'show'])
     ->name('public.itinerary.show');
 
@@ -48,7 +50,6 @@ Route::get('/', function () {
         }
     }
 
-    // Guest users still see welcome page
     return view('welcome');
 });
 
@@ -72,7 +73,6 @@ Route::middleware(['auth', 'role:admin'])
     ->prefix('admin')
     ->name('admin.')
     ->group(function () {
-        // Admin Dashboard (controller-based, not a closure)
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
         // User Management
@@ -113,16 +113,24 @@ Route::middleware(['auth', 'role:traveler'])
     ->prefix('traveler')
     ->name('traveler.')
     ->group(function () {
-        // Traveler Dashboard is now its own page (no redirect)
+        // Traveler Dashboard
         Route::get('/dashboard', [TravelerDashboardController::class, 'index'])->name('dashboard');
 
         // Itineraries CRUD
         Route::resource('itineraries', TravelerItineraryController::class);
 
-        // Items nested under itineraries; shallow routes for update/destroy
+        // Itinerary Items (nested, shallow)
         Route::resource('itineraries.items', TravelerItineraryItemController::class)
             ->shallow()
             ->only(['store', 'update', 'destroy']);
+
+        // Preference Profiles CRUD
+        Route::resource('preference-profiles', PreferenceProfileController::class);
+
+        // Preferences nested under profiles (shallow routes for edit/update/destroy)
+        Route::resource('preference-profiles.preferences', PreferenceController::class)
+            ->shallow()
+            ->only(['store', 'edit', 'update', 'destroy']);
     });
 
 /*

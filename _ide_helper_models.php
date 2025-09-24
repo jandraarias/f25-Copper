@@ -82,14 +82,13 @@ namespace App\Models{
 
 namespace App\Models{
 /**
- * @mixin IdeHelperPreference
  * @property int $id
  * @property int $preference_profile_id
  * @property string $key
  * @property string $value
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\PreferenceProfile $preferenceProfile
+ * @property-read \App\Models\PreferenceProfile $profile
  * @method static \Database\Factories\PreferenceFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Preference newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Preference newQuery()
@@ -106,12 +105,11 @@ namespace App\Models{
 
 namespace App\Models{
 /**
- * @mixin IdeHelperPreferenceProfile
  * @property int $id
  * @property int $traveler_id
  * @property string $name
  * @property string|null $budget
- * @property array<array-key, mixed>|null $interests
+ * @property string|null $interests
  * @property string|null $preferred_climate
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at

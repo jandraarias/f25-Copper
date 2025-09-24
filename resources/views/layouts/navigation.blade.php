@@ -18,11 +18,7 @@
                                 {{ __('Admin Dashboard') }}
                             </x-nav-link>
 
-                            {{-- Admin: Users index --}}
-                            <x-nav-link
-                                :href="route('admin.users.index')"
-                                :active="request()->routeIs(['admin.users.index','admin.users.edit'])"
-                            >
+                            <x-nav-link :href="route('admin.users.index')" :active="request()->routeIs(['admin.users.index','admin.users.edit'])">
                                 {{ __('Users') }}
                             </x-nav-link>
 
@@ -44,17 +40,21 @@
                         @endif
 
                         @if(auth()->user()->isTraveler())
-                            {{-- Traveler Dashboard --}}
                             @if (Route::has('traveler.dashboard'))
                                 <x-nav-link :href="route('traveler.dashboard')" :active="request()->routeIs('traveler.dashboard')">
                                     {{ __('Traveler Dashboard') }}
                                 </x-nav-link>
                             @endif
 
-                            {{-- Traveler: My Itineraries --}}
                             @if (Route::has('traveler.itineraries.index'))
                                 <x-nav-link :href="route('traveler.itineraries.index')" :active="request()->routeIs('traveler.itineraries.*')">
                                     {{ __('My Itineraries') }}
+                                </x-nav-link>
+                            @endif
+
+                            @if (Route::has('traveler.preference-profiles.index'))
+                                <x-nav-link :href="route('traveler.preference-profiles.index')" :active="request()->routeIs('traveler.preference-profiles.*')">
+                                    {{ __('My Preferences') }}
                                 </x-nav-link>
                             @endif
                         @endif
@@ -82,7 +82,6 @@
                                 {{ __('Profile') }}
                             </x-dropdown-link>
 
-                            <!-- Authentication -->
                             <form method="POST" action="{{ route('logout') }}">
                                 @csrf
                                 <x-dropdown-link :href="route('logout')"
@@ -116,11 +115,7 @@
                         {{ __('Admin Dashboard') }}
                     </x-responsive-nav-link>
 
-                    {{-- Admin: Users index (mobile) --}}
-                    <x-responsive-nav-link
-                        :href="route('admin.users.index')"
-                        :active="request()->routeIs(['admin.users.index','admin.users.edit'])"
-                    >
+                    <x-responsive-nav-link :href="route('admin.users.index')" :active="request()->routeIs(['admin.users.index','admin.users.edit'])">
                         {{ __('Users') }}
                     </x-responsive-nav-link>
 
@@ -142,17 +137,21 @@
                 @endif
 
                 @if(auth()->user()->isTraveler())
-                    {{-- Traveler Dashboard --}}
                     @if (Route::has('traveler.dashboard'))
                         <x-responsive-nav-link :href="route('traveler.dashboard')" :active="request()->routeIs('traveler.dashboard')">
                             {{ __('Traveler Dashboard') }}
                         </x-responsive-nav-link>
                     @endif
 
-                    {{-- Traveler: My Itineraries (mobile) --}}
                     @if (Route::has('traveler.itineraries.index'))
                         <x-responsive-nav-link :href="route('traveler.itineraries.index')" :active="request()->routeIs('traveler.itineraries.*')">
                             {{ __('My Itineraries') }}
+                        </x-responsive-nav-link>
+                    @endif
+
+                    @if (Route::has('traveler.preference-profiles.index'))
+                        <x-responsive-nav-link :href="route('traveler.preference-profiles.index')" :active="request()->routeIs('traveler.preference-profiles.*')">
+                            {{ __('My Preferences') }}
                         </x-responsive-nav-link>
                     @endif
                 @endif
@@ -172,7 +171,6 @@
                         {{ __('Profile') }}
                     </x-responsive-nav-link>
 
-                    <!-- Authentication -->
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
                         <x-responsive-nav-link :href="route('logout')"

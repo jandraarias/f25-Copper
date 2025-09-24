@@ -8,25 +8,18 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Auth;
 
-/**
- * @mixin IdeHelperPreferenceProfile
- */
 class PreferenceProfile extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'traveler_id',
         'name',
-        'budget',
-        'interests',
-        'preferred_climate',
+        'traveler_id',
     ];
 
     protected $casts = [
         'id' => 'integer',
         'traveler_id' => 'integer',
-        'interests' => 'array',
     ];
 
     public function traveler(): BelongsTo
