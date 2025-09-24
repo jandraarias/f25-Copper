@@ -17,11 +17,7 @@
 
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900 dark:text-gray-100">
-                    @if (session('success'))
-                        <div class="mb-4 rounded bg-green-100 text-green-800 px-4 py-2">
-                            {{ session('success') }}
-                        </div>
-                    @endif
+                    <x-flash-messages />
 
                     <div class="overflow-x-auto">
                         <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
@@ -57,6 +53,10 @@
                                         </td>
                                         <td class="px-4 py-3 whitespace-nowrap text-right">
                                             <div class="flex items-center gap-2 justify-end">
+                                                <a href="{{ route('traveler.itineraries.show', $itinerary) }}"
+                                                   class="px-3 py-1.5 rounded border border-gray-300 dark:border-gray-600 text-sm hover:bg-gray-50 dark:hover:bg-gray-900">
+                                                    View
+                                                </a>
                                                 <a href="{{ route('traveler.itineraries.edit', $itinerary) }}"
                                                    class="px-3 py-1.5 rounded border border-gray-300 dark:border-gray-600 text-sm hover:bg-gray-50 dark:hover:bg-gray-900">
                                                     Edit

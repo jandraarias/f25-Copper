@@ -6,22 +6,16 @@ use App\Http\Controllers\Controller;
 use App\Models\Itinerary;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\View\View;
-use Illuminate\Http\RedirectResponse;
 
 class ItineraryController extends Controller
 {
     /**
-     * Display a listing of the user's itineraries.
+     * Display a listing of the traveler’s itineraries.
      */
-    public function index(): View
+    public function index()
     {
         $traveler = Auth::user()->traveler;
-
-        $itineraries = Itinerary::with('items')
-            ->where('traveler_id', $traveler->id)
-            ->latest('start_date')
-            ->paginate(10);
+        $itineraries = $traveler->itineraries()->latest()->paginate(10);
 
         return view('traveler.itineraries.index', compact('itineraries'));
     }
@@ -29,7 +23,7 @@ class ItineraryController extends Controller
     /**
      * Show the form for creating a new itinerary.
      */
-    public function create(): View
+    public function create()
     {
         return view('traveler.itineraries.create');
     }
@@ -37,33 +31,31 @@ class ItineraryController extends Controller
     /**
      * Store a newly created itinerary.
      */
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request)
     {
-        $validated = $request->validate([
+        $request->validate([
             'name'        => ['required', 'string', 'max:255'],
-            'description' => ['nullable', 'string'],
-            'country'     => ['nullable', 'string', 'max:100'],
             'destination' => ['nullable', 'string', 'max:255'],
-            'start_date'  => ['required', 'date'],
-            'end_date'    => ['required', 'date', 'after_or_equal:start_date'],
+            'start_date'  => ['nullable', 'date'],
+            'end_date'    => ['nullable', 'date', 'after_or_equal:start_date'],
+            'notes'       => ['nullable', 'string'],
         ]);
 
-        $validated['traveler_id'] = Auth::user()->traveler->id;
+        $traveler = Auth::user()->traveler;
 
-        Itinerary::create($validated);
+        $traveler->itineraries()->create($request->only('name', 'destination', 'start_date', 'end_date', 'notes'));
 
-        return redirect()->route('traveler.itineraries.index')
-            ->with('success', 'Itinerary created successfully.');
+        return redirect()
+            ->route('traveler.itineraries.index')
+            ->with('success', 'Itinerary created successfully!');
     }
 
     /**
      * Display the specified itinerary.
      */
-    public function show(Itinerary $itinerary): View
+    public function show(Itinerary $itinerary)
     {
         $this->authorize('view', $itinerary);
-
-        $itinerary->load('items');
 
         return view('traveler.itineraries.show', compact('itinerary'));
     }
@@ -71,7 +63,7 @@ class ItineraryController extends Controller
     /**
      * Show the form for editing the specified itinerary.
      */
-    public function edit(Itinerary $itinerary): View
+    public function edit(Itinerary $itinerary)
     {
         $this->authorize('update', $itinerary);
 
@@ -81,35 +73,36 @@ class ItineraryController extends Controller
     /**
      * Update the specified itinerary.
      */
-    public function update(Request $request, Itinerary $itinerary): RedirectResponse
+    public function update(Request $request, Itinerary $itinerary)
     {
         $this->authorize('update', $itinerary);
 
-        $validated = $request->validate([
+        $request->validate([
             'name'        => ['required', 'string', 'max:255'],
-            'description' => ['nullable', 'string'],
-            'country'     => ['nullable', 'string', 'max:100'],
             'destination' => ['nullable', 'string', 'max:255'],
-            'start_date'  => ['required', 'date'],
-            'end_date'    => ['required', 'date', 'after_or_equal:start_date'],
+            'start_date'  => ['nullable', 'date'],
+            'end_date'    => ['nullable', 'date', 'after_or_equal:start_date'],
+            'notes'       => ['nullable', 'string'],
         ]);
 
-        $itinerary->update($validated);
+        $itinerary->update($request->only('name', 'destination', 'start_date', 'end_date', 'notes'));
 
-        return redirect()->route('traveler.itineraries.index')
-            ->with('success', 'Itinerary updated successfully.');
+        return redirect()
+            ->route('traveler.itineraries.index')
+            ->with('success', 'Itinerary updated successfully!');
     }
 
     /**
      * Remove the specified itinerary.
      */
-    public function destroy(Itinerary $itinerary): RedirectResponse
+    public function destroy(Itinerary $itinerary)
     {
         $this->authorize('delete', $itinerary);
 
         $itinerary->delete();
 
-        return redirect()->route('traveler.itineraries.index')
-            ->with('success', 'Itinerary deleted successfully.');
+        return redirect()
+            ->route('traveler.itineraries.index')
+            ->with('success', 'Itinerary deleted successfully!');
     }
 }

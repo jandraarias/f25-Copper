@@ -11,11 +11,7 @@
             {{-- Itinerary form --}}
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900 dark:text-gray-100">
-                    @if (session('success'))
-                        <div class="mb-4 rounded bg-green-100 text-green-800 px-4 py-2">
-                            {{ session('success') }}
-                        </div>
-                    @endif
+                    <x-flash-messages />
 
                     <form method="POST" action="{{ route('traveler.itineraries.update', $itinerary) }}">
                         @csrf
@@ -112,7 +108,7 @@
                 </div>
             </div>
 
-            {{-- Items manager (unchanged) --}}
+            {{-- Items manager --}}
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900 dark:text-gray-100">
                     <div class="flex items-center justify-between mb-4">
@@ -303,7 +299,6 @@
 
                 </div>
             </div>
-
         </div>
     </div>
 </x-app-layout>

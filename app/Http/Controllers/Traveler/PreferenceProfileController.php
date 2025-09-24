@@ -6,77 +6,99 @@ use App\Http\Controllers\Controller;
 use App\Models\PreferenceProfile;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\View\View;
-use Illuminate\Http\RedirectResponse;
 
 class PreferenceProfileController extends Controller
 {
-    public function index(): View
+    /**
+     * Display a listing of the traveler’s preference profiles.
+     */
+    public function index()
     {
         $traveler = Auth::user()->traveler;
-        $profiles = PreferenceProfile::with('preferences')
-            ->where('traveler_id', $traveler->id)
-            ->paginate(10);
+        $profiles = $traveler->preferenceProfiles()->latest()->paginate(10);
 
         return view('traveler.preferences.profiles.index', compact('profiles'));
     }
 
-    public function create(): View
+    /**
+     * Show the form for creating a new preference profile.
+     */
+    public function create()
     {
         return view('traveler.preferences.profiles.create');
     }
 
-    public function store(Request $request): RedirectResponse
+    /**
+     * Store a newly created preference profile in storage.
+     */
+    public function store(Request $request)
     {
-        $validated = $request->validate([
+        $request->validate([
             'name' => ['required', 'string', 'max:255'],
         ]);
 
-        $validated['traveler_id'] = Auth::user()->traveler->id;
+        $traveler = Auth::user()->traveler;
 
-        PreferenceProfile::create($validated);
+        $traveler->preferenceProfiles()->create([
+            'name' => $request->input('name'),
+        ]);
 
-        return redirect()->route('traveler.preference-profiles.index')
-            ->with('success', 'Profile created successfully.');
+        return redirect()
+            ->route('traveler.preference-profiles.index')
+            ->with('success', 'Preference profile created successfully!');
     }
 
-    public function show(PreferenceProfile $preferenceProfile): View
+    /**
+     * Display the specified preference profile.
+     */
+    public function show(PreferenceProfile $preferenceProfile)
     {
         $this->authorize('view', $preferenceProfile);
-
-        $preferenceProfile->load('preferences');
 
         return view('traveler.preferences.profiles.show', compact('preferenceProfile'));
     }
 
-    public function edit(PreferenceProfile $preferenceProfile): View
+    /**
+     * Show the form for editing the specified preference profile.
+     */
+    public function edit(PreferenceProfile $preferenceProfile)
     {
         $this->authorize('update', $preferenceProfile);
 
         return view('traveler.preferences.profiles.edit', compact('preferenceProfile'));
     }
 
-    public function update(Request $request, PreferenceProfile $preferenceProfile): RedirectResponse
+    /**
+     * Update the specified preference profile in storage.
+     */
+    public function update(Request $request, PreferenceProfile $preferenceProfile)
     {
         $this->authorize('update', $preferenceProfile);
 
-        $validated = $request->validate([
+        $request->validate([
             'name' => ['required', 'string', 'max:255'],
         ]);
 
-        $preferenceProfile->update($validated);
+        $preferenceProfile->update([
+            'name' => $request->input('name'),
+        ]);
 
-        return redirect()->route('traveler.preference-profiles.index')
-            ->with('success', 'Profile updated successfully.');
+        return redirect()
+            ->route('traveler.preference-profiles.index')
+            ->with('success', 'Preference profile updated successfully!');
     }
 
-    public function destroy(PreferenceProfile $preferenceProfile): RedirectResponse
+    /**
+     * Remove the specified preference profile from storage.
+     */
+    public function destroy(PreferenceProfile $preferenceProfile)
     {
         $this->authorize('delete', $preferenceProfile);
 
         $preferenceProfile->delete();
 
-        return redirect()->route('traveler.preference-profiles.index')
-            ->with('success', 'Profile deleted successfully.');
+        return redirect()
+            ->route('traveler.preference-profiles.index')
+            ->with('success', 'Preference profile deleted successfully!');
     }
 }
