@@ -1,3 +1,4 @@
+{{-- resources/views/traveler/preference-profiles/edit.blade.php --}}
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
@@ -8,8 +9,12 @@
     <div class="py-12">
         <div class="max-w-3xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white dark:bg-gray-800 shadow-sm sm:rounded-lg p-6">
+                <x-flash-messages />
+
                 <form method="POST" action="{{ route('traveler.preference-profiles.update', $preferenceProfile) }}" class="space-y-6">
-                    @csrf @method('PUT')
+                    @csrf
+                    @method('PUT')
+
                     <div>
                         <label class="block text-sm font-medium">Profile Name</label>
                         <input type="text" name="name" value="{{ old('name', $preferenceProfile->name) }}"
@@ -18,6 +23,7 @@
                             <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
                         @enderror
                     </div>
+
                     <div>
                         <button type="submit"
                                 class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">

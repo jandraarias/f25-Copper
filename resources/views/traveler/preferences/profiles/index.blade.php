@@ -1,3 +1,4 @@
+{{-- resources/views/traveler/preference-profiles/index.blade.php --}}
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
@@ -9,6 +10,9 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900 dark:text-gray-100">
+
+                    <x-flash-messages />
+
                     <div class="flex justify-between items-center mb-4">
                         <h3 class="text-lg font-semibold">Preference Profiles</h3>
                         <a href="{{ route('traveler.preference-profiles.create') }}"
@@ -35,7 +39,8 @@
                                     Edit
                                 </a>
                                 <form method="POST" action="{{ route('traveler.preference-profiles.destroy', $profile) }}">
-                                    @csrf @method('DELETE')
+                                    @csrf
+                                    @method('DELETE')
                                     <button type="submit"
                                             class="px-3 py-1.5 border rounded text-red-600 hover:bg-red-50 dark:hover:bg-red-900"
                                             onclick="return confirm('Delete this profile?')">
