@@ -4,128 +4,112 @@ namespace App\Http\Controllers\Traveler;
 
 use App\Http\Controllers\Controller;
 use App\Models\Itinerary;
-use App\Models\Traveler;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Schema;
+use Illuminate\View\View;
+use Illuminate\Http\RedirectResponse;
 
 class ItineraryController extends Controller
 {
-    public function index()
+    /**
+     * Display a listing of the user's itineraries.
+     */
+    public function index(): View
     {
-        $userId = Auth::id();
+        $traveler = Auth::user()->traveler;
 
-        $itineraries = Itinerary::query()
-            ->whereHas('traveler', fn ($q) => $q->where('user_id', $userId))
-            ->latest()
+        $itineraries = Itinerary::with('items')
+            ->where('traveler_id', $traveler->id)
+            ->latest('start_date')
             ->paginate(10);
 
         return view('traveler.itineraries.index', compact('itineraries'));
     }
 
-    public function create()
+    /**
+     * Show the form for creating a new itinerary.
+     */
+    public function create(): View
     {
         return view('traveler.itineraries.create');
     }
 
-    public function store(Request $request)
+    /**
+     * Store a newly created itinerary.
+     */
+    public function store(Request $request): RedirectResponse
     {
-        $data = $request->validate([
+        $validated = $request->validate([
             'name'        => ['required', 'string', 'max:255'],
-            'country'     => ['required', 'string', 'max:255'],
+            'description' => ['nullable', 'string'],
+            'country'     => ['nullable', 'string', 'max:100'],
+            'destination' => ['nullable', 'string', 'max:255'],
             'start_date'  => ['required', 'date'],
             'end_date'    => ['required', 'date', 'after_or_equal:start_date'],
-            'description' => ['nullable', 'string'],
-            'destination' => ['nullable', 'string', 'max:255'],
         ]);
 
-        // Ensure a Traveler profile exists for this user.
-        $user = Auth::user();
-        $traveler = $user->traveler ?? Traveler::firstOrCreate(
-            ['user_id' => $user->id],
-            ['name' => $user->name, 'email' => $user->email]
-        );
+        $validated['traveler_id'] = Auth::user()->traveler->id;
 
-        // Build the itinerary without mass-assigning location (in case it's not fillable).
-        $itinerary = new Itinerary([
-            'name'        => $data['name'],
-            'country'     => $data['country'],
-            'start_date'  => $data['start_date'],
-            'end_date'    => $data['end_date'],
-            // Optional description → default to empty string to satisfy NOT NULL schemas.
-            'description' => $data['description'] ?? '',
-            'traveler_id' => $traveler->id,
-        ]);
+        Itinerary::create($validated);
 
-        // Satisfy NOT NULL "location" at the itinerary level (if your schema has it).
-        $itinerary->location = $request->input('destination')
-            ?? $request->input('country')
-            ?? '';
-
-        // Persist optional destination only if the column exists.
-        if (Schema::hasColumn('itineraries', 'destination')) {
-            $itinerary->destination = $request->input('destination');
-        }
-
-        $itinerary->save();
-
-        return redirect()
-            ->route('traveler.itineraries.edit', $itinerary)
-            ->with('success', 'Itinerary created.');
+        return redirect()->route('traveler.itineraries.index')
+            ->with('success', 'Itinerary created successfully.');
     }
 
-    public function edit(Itinerary $itinerary)
+    /**
+     * Display the specified itinerary.
+     */
+    public function show(Itinerary $itinerary): View
+    {
+        $this->authorize('view', $itinerary);
+
+        $itinerary->load('items');
+
+        return view('traveler.itineraries.show', compact('itinerary'));
+    }
+
+    /**
+     * Show the form for editing the specified itinerary.
+     */
+    public function edit(Itinerary $itinerary): View
     {
         $this->authorize('update', $itinerary);
-
-        $itinerary->load(['items' => fn ($q) => $q->latest()]);
 
         return view('traveler.itineraries.edit', compact('itinerary'));
     }
 
-    public function update(Request $request, Itinerary $itinerary)
+    /**
+     * Update the specified itinerary.
+     */
+    public function update(Request $request, Itinerary $itinerary): RedirectResponse
     {
         $this->authorize('update', $itinerary);
 
-        $data = $request->validate([
+        $validated = $request->validate([
             'name'        => ['required', 'string', 'max:255'],
-            'country'     => ['required', 'string', 'max:255'],
+            'description' => ['nullable', 'string'],
+            'country'     => ['nullable', 'string', 'max:100'],
+            'destination' => ['nullable', 'string', 'max:255'],
             'start_date'  => ['required', 'date'],
             'end_date'    => ['required', 'date', 'after_or_equal:start_date'],
-            'description' => ['nullable', 'string'],
-            'destination' => ['nullable', 'string', 'max:255'],
         ]);
 
-        // Fill required + optional fields (description defaults to empty string).
-        $itinerary->name        = $data['name'];
-        $itinerary->country     = $data['country'];
-        $itinerary->start_date  = $data['start_date'];
-        $itinerary->end_date    = $data['end_date'];
-        $itinerary->description = $data['description'] ?? '';
+        $itinerary->update($validated);
 
-        // Keep DB happy for NOT NULL "location"
-        $itinerary->location = $request->input('destination')
-            ?? $request->input('country')
-            ?? ($itinerary->location ?? '');
-
-        // Optional destination, only if column exists.
-        if (Schema::hasColumn('itineraries', 'destination')) {
-            $itinerary->destination = $request->input('destination');
-        }
-
-        $itinerary->save();
-
-        return back()->with('success', 'Itinerary updated.');
+        return redirect()->route('traveler.itineraries.index')
+            ->with('success', 'Itinerary updated successfully.');
     }
 
-    public function destroy(Itinerary $itinerary)
+    /**
+     * Remove the specified itinerary.
+     */
+    public function destroy(Itinerary $itinerary): RedirectResponse
     {
         $this->authorize('delete', $itinerary);
 
         $itinerary->delete();
 
-        return redirect()
-            ->route('traveler.itineraries.index')
-            ->with('success', 'Itinerary deleted.');
+        return redirect()->route('traveler.itineraries.index')
+            ->with('success', 'Itinerary deleted successfully.');
     }
 }

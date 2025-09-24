@@ -6,10 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Models\Itinerary;
 use App\Models\ItineraryItem;
 use Illuminate\Http\Request;
+use Illuminate\Http\RedirectResponse;
 
 class ItineraryItemController extends Controller
 {
-    public function store(Request $request, Itinerary $itinerary)
+    public function store(Request $request, Itinerary $itinerary): RedirectResponse
     {
         $this->authorize('update', $itinerary);
 
@@ -27,7 +28,7 @@ class ItineraryItemController extends Controller
         return back()->with('success', 'Item added.');
     }
 
-    public function update(Request $request, ItineraryItem $item)
+    public function update(Request $request, ItineraryItem $item): RedirectResponse
     {
         $this->authorize('update', $item->itinerary);
 
@@ -45,7 +46,7 @@ class ItineraryItemController extends Controller
         return back()->with('success', 'Item updated.');
     }
 
-    public function destroy(ItineraryItem $item)
+    public function destroy(ItineraryItem $item): RedirectResponse
     {
         $this->authorize('delete', $item->itinerary);
 

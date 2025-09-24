@@ -44,18 +44,14 @@
                         @endif
 
                         @if(auth()->user()->isTraveler())
-                            {{-- Traveler Dashboard: prefer Breeze; fall back to Filament traveler panel --}}
+                            {{-- Traveler Dashboard --}}
                             @if (Route::has('traveler.dashboard'))
                                 <x-nav-link :href="route('traveler.dashboard')" :active="request()->routeIs('traveler.dashboard')">
                                     {{ __('Traveler Dashboard') }}
                                 </x-nav-link>
-                            @elseif (Route::has('filament.traveler.pages.traveler-dashboard'))
-                                <x-nav-link :href="route('filament.traveler.pages.traveler-dashboard')" :active="request()->routeIs('filament.traveler.pages.traveler-dashboard')">
-                                    {{ __('Traveler Dashboard') }}
-                                </x-nav-link>
                             @endif
 
-                            {{-- Traveler: My Itineraries (Breeze CRUD) --}}
+                            {{-- Traveler: My Itineraries --}}
                             @if (Route::has('traveler.itineraries.index'))
                                 <x-nav-link :href="route('traveler.itineraries.index')" :active="request()->routeIs('traveler.itineraries.*')">
                                     {{ __('My Itineraries') }}
@@ -146,13 +142,9 @@
                 @endif
 
                 @if(auth()->user()->isTraveler())
-                    {{-- Traveler Dashboard: prefer Breeze; fall back to Filament --}}
+                    {{-- Traveler Dashboard --}}
                     @if (Route::has('traveler.dashboard'))
                         <x-responsive-nav-link :href="route('traveler.dashboard')" :active="request()->routeIs('traveler.dashboard')">
-                            {{ __('Traveler Dashboard') }}
-                        </x-responsive-nav-link>
-                    @elseif (Route::has('filament.traveler.pages.traveler-dashboard'))
-                        <x-responsive-nav-link :href="route('filament.traveler.pages.traveler-dashboard')" :active="request()->routeIs('filament.traveler.pages.traveler-dashboard')">
                             {{ __('Traveler Dashboard') }}
                         </x-responsive-nav-link>
                     @endif

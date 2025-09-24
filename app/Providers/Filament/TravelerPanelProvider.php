@@ -16,6 +16,7 @@ use App\Filament\Pages\TravelerDashboard;
 use App\Filament\Widgets\TravelerStats;
 use App\Filament\Widgets\UpcomingItemsTable;
 
+/*
 class TravelerPanelProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
@@ -44,3 +45,4 @@ class TravelerPanelProvider extends PanelProvider
             ]);
     }
 }
+*/

@@ -23,7 +23,12 @@ use App\Http\Controllers\Traveler\ItineraryItemController as TravelerItineraryIt
 | Public
 |--------------------------------------------------------------------------
 */
-Route::get('/i/{uuid}', [PublicItineraryController::class, 'show'])
+// Throttled short link for public itineraries
+Route::middleware(['throttle:20,1'])->get('/i/{uuid}', [PublicItineraryController::class, 'show'])
+    ->name('public.itinerary.short');
+
+// (Optional) keep original name but apply throttling too
+Route::middleware(['throttle:20,1'])->get('/public/itineraries/{uuid}', [PublicItineraryController::class, 'show'])
     ->name('public.itinerary.show');
 
 Route::get('/', function () {

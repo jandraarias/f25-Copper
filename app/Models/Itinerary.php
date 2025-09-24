@@ -14,12 +14,11 @@ class Itinerary extends Model
 
     protected $fillable = [
         'name',
-        'description',
-        'country',      // required column
-        'destination',  // optional
         'start_date',
         'end_date',
+        'notes',
         'traveler_id',
+        'destination',
     ];
 
     protected $casts = [
@@ -27,11 +26,17 @@ class Itinerary extends Model
         'end_date'   => 'date',
     ];
 
+    /**
+     * The traveler who owns the itinerary.
+     */
     public function traveler(): BelongsTo
     {
         return $this->belongsTo(Traveler::class);
     }
 
+    /**
+     * Items belonging to the itinerary.
+     */
     public function items(): HasMany
     {
         return $this->hasMany(ItineraryItem::class);
