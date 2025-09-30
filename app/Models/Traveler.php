@@ -12,6 +12,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  */
 class Traveler extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
         'user_id',
         'name',
@@ -21,28 +23,28 @@ class Traveler extends Model
         'bio',
     ];
 
+    protected $casts = [
+        'id' => 'integer',
+        'date_of_birth' => 'date',
+    ];
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    protected $casts = [
-        'date_of_birth' => 'date',
-    ];
-
-    public function itineraries()
+    public function itineraries(): HasMany
     {
         return $this->hasMany(Itinerary::class);
+    }
+
+    public function preferenceProfiles(): HasMany
+    {
+        return $this->hasMany(PreferenceProfile::class);
     }
 
     protected static function newFactory()
     {
         return \Database\Factories\TravelerFactory::new();
     }
-
-        public function preferenceProfiles()
-    {
-        return $this->hasMany(\App\Models\PreferenceProfile::class);
-    }
-
 }
