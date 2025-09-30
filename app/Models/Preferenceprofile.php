@@ -6,46 +6,39 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Support\Facades\Auth;
 
-class Preferenceprofile extends Model
+class PreferenceProfile extends Model
 {
     use HasFactory;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array
-     */
     protected $fillable = [
+        'name',
         'traveler_id',
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
-    protected function casts(): array
-    {
-        return [
-            'id' => 'integer',
-            'traveler_id' => 'integer',
-        ];
-    }
+    protected $casts = [
+        'id' => 'integer',
+        'traveler_id' => 'integer',
+    ];
 
     public function traveler(): BelongsTo
     {
         return $this->belongsTo(Traveler::class);
     }
 
-    public function preferences(): BelongsToMany
+    public function preferences(): HasMany
     {
-        return $this->belongsToMany(
-            Preference::class,
-            'preference_preference_profile',
-            'preference_profile_id', // foreign key for this model in pivot table
-            'preference_id'          // foreign key for related model in pivot table
-        );
+        return $this->hasMany(Preference::class);
+    }
+
+    protected static function booted(): void
+    {
+        static::creating(function (self $model): void {
+            $user = Auth::user();
+            if (! $model->traveler_id && $user && $user->traveler) {
+                $model->traveler_id = $user->traveler->id;
+            }
+        });
     }
 }
