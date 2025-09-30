@@ -63,8 +63,4 @@ class User extends Authenticatable
     {
         return $this->hasOne(Traveler::class);
     }
-    public function traveler()
-    {
-        return $this->hasOne(Traveler::class);
-    }
 }

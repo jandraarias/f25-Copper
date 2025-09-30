@@ -27,7 +27,7 @@ namespace App\Models{
  * @property string|null $destination
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ItineraryItem> $items
  * @property-read int|null $items_count
- * @property-read \App\Models\Traveler|null $traveler
+ * @property-read \App\Models\Traveler $traveler
  * @method static \Database\Factories\ItineraryFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Itinerary newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Itinerary newQuery()
@@ -137,9 +137,6 @@ namespace App\Models{
  * @mixin IdeHelperTraveler
  * @property int $id
  * @property string $name
- * @property \Illuminate\Support\Carbon $date_of_birth
- * @property string $phone_number
- * @property string $email
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property string|null $bio
@@ -149,16 +146,14 @@ namespace App\Models{
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PreferenceProfile> $preferenceProfiles
  * @property-read int|null $preference_profiles_count
  * @property-read \App\Models\User $user
+ * @method static \Database\Factories\TravelerFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Traveler newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Traveler newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Traveler query()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Traveler whereBio($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Traveler whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Traveler whereDateOfBirth($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Traveler whereEmail($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Traveler whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Traveler whereName($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Traveler wherePhoneNumber($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Traveler whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Traveler whereUserId($value)
  */
