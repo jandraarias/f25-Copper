@@ -13,11 +13,12 @@ class TravelerFactory extends Factory
     public function definition(): array
     {
         return [
-            'user_id' => User::factory()->create(['role' => User::ROLE_TRAVELER])->id,
-            'name' => $this->faker->name(),
-            'email' => $this->faker->unique()->safeEmail(),
-            'date_of_birth' => $this->faker->date(),
-            'phone_number' => $this->faker->phoneNumber(),
+            // Create a linked user with the traveler role
+            'user_id' => User::factory()->create([
+                'role' => User::ROLE_TRAVELER,
+            ])->id,
+
+            // Only traveler-specific fields
             'bio' => $this->faker->sentence(),
         ];
     }

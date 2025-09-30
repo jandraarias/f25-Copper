@@ -4,10 +4,8 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
-
 use App\Models\User;
 use App\Models\Traveler;
-use Database\Factories\TravelerFactory;
 use Database\Factories\ItineraryFactory;
 use Database\Factories\ItineraryItemFactory;
 use Database\Factories\PreferenceProfileFactory;
@@ -28,20 +26,16 @@ class DatabaseSeeder extends Seeder
         );
 
         // Travelers with linked Users
-        $travelers = TravelerFactory::new()->count(3)->create();
+        $users = User::factory()
+            ->count(3)
+            ->create(['role' => User::ROLE_TRAVELER]);
 
-        foreach ($travelers as $traveler) {
-            // Ensure traveler has a user
-            $user = $traveler->user()->updateOrCreate(
-                ['email' => $traveler->email],
-                [
-                    'name' => $traveler->name,
-                    'password' => Hash::make('password'), // default password
-                    'role' => User::ROLE_TRAVELER,
-                ]
-            );
-
-            $traveler->update(['user_id' => $user->id]);
+        foreach ($users as $user) {
+            // Each traveler profile belongs to a user
+            $traveler = Traveler::create([
+                'user_id' => $user->id,
+                'bio' => fake()->sentence(),
+            ]);
 
             // Each Traveler gets 2 itineraries
             $itineraries = ItineraryFactory::new()->count(2)->create([

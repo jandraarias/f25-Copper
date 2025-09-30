@@ -88,6 +88,7 @@ namespace App\Models{
  * @property string $value
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property int|null $parent_id
  * @property-read \App\Models\PreferenceProfile $profile
  * @method static \Database\Factories\PreferenceFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Preference newModelQuery()
@@ -96,6 +97,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Preference whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Preference whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Preference whereKey($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Preference whereParentId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Preference wherePreferenceProfileId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Preference whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Preference whereValue($value)
@@ -136,11 +138,11 @@ namespace App\Models{
 /**
  * @mixin IdeHelperTraveler
  * @property int $id
+ * @property int $user_id
  * @property string $name
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property string|null $bio
- * @property int $user_id
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Itinerary> $itineraries
  * @property-read int|null $itineraries_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PreferenceProfile> $preferenceProfiles

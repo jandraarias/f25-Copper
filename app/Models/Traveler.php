@@ -16,16 +16,11 @@ class Traveler extends Model
 
     protected $fillable = [
         'user_id',
-        'name',
-        'email',
-        'date_of_birth',
-        'phone_number',
-        'bio',
+        'bio', // traveler-specific only
     ];
 
     protected $casts = [
         'id' => 'integer',
-        'date_of_birth' => 'date',
     ];
 
     public function user(): BelongsTo

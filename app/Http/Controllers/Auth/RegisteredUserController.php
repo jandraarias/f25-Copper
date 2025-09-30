@@ -32,12 +32,12 @@ class RegisteredUserController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
-            'role' => ['required', 'in:traveler,expert,business,admin'],
+            'name'          => ['required', 'string', 'max:255'],
+            'email'         => ['required', 'string', 'email', 'max:255', 'unique:users'],
+            'password'      => ['required', 'confirmed', Rules\Password::defaults()],
+            'role'          => ['required', 'in:traveler,expert,business,admin'],
             'date_of_birth' => ['required', 'date'],
-            'phone_number' => ['required', 'string', 'max:20'],
+            'phone_number'  => ['required', 'string', 'max:20'],
         ]);
 
         // Prevent non-admins from registering as admin
@@ -45,28 +45,27 @@ class RegisteredUserController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
+        // Create the user with PII stored on users table
         $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'role' => $request->role,
+            'name'          => $request->name,
+            'email'         => $request->email,
+            'password'      => Hash::make($request->password),
+            'role'          => $request->role,
+            'date_of_birth' => $request->date_of_birth,
+            'phone_number'  => $request->phone_number,
         ]);
 
-        // 🔹 If user is a traveler, also create a Traveler profile
-        if ($user->role === 'traveler') {
-            \App\Models\Traveler::create([
-                'user_id'       => $user->id,
-                'name'          => $user->name,
-                'email'         => $user->email,
-                'bio'           => null,
-                'date_of_birth' => $request->date_of_birth,
-                'phone_number'  => $request->phone_number,
+        // If user is a traveler, also create a Traveler profile
+        if ($user->role === User::ROLE_TRAVELER) {
+            Traveler::create([
+                'user_id' => $user->id,
+                'bio'     => null,
             ]);
         }
 
         event(new Registered($user));
         Auth::login($user);
 
-        return redirect()->intended(RouteServiceProvider::redirectTo());
+        return redirect()->intended(RouteServiceProvider::HOME);
     }
 }
