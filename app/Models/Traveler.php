@@ -4,36 +4,33 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/**
+ * @mixin IdeHelperTraveler
+ */
 class Traveler extends Model
 {
     use HasFactory;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array
-     */
     protected $fillable = [
         'user_id',
         'name',
+        'email',
         'date_of_birth',
         'phone_number',
-        'email',
+        'bio',
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
-    protected function casts(): array
+    protected $casts = [
+        'id' => 'integer',
+        'date_of_birth' => 'date',
+    ];
+
+    public function user(): BelongsTo
     {
-        return [
-            'id' => 'integer',
-            'date_of_birth' => 'date',
-        ];
+        return $this->belongsTo(User::class);
     }
 
     public function itineraries(): HasMany
@@ -41,14 +38,13 @@ class Traveler extends Model
         return $this->hasMany(Itinerary::class);
     }
 
-    public function preferenceProfile()
+    public function preferenceProfiles(): HasMany
     {
-        return $this->hasOne(Preferenceprofile::class);
+        return $this->hasMany(PreferenceProfile::class);
     }
-    
-    public function user()
+
+    protected static function newFactory()
     {
-        return $this->belongsTo(User::class);
+        return \Database\Factories\TravelerFactory::new();
     }
-	
 }
