@@ -16,14 +16,23 @@ class PreferencesTable
             ->columns([
                 TextColumn::make('name')
                     ->searchable(),
+                
                 TextColumn::make('type')
                     ->searchable(),
-                TextColumn::make('category')
+                
+               // TextColumn::make('category')
+                 //   ->searchable(),
+                
+                TextColumn::make('parent.name') // Added
+                    ->label('Parent')
+                    ->sortable()
                     ->searchable(),
+                
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
+                
                 TextColumn::make('updated_at')
                     ->dateTime()
                     ->sortable()
