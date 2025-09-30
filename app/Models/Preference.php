@@ -19,6 +19,7 @@ class Preference extends Model
         'name',
         'type',
         'category',
+        'parent_id',
     ];
 
     /**
@@ -41,5 +42,15 @@ class Preference extends Model
             'preference_id',         // foreign key for this model in pivot table
             'preference_profile_id'  // foreign key for related model in pivot table
         );
+    }
+    // For Main interests and sub interests  
+    public function parent()
+    {
+        return $this->belongsTo(Preference::class, 'parent_id');
+    }
+
+    public function children()
+    {
+        return $this->hasMany(Preference::class, 'parent_id');
     }
 }
