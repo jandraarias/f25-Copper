@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration {
     public function up(): void
     {
-        // 0) Ensure target columns exist on users (your repo already does this; kept for idempotency)
+        // 0) Ensure target columns exist on users (idempotent)
         Schema::table('users', function (Blueprint $table) {
             if (! Schema::hasColumn('users', 'phone_number')) {
                 $table->string('phone_number', 20)->nullable()->after('email');
@@ -19,22 +19,39 @@ return new class extends Migration {
         });
 
         // 1) Backfill users.<fields> from travelers if users.<field> is NULL
-        // Works across drivers by doing row-by-row updates (small data set). If very large, batch/chunk.
-        $rows = DB::table('travelers')
-            ->join('users', 'users.id', '=', 'travelers.user_id')
-            ->select('users.id as user_id', 'travelers.phone_number', 'travelers.date_of_birth')
-            ->get();
+        if (Schema::hasTable('travelers')) {
+            $travelerHasPhone = Schema::hasColumn('travelers', 'phone_number');
+            $travelerHasDob   = Schema::hasColumn('travelers', 'date_of_birth');
 
-        foreach ($rows as $r) {
-            $update = [];
-            if (is_null(DB::table('users')->where('id', $r->user_id)->value('phone_number')) && !empty($r->phone_number)) {
-                $update['phone_number'] = $r->phone_number;
-            }
-            if (is_null(DB::table('users')->where('id', $r->user_id)->value('date_of_birth')) && !empty($r->date_of_birth)) {
-                $update['date_of_birth'] = $r->date_of_birth;
-            }
-            if ($update) {
-                DB::table('users')->where('id', $r->user_id)->update($update);
+            if ($travelerHasPhone || $travelerHasDob) {
+                $rows = DB::table('travelers')
+                    ->join('users', 'users.id', '=', 'travelers.user_id')
+                    ->select(
+                        'users.id as user_id',
+                        $travelerHasPhone ? 'travelers.phone_number' : DB::raw('NULL as phone_number'),
+                        $travelerHasDob ? 'travelers.date_of_birth' : DB::raw('NULL as date_of_birth')
+                    )
+                    ->get();
+
+                foreach ($rows as $r) {
+                    $update = [];
+
+                    if ($travelerHasPhone &&
+                        is_null(DB::table('users')->where('id', $r->user_id)->value('phone_number')) &&
+                        !empty($r->phone_number)) {
+                        $update['phone_number'] = $r->phone_number;
+                    }
+
+                    if ($travelerHasDob &&
+                        is_null(DB::table('users')->where('id', $r->user_id)->value('date_of_birth')) &&
+                        !empty($r->date_of_birth)) {
+                        $update['date_of_birth'] = $r->date_of_birth;
+                    }
+
+                    if ($update) {
+                        DB::table('users')->where('id', $r->user_id)->update($update);
+                    }
+                }
             }
         }
 
@@ -68,17 +85,24 @@ return new class extends Migration {
         });
 
         // Best-effort backfill travelers from users
-        $rows = DB::table('travelers')
-            ->join('users', 'users.id', '=', 'travelers.user_id')
-            ->select('travelers.id as traveler_id', 'users.email', 'users.phone_number', 'users.date_of_birth')
-            ->get();
+        if (Schema::hasTable('users')) {
+            $rows = DB::table('travelers')
+                ->join('users', 'users.id', '=', 'travelers.user_id')
+                ->select(
+                    'travelers.id as traveler_id',
+                    'users.email',
+                    'users.phone_number',
+                    'users.date_of_birth'
+                )
+                ->get();
 
-        foreach ($rows as $r) {
-            DB::table('travelers')->where('id', $r->traveler_id)->update([
-                'email'         => $r->email,
-                'phone_number'  => $r->phone_number,
-                'date_of_birth' => $r->date_of_birth,
-            ]);
+            foreach ($rows as $r) {
+                DB::table('travelers')->where('id', $r->traveler_id)->update([
+                    'email'         => $r->email,
+                    'phone_number'  => $r->phone_number,
+                    'date_of_birth' => $r->date_of_birth,
+                ]);
+            }
         }
     }
 };

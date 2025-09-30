@@ -18,26 +18,34 @@ return new class extends Migration
             }
         });
 
-        // One-time backfill from travelers -> users (only if users.* is NULL)
+        // One-time backfill from travelers -> users (only if the columns still exist)
         if (Schema::hasTable('travelers')) {
-            $travelers = DB::table('travelers')
-                ->select('user_id', 'phone_number', 'date_of_birth')
-                ->whereNotNull('user_id')
-                ->get();
+            $travelerHasPhone = Schema::hasColumn('travelers', 'phone_number');
+            $travelerHasDob   = Schema::hasColumn('travelers', 'date_of_birth');
 
-            foreach ($travelers as $t) {
-                if ($t->phone_number !== null) {
-                    DB::table('users')
-                        ->where('id', $t->user_id)
-                        ->whereNull('phone_number')
-                        ->update(['phone_number' => $t->phone_number]);
-                }
+            if ($travelerHasPhone || $travelerHasDob) {
+                $travelers = DB::table('travelers')
+                    ->select('user_id', 
+                        $travelerHasPhone ? 'phone_number' : DB::raw('NULL as phone_number'),
+                        $travelerHasDob ? 'date_of_birth' : DB::raw('NULL as date_of_birth')
+                    )
+                    ->whereNotNull('user_id')
+                    ->get();
 
-                if ($t->date_of_birth !== null) {
-                    DB::table('users')
-                        ->where('id', $t->user_id)
-                        ->whereNull('date_of_birth')
-                        ->update(['date_of_birth' => $t->date_of_birth]);
+                foreach ($travelers as $t) {
+                    if ($travelerHasPhone && $t->phone_number !== null) {
+                        DB::table('users')
+                            ->where('id', $t->user_id)
+                            ->whereNull('phone_number')
+                            ->update(['phone_number' => $t->phone_number]);
+                    }
+
+                    if ($travelerHasDob && $t->date_of_birth !== null) {
+                        DB::table('users')
+                            ->where('id', $t->user_id)
+                            ->whereNull('date_of_birth')
+                            ->update(['date_of_birth' => $t->date_of_birth]);
+                    }
                 }
             }
         }
