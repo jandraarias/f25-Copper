@@ -38,12 +38,15 @@ class ItineraryController extends Controller
             'destination' => ['nullable', 'string', 'max:255'],
             'start_date'  => ['nullable', 'date'],
             'end_date'    => ['nullable', 'date', 'after_or_equal:start_date'],
-            'notes'       => ['nullable', 'string'],
+            'description' => ['nullable', 'string'],
         ]);
 
         $traveler = Auth::user()->traveler;
 
-        $traveler->itineraries()->create($request->only('name', 'destination', 'start_date', 'end_date', 'notes'));
+        // Relation create will set traveler_id automatically
+        $traveler->itineraries()->create(
+            $request->only('name', 'destination', 'start_date', 'end_date', 'description')
+        );
 
         return redirect()
             ->route('traveler.itineraries.index')
@@ -56,6 +59,9 @@ class ItineraryController extends Controller
     public function show(Itinerary $itinerary)
     {
         $this->authorize('view', $itinerary);
+
+        // Ensure items are eager loaded for the view
+        $itinerary->load('items');
 
         return view('traveler.itineraries.show', compact('itinerary'));
     }
@@ -82,10 +88,12 @@ class ItineraryController extends Controller
             'destination' => ['nullable', 'string', 'max:255'],
             'start_date'  => ['nullable', 'date'],
             'end_date'    => ['nullable', 'date', 'after_or_equal:start_date'],
-            'notes'       => ['nullable', 'string'],
+            'description' => ['nullable', 'string'],
         ]);
 
-        $itinerary->update($request->only('name', 'destination', 'start_date', 'end_date', 'notes'));
+        $itinerary->update(
+            $request->only('name', 'destination', 'start_date', 'end_date', 'description')
+        );
 
         return redirect()
             ->route('traveler.itineraries.index')

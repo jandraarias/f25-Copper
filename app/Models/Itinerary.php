@@ -16,7 +16,7 @@ class Itinerary extends Model
         'name',
         'start_date',
         'end_date',
-        'notes',
+        'description',
         'traveler_id',
         'destination',
     ];
