@@ -9,9 +9,6 @@ class PreferencesTableSeeder extends Seeder
 {
     public function run(): void
     {
-         //  This will delete all existing preferences
-        Preference::truncate();
-
         //  Define main interests and sub-interests
         $data = [
             'Cultural & Historical' => ['Landmarks', 'Museums', 'Historical Sites'],
