@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Filament\Resources\Preferenceprofiles\Pages;
+namespace App\Filament\Resources\PreferenceProfiles\Pages;
 
-use App\Filament\Resources\Preferenceprofiles\PreferenceprofileResource;
+use App\Filament\Resources\PreferenceProfiles\PreferenceProfileResource;
 use Filament\Resources\Pages\CreateRecord;
 
-class CreatePreferenceprofile extends CreateRecord
+class CreatePreferenceProfile extends CreateRecord
 {
-    protected static string $resource = PreferenceprofileResource::class;
+    protected static string $resource = PreferenceProfileResource::class;
 }

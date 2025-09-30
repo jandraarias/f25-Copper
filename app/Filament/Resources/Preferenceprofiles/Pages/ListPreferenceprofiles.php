@@ -1,14 +1,14 @@
 <?php
 
-namespace App\Filament\Resources\Preferenceprofiles\Pages;
+namespace App\Filament\Resources\PreferenceProfiles\Pages;
 
-use App\Filament\Resources\Preferenceprofiles\PreferenceprofileResource;
+use App\Filament\Resources\PreferenceProfiles\PreferenceProfileResource;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
 
-class ListPreferenceprofiles extends ListRecords
+class ListPreferenceProfiles extends ListRecords
 {
-    protected static string $resource = PreferenceprofileResource::class;
+    protected static string $resource = PreferenceProfileResource::class;
 
     protected function getHeaderActions(): array
     {
