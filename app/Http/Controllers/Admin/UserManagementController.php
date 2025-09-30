@@ -19,10 +19,10 @@ class UserManagementController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name'     => ['required', 'string', 'max:255'],
-            'email'    => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
-            'password' => ['required', 'confirmed', 'min:8'],
-            'role'     => ['required', Rule::in(['traveler', 'expert', 'business', 'admin'])],
+            'name'          => ['required', 'string', 'max:255'],
+            'email'         => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
+            'password'      => ['required', 'confirmed', 'min:8'],
+            'role'          => ['required', Rule::in(['traveler', 'expert', 'business', 'admin'])],
             'phone_number'  => ['nullable', 'required_unless:role,admin', 'string', 'max:20'],
             'date_of_birth' => ['nullable', 'required_unless:role,business,admin', 'date'],
         ]);
@@ -36,22 +36,20 @@ class UserManagementController extends Controller
             'date_of_birth' => $request->input('date_of_birth'),
         ]);
 
+        // Create a Traveler shell only for traveler role (no PII duplication)
         if ($user->role === 'traveler') {
-            Traveler::firstOrCreate(
+            $traveler = Traveler::firstOrCreate(
                 ['user_id' => $user->id],
                 [
-                    'name'          => $user->name,
-                    'email'         => $user->email,
-                    'date_of_birth' => $request->input('date_of_birth'),
-                    'phone_number'  => $request->input('phone_number'),
-                    'bio'           => null,
+                    'name' => $user->name,
+                    'bio'  => null,
                 ]
-            )->update([
-                'name'          => $user->name,
-                'email'         => $user->email,
-                'date_of_birth' => $request->input('date_of_birth'),
-                'phone_number'  => $request->input('phone_number'),
-            ]);
+            );
+
+            // Keep traveler name in sync with user name
+            if ($traveler->name !== $user->name) {
+                $traveler->update(['name' => $user->name]);
+            }
         }
 
         return redirect()->route('admin.users.index')->with('success', 'User created successfully!');
@@ -74,10 +72,10 @@ class UserManagementController extends Controller
     public function update(Request $request, User $user)
     {
         $request->validate([
-            'name'     => ['required', 'string', 'max:255'],
-            'email'    => ['required', 'string', 'email', 'max:255', Rule::unique('users', 'email')->ignore($user->id)],
-            'role'     => ['required', Rule::in(['traveler', 'expert', 'business', 'admin'])],
-            'password' => ['nullable', 'confirmed', 'min:8'],
+            'name'          => ['required', 'string', 'max:255'],
+            'email'         => ['required', 'string', 'email', 'max:255', Rule::unique('users', 'email')->ignore($user->id)],
+            'role'          => ['required', Rule::in(['traveler', 'expert', 'business', 'admin'])],
+            'password'      => ['nullable', 'confirmed', 'min:8'],
             'phone_number'  => ['nullable', 'required_unless:role,admin', 'string', 'max:20'],
             'date_of_birth' => ['nullable', 'required_unless:role,business,admin', 'date'],
         ]);
@@ -94,22 +92,20 @@ class UserManagementController extends Controller
         $user->date_of_birth = $request->input('date_of_birth');
         $user->save();
 
+        // Ensure a traveler shell exists for traveler role; keep only non-PII fields here
         if ($user->role === 'traveler') {
-            Traveler::firstOrCreate(
+            $traveler = Traveler::firstOrCreate(
                 ['user_id' => $user->id],
                 [
-                    'name'          => $user->name,
-                    'email'         => $user->email,
-                    'date_of_birth' => $request->input('date_of_birth'),
-                    'phone_number'  => $request->input('phone_number'),
-                    'bio'           => optional($user->traveler)->bio,
+                    'name' => $user->name,
+                    'bio'  => optional($user->traveler)->bio,
                 ]
-            )->update([
-                'name'          => $user->name,
-                'email'         => $user->email,
-                'date_of_birth' => $request->input('date_of_birth'),
-                'phone_number'  => $request->input('phone_number'),
-            ]);
+            );
+
+            // Keep traveler name in sync with user
+            if ($traveler->name !== $user->name) {
+                $traveler->update(['name' => $user->name]);
+            }
         }
 
         return redirect()->route('admin.users.index')->with('success', 'User updated.');
