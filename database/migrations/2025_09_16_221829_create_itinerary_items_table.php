@@ -6,20 +6,20 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('itinerary_items', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('itinerary_id')->constrained()->onDelete('cascade');
-            $table->string('type'); // e.g. flight, hotel, activity
+            $table->foreignId('itinerary_id')->constrained()->cascadeOnDelete();
+
+            $table->string('type'); // flight, hotel, activity, etc.
             $table->string('title');
+            $table->string('location'); // required here — specific place (hotel name, landmark, etc.)
+
             $table->dateTime('start_time')->nullable();
             $table->dateTime('end_time')->nullable();
-            $table->string('location')->nullable();
             $table->text('details')->nullable();
+
             $table->timestamps();
         });
     }

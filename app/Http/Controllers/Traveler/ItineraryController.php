@@ -35,7 +35,8 @@ class ItineraryController extends Controller
     {
         $request->validate([
             'name'        => ['required', 'string', 'max:255'],
-            'destination' => ['nullable', 'string', 'max:255'],
+            'country'     => ['required', 'string', 'max:255'],   // new required field
+            'destination' => ['nullable', 'string', 'max:255'],   // main city, optional
             'start_date'  => ['nullable', 'date'],
             'end_date'    => ['nullable', 'date', 'after_or_equal:start_date'],
             'description' => ['nullable', 'string'],
@@ -45,7 +46,7 @@ class ItineraryController extends Controller
 
         // Relation create will set traveler_id automatically
         $traveler->itineraries()->create(
-            $request->only('name', 'destination', 'start_date', 'end_date', 'description')
+            $request->only('name', 'country', 'destination', 'start_date', 'end_date', 'description')
         );
 
         return redirect()
@@ -85,6 +86,7 @@ class ItineraryController extends Controller
 
         $request->validate([
             'name'        => ['required', 'string', 'max:255'],
+            'country'     => ['required', 'string', 'max:255'],   // must always be filled
             'destination' => ['nullable', 'string', 'max:255'],
             'start_date'  => ['nullable', 'date'],
             'end_date'    => ['nullable', 'date', 'after_or_equal:start_date'],
@@ -92,7 +94,7 @@ class ItineraryController extends Controller
         ]);
 
         $itinerary->update(
-            $request->only('name', 'destination', 'start_date', 'end_date', 'description')
+            $request->only('name', 'country', 'destination', 'start_date', 'end_date', 'description')
         );
 
         return redirect()

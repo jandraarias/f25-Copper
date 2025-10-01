@@ -50,7 +50,6 @@ namespace App\Models{
 
 namespace App\Models{
 /**
- * @mixin IdeHelperItineraryItem
  * @property int $id
  * @property int $itinerary_id
  * @property string $type

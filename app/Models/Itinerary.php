@@ -14,6 +14,7 @@ class Itinerary extends Model
 
     protected $fillable = [
         'name',
+        'country',
         'start_date',
         'end_date',
         'description',

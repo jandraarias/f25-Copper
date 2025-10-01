@@ -6,27 +6,25 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('itineraries', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('traveler_id')->constrained()->cascadeOnDelete();
+            
             $table->string('name');
-            $table->string('description');
-            $table->dateTime('start_date');
-            $table->dateTime('end_date');
-            $table->string('country');
-            $table->string('location');
-            $table->foreignId('traveler_id');
+            $table->string('country');                // required
+            $table->string('destination')->nullable(); // optional main city/region
+            $table->string('location')->nullable();    // optional high-level label, not required
+
+            $table->date('start_date')->nullable();
+            $table->date('end_date')->nullable();
+            $table->text('description')->nullable();
+
             $table->timestamps();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('itineraries');
