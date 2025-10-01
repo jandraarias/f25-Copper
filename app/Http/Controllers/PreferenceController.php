@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Preference;
-use App\Models\Preferenceprofile;
+use App\Models\PreferenceProfile;
 use Illuminate\Support\Facades\Auth;
 
 class PreferenceController extends Controller
