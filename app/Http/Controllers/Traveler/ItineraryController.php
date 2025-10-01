@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Itinerary;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 
 class ItineraryController extends Controller
 {
@@ -35,8 +36,9 @@ class ItineraryController extends Controller
     {
         $request->validate([
             'name'        => ['required', 'string', 'max:255'],
-            'country'     => ['required', 'string', 'max:255'],   // new required field
-            'destination' => ['nullable', 'string', 'max:255'],   // main city, optional
+            'countries'   => ['required', 'array', 'min:1'],
+            'countries.*' => ['string', Rule::in(array_keys(config('countries.list')))],
+            'destination' => ['nullable', 'string', 'max:255'],
             'start_date'  => ['nullable', 'date'],
             'end_date'    => ['nullable', 'date', 'after_or_equal:start_date'],
             'description' => ['nullable', 'string'],
@@ -44,10 +46,13 @@ class ItineraryController extends Controller
 
         $traveler = Auth::user()->traveler;
 
-        // Relation create will set traveler_id automatically
-        $traveler->itineraries()->create(
-            $request->only('name', 'country', 'destination', 'start_date', 'end_date', 'description')
+        // Create itinerary (traveler_id set via relationship)
+        $itinerary = $traveler->itineraries()->create(
+            $request->only('name', 'destination', 'start_date', 'end_date', 'description')
         );
+
+        // Attach countries via pivot
+        $itinerary->countries()->attach($request->input('countries'));
 
         return redirect()
             ->route('traveler.itineraries.index')
@@ -61,8 +66,8 @@ class ItineraryController extends Controller
     {
         $this->authorize('view', $itinerary);
 
-        // Ensure items are eager loaded for the view
-        $itinerary->load('items');
+        // Eager load items + countries
+        $itinerary->load(['items', 'countries']);
 
         return view('traveler.itineraries.show', compact('itinerary'));
     }
@@ -73,6 +78,9 @@ class ItineraryController extends Controller
     public function edit(Itinerary $itinerary)
     {
         $this->authorize('update', $itinerary);
+
+        // Load countries for multi-select
+        $itinerary->load('countries');
 
         return view('traveler.itineraries.edit', compact('itinerary'));
     }
@@ -86,16 +94,21 @@ class ItineraryController extends Controller
 
         $request->validate([
             'name'        => ['required', 'string', 'max:255'],
-            'country'     => ['required', 'string', 'max:255'],   // must always be filled
+            'countries'   => ['required', 'array', 'min:1'],
+            'countries.*' => ['string', Rule::in(array_keys(config('countries.list')))],
             'destination' => ['nullable', 'string', 'max:255'],
             'start_date'  => ['nullable', 'date'],
             'end_date'    => ['nullable', 'date', 'after_or_equal:start_date'],
             'description' => ['nullable', 'string'],
         ]);
 
+        // Update itinerary itself
         $itinerary->update(
-            $request->only('name', 'country', 'destination', 'start_date', 'end_date', 'description')
+            $request->only('name', 'destination', 'start_date', 'end_date', 'description')
         );
+
+        // Sync updated countries
+        $itinerary->countries()->sync($request->input('countries'));
 
         return redirect()
             ->route('traveler.itineraries.index')
@@ -108,6 +121,9 @@ class ItineraryController extends Controller
     public function destroy(Itinerary $itinerary)
     {
         $this->authorize('delete', $itinerary);
+
+        // Detach related countries before deletion
+        $itinerary->countries()->detach();
 
         $itinerary->delete();
 

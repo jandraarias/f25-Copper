@@ -17,6 +17,7 @@
                         @csrf
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {{-- Name --}}
                             <div class="md:col-span-2">
                                 <label class="block text-sm font-medium">Name</label>
                                 <input name="name" type="text" value="{{ old('name') }}" required
@@ -24,6 +25,7 @@
                                 @error('name')<p class="text-red-600 text-sm mt-1">{{ $message }}</p>@enderror
                             </div>
 
+                            {{-- Description --}}
                             <div class="md:col-span-2">
                                 <label class="block text-sm font-medium">Description</label>
                                 <textarea name="description" rows="5" required
@@ -31,14 +33,22 @@
                                 @error('description')<p class="text-red-600 text-sm mt-1">{{ $message }}</p>@enderror
                             </div>
 
-                            <div>
-                                <label class="block text-sm font-medium">Country</label>
-                                <input name="country" type="text" value="{{ old('country') }}" required
-                                       class="mt-1 w-full border rounded p-2 dark:bg-gray-900 dark:border-gray-700"
-                                       placeholder="e.g., United States or FR">
-                                @error('country')<p class="text-red-600 text-sm mt-1">{{ $message }}</p>@enderror
+                            {{-- Countries (multi-select) --}}
+                            <div class="md:col-span-2">
+                                <label class="block text-sm font-medium">Countries</label>
+                                <select name="countries[]" multiple required
+                                        class="mt-1 w-full border rounded p-2 dark:bg-gray-900 dark:border-gray-700 h-40">
+                                    @foreach(config('countries.list') as $code => $name)
+                                        <option value="{{ $code }}" @selected(collect(old('countries', []))->contains($code))>
+                                            {{ $name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <p class="text-xs text-gray-500 mt-1">Hold Ctrl (Windows) or Command (Mac) to select multiple.</p>
+                                @error('countries')<p class="text-red-600 text-sm mt-1">{{ $message }}</p>@enderror
                             </div>
 
+                            {{-- Destination --}}
                             <div>
                                 <label class="block text-sm font-medium">Destination (optional)</label>
                                 <input name="destination" type="text" value="{{ old('destination') }}"
@@ -47,6 +57,7 @@
                                 @error('destination')<p class="text-red-600 text-sm mt-1">{{ $message }}</p>@enderror
                             </div>
 
+                            {{-- Start Date --}}
                             <div>
                                 <label class="block text-sm font-medium">Start Date</label>
                                 <input name="start_date" type="date" value="{{ old('start_date') }}"
@@ -54,6 +65,7 @@
                                 @error('start_date')<p class="text-red-600 text-sm mt-1">{{ $message }}</p>@enderror
                             </div>
 
+                            {{-- End Date --}}
                             <div>
                                 <label class="block text-sm font-medium">End Date</label>
                                 <input name="end_date" type="date" value="{{ old('end_date') }}"

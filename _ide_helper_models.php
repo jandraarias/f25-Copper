@@ -13,18 +13,51 @@
 
 namespace App\Models{
 /**
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Itinerary> $itineraries
+ * @property-read int|null $itineraries_count
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Country newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Country newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Country query()
+ */
+	class Country extends \Eloquent {}
+}
+
+namespace App\Models{
+/**
+ * @property int $id
+ * @property int $itinerary_id
+ * @property string $country
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\Itinerary $itinerary
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CountryItinerary newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CountryItinerary newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CountryItinerary query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CountryItinerary whereCountry($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CountryItinerary whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CountryItinerary whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CountryItinerary whereItineraryId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CountryItinerary whereUpdatedAt($value)
+ */
+	class CountryItinerary extends \Eloquent {}
+}
+
+namespace App\Models{
+/**
  * @property int $id
  * @property string $name
  * @property string $description
  * @property \Illuminate\Support\Carbon $start_date
  * @property \Illuminate\Support\Carbon $end_date
  * @property string $country
- * @property string $location
+ * @property string|null $location
  * @property int $traveler_id
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property string|null $public_uuid
  * @property string|null $destination
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Country> $countries
+ * @property-read int|null $countries_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ItineraryItem> $items
  * @property-read int|null $items_count
  * @property-read \App\Models\Traveler $traveler

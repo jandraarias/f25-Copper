@@ -50,7 +50,6 @@ class PreferenceProfileResource extends Resource
                 ->maxLength(50),
 
             // Store as JSON string safely even if the model doesn’t define a cast.
-            // If your model casts interests => 'array', this still works (DB holds valid JSON).
             TagsInput::make('interests')
                 ->placeholder('Add interests…')
                 ->suggestions(['food', 'museums', 'hiking', 'beach', 'nightlife', 'history'])

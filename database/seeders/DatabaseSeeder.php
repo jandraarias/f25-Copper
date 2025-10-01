@@ -15,6 +15,9 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
+        // 🔹 Seed the countries first
+        $this->call(CountrySeeder::class);
+
         // Admin user
         User::query()->updateOrCreate(
             ['email' => 'admin@example.com'],

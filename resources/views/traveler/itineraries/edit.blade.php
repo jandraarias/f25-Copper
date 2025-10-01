@@ -33,7 +33,9 @@
 
                             {{-- Description (optional) --}}
                             <div class="md:col-span-2">
-                                <label class="block text-sm font-medium">Description <span class="text-xs text-gray-500">(optional)</span></label>
+                                <label class="block text-sm font-medium">
+                                    Description <span class="text-xs text-gray-500">(optional)</span>
+                                </label>
                                 <textarea
                                     name="description"
                                     rows="5"
@@ -42,23 +44,32 @@
                                 @error('description')<p class="text-red-600 text-sm mt-1">{{ $message }}</p>@enderror
                             </div>
 
-                            {{-- Country (required) --}}
-                            <div>
-                                <label class="block text-sm font-medium">Country</label>
-                                <input
-                                    name="country"
-                                    type="text"
-                                    value="{{ old('country', $itinerary->country) }}"
-                                    required
-                                    placeholder="e.g., United States or FR"
-                                    class="mt-1 w-full border rounded p-2 dark:bg-gray-900 dark:border-gray-700"
-                                >
-                                @error('country')<p class="text-red-600 text-sm mt-1">{{ $message }}</p>@enderror
+                            {{-- Countries (multi-select, required ≥1) --}}
+                            <div class="md:col-span-2">
+                                <label class="block text-sm font-medium">Countries</label>
+                                @php
+                                    // Preselect previously chosen countries (or old input on validation error)
+                                    $selectedCountries = old('countries', $itinerary->countries->pluck('country')->toArray());
+                                @endphp
+                                <select name="countries[]" multiple required
+                                        class="mt-1 w-full border rounded p-2 dark:bg-gray-900 dark:border-gray-700 h-40">
+                                    @foreach(config('countries.list') as $code => $name)
+                                        <option value="{{ $code }}" @selected(collect($selectedCountries)->contains($code))>
+                                            {{ $name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <p class="text-xs text-gray-500 mt-1">
+                                    Hold Ctrl (Windows) or Command (Mac) to select multiple.
+                                </p>
+                                @error('countries')<p class="text-red-600 text-sm mt-1">{{ $message }}</p>@enderror
                             </div>
 
                             {{-- Destination (optional) --}}
                             <div>
-                                <label class="block text-sm font-medium">Destination <span class="text-xs text-gray-500">(optional)</span></label>
+                                <label class="block text-sm font-medium">
+                                    Destination <span class="text-xs text-gray-500">(optional)</span>
+                                </label>
                                 <input
                                     name="destination"
                                     type="text"
@@ -100,7 +111,8 @@
                             <button type="submit" class="px-4 py-2 rounded bg-blue-600 text-white">
                                 Save
                             </button>
-                            <a href="{{ route('traveler.itineraries.index') }}" class="px-4 py-2 rounded border border-gray-300 dark:border-gray-600">
+                            <a href="{{ route('traveler.itineraries.index') }}"
+                               class="px-4 py-2 rounded border border-gray-300 dark:border-gray-600">
                                 Back to My Itineraries
                             </a>
                         </div>
