@@ -14,17 +14,20 @@ class PreferenceProfilePolicy
 
     public function viewAny(User $user): bool
     {
-        return in_array($user->role, ['admin', 'traveler'], true);
+        return $user->role === 'traveler' && (bool) $user->traveler;
     }
 
     public function view(User $user, PreferenceProfile $profile): bool
     {
-        return $user->traveler && $profile->traveler_id === $user->traveler->id;
+        $travelerId = $user->traveler?->id;
+        return $user->role === 'traveler'
+            && $travelerId !== null
+            && $travelerId === $profile->traveler_id;
     }
 
     public function create(User $user): bool
     {
-        return in_array($user->role, ['admin', 'traveler'], true) && (bool) $user->traveler;
+        return $user->role === 'traveler' && (bool) $user->traveler;
     }
 
     public function update(User $user, PreferenceProfile $profile): bool

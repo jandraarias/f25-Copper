@@ -14,18 +14,27 @@ class PreferencePolicy
 
     public function viewAny(User $user): bool
     {
-        return in_array($user->role, ['admin', 'traveler'], true);
+        // Travelers with a traveler record can see their preferences list
+        return $user->role === 'traveler' && (bool) $user->traveler;
     }
 
     public function view(User $user, Preference $pref): bool
     {
+        // If preferences belong to a profile which belongs to a traveler:
         $travelerId = $user->traveler?->id;
-        return $travelerId && $pref->preferenceProfile?->traveler_id === $travelerId;
+        $ownerId = $pref->profile?->traveler_id     // common case
+            ?? $pref->traveler_id                              // fallback if stored directly
+            ?? null;
+
+        return $user->role === 'traveler'
+            && $travelerId !== null
+            && $ownerId !== null
+            && $travelerId === $ownerId;
     }
 
     public function create(User $user): bool
     {
-        return in_array($user->role, ['admin', 'traveler'], true) && (bool) $user->traveler;
+        return $user->role === 'traveler' && (bool) $user->traveler;
     }
 
     public function update(User $user, Preference $pref): bool

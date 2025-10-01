@@ -14,12 +14,10 @@ class ItineraryPolicy
 
     public function update(User $user, Itinerary $itinerary): bool
     {
-        // Accept either schema: direct user_id OR via traveler->user_id
-        if (isset($itinerary->user_id) && $itinerary->user_id === $user->id) {
-            return true;
-        }
-
-        return $itinerary->traveler && $itinerary->traveler->user_id === $user->id;
+        $travelerId = $user->traveler?->id;
+        return $user->role === 'traveler'
+            && $travelerId !== null
+            && $travelerId === $itinerary->traveler_id;
     }
 
     public function delete(User $user, Itinerary $itinerary): bool
@@ -32,8 +30,13 @@ class ItineraryPolicy
         return $this->update($user, $itinerary);
     }
 
+    public function viewAny(User $user): bool
+    {
+        return $user->role === 'traveler' && (bool) $user->traveler;
+    }
+
     public function create(User $user): bool
     {
-        return $user->role === 'traveler';
+        return $user->role === 'traveler' && (bool) $user->traveler;
     }
 }
