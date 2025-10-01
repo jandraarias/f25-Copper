@@ -33,18 +33,35 @@
                                 @error('description')<p class="text-red-600 text-sm mt-1">{{ $message }}</p>@enderror
                             </div>
 
-                            {{-- Countries (multi-select) --}}
-                            <div class="md:col-span-2">
+                            {{-- Countries with chips --}}
+                            <div class="md:col-span-2" 
+                                 x-data="countrySelect(window.allCountries, @json(old('countries', [])))">
                                 <label class="block text-sm font-medium">Countries</label>
-                                <select name="countries[]" multiple required
-                                        class="mt-1 w-full border rounded p-2 dark:bg-gray-900 dark:border-gray-700 h-40">
+
+                                {{-- Selected chips --}}
+                                <div class="flex flex-wrap gap-2 mb-2">
+                                    <template x-for="country in selectedCountries" :key="country.id">
+                                        <span class="flex items-center gap-1 px-3 py-1 rounded-full bg-blue-600 text-white text-sm">
+                                            <span x-text="country.name"></span>
+                                            <button type="button" @click="removeCountry(country.id)" class="ml-1 text-white">&times;</button>
+                                        </span>
+                                    </template>
+                                </div>
+
+                                {{-- Hidden inputs for submission --}}
+                                <template x-for="country in selectedCountries" :key="'input-' + country.id">
+                                    <input type="hidden" name="countries[]" :value="country.id">
+                                </template>
+
+                                {{-- Dropdown --}}
+                                <select x-model="newCountry" @change="addCountry($event)" 
+                                        class="mt-1 w-full border rounded p-2 dark:bg-gray-900 dark:border-gray-700">
+                                    <option value="">-- Select a country --</option>
                                     @foreach(\App\Models\Country::orderBy('name')->get() as $country)
-                                        <option value="{{ $country->id }}" @selected(collect(old('countries', []))->contains($country->id))>
-                                            {{ $country->name }}
-                                        </option>
+                                        <option value="{{ $country->id }}">{{ $country->name }}</option>
                                     @endforeach
                                 </select>
-                                <p class="text-xs text-gray-500 mt-1">Hold Ctrl (Windows) or Command (Mac) to select multiple.</p>
+
                                 @error('countries')<p class="text-red-600 text-sm mt-1">{{ $message }}</p>@enderror
                             </div>
 
@@ -88,4 +105,10 @@
             </div>
         </div>
     </div>
+
+    {{-- inject countries into window scope --}}
+    <script>
+        // @ts-nocheck
+        window.allCountries = @json(\App\Models\Country::select('id','name')->orderBy('name')->get());
+    </script>
 </x-app-layout>

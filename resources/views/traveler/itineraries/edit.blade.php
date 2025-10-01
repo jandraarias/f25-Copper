@@ -18,7 +18,7 @@
                         @method('PUT')
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {{-- Name (required) --}}
+                            {{-- Name --}}
                             <div class="md:col-span-2">
                                 <label class="block text-sm font-medium">Name</label>
                                 <input
@@ -31,11 +31,9 @@
                                 @error('name')<p class="text-red-600 text-sm mt-1">{{ $message }}</p>@enderror
                             </div>
 
-                            {{-- Description (optional) --}}
+                            {{-- Description --}}
                             <div class="md:col-span-2">
-                                <label class="block text-sm font-medium">
-                                    Description <span class="text-xs text-gray-500">(optional)</span>
-                                </label>
+                                <label class="block text-sm font-medium">Description</label>
                                 <textarea
                                     name="description"
                                     rows="5"
@@ -44,32 +42,41 @@
                                 @error('description')<p class="text-red-600 text-sm mt-1">{{ $message }}</p>@enderror
                             </div>
 
-                            {{-- Countries (multi-select, required ≥1) --}}
-                            <div class="md:col-span-2">
+                            {{-- Countries with chips (same as create) --}}
+                            <div class="md:col-span-2"
+                                 x-data="countrySelect(window.allCountries, @json(old('countries', $itinerary->countries->pluck('id')->toArray())))">
                                 <label class="block text-sm font-medium">Countries</label>
-                                @php
-                                    // Preselect previously chosen countries (or old input on validation error)
-                                    $selectedCountries = old('countries', $itinerary->countries->pluck('id')->toArray());
-                                @endphp
-                                <select name="countries[]" multiple required
-                                        class="mt-1 w-full border rounded p-2 dark:bg-gray-900 dark:border-gray-700 h-40">
+
+                                {{-- Selected chips --}}
+                                <div class="flex flex-wrap gap-2 mb-2">
+                                    <template x-for="country in selectedCountries" :key="country.id">
+                                        <span class="flex items-center gap-1 px-3 py-1 rounded-full bg-blue-600 text-white text-sm">
+                                            <span x-text="country.name"></span>
+                                            <button type="button" @click="removeCountry(country.id)" class="ml-1 text-white">&times;</button>
+                                        </span>
+                                    </template>
+                                </div>
+
+                                {{-- Hidden inputs for submission --}}
+                                <template x-for="country in selectedCountries" :key="'input-' + country.id">
+                                    <input type="hidden" name="countries[]" :value="country.id">
+                                </template>
+
+                                {{-- Dropdown --}}
+                                <select x-model="newCountry" @change="addCountry($event)"
+                                        class="mt-1 w-full border rounded p-2 dark:bg-gray-900 dark:border-gray-700">
+                                    <option value="">-- Select a country --</option>
                                     @foreach(\App\Models\Country::orderBy('name')->get() as $country)
-                                        <option value="{{ $country->id }}" @selected(collect($selectedCountries)->contains($country->id))>
-                                            {{ $country->name }}
-                                        </option>
+                                        <option value="{{ $country->id }}">{{ $country->name }}</option>
                                     @endforeach
                                 </select>
-                                <p class="text-xs text-gray-500 mt-1">
-                                    Hold Ctrl (Windows) or Command (Mac) to select multiple.
-                                </p>
+
                                 @error('countries')<p class="text-red-600 text-sm mt-1">{{ $message }}</p>@enderror
                             </div>
 
-                            {{-- Destination (optional) --}}
+                            {{-- Destination --}}
                             <div>
-                                <label class="block text-sm font-medium">
-                                    Destination <span class="text-xs text-gray-500">(optional)</span>
-                                </label>
+                                <label class="block text-sm font-medium">Destination (optional)</label>
                                 <input
                                     name="destination"
                                     type="text"
@@ -80,7 +87,7 @@
                                 @error('destination')<p class="text-red-600 text-sm mt-1">{{ $message }}</p>@enderror
                             </div>
 
-                            {{-- Start Date (required) --}}
+                            {{-- Start Date --}}
                             <div>
                                 <label class="block text-sm font-medium">Start Date</label>
                                 <input
@@ -93,7 +100,7 @@
                                 @error('start_date')<p class="text-red-600 text-sm mt-1">{{ $message }}</p>@enderror
                             </div>
 
-                            {{-- End Date (required) --}}
+                            {{-- End Date --}}
                             <div>
                                 <label class="block text-sm font-medium">End Date</label>
                                 <input
@@ -120,7 +127,7 @@
                 </div>
             </div>
 
-            {{-- Items manager --}}
+            {{-- Items manager (unchanged) --}}
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900 dark:text-gray-100">
                     <div class="flex items-center justify-between mb-4">
@@ -196,7 +203,7 @@
                         </form>
                     </div>
 
-                    {{-- Items table --}}
+                    {{-- Items table (unchanged) --}}
                     <div class="overflow-x-auto">
                         <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                             <thead class="bg-gray-50 dark:bg-gray-900">
@@ -308,9 +315,14 @@
                             </tbody>
                         </table>
                     </div>
-
                 </div>
             </div>
         </div>
     </div>
+
+    {{-- inject countries --}}
+    <script>
+        // @ts-nocheck
+        window.allCountries = @json(\App\Models\Country::select('id','name')->orderBy('name')->get());
+    </script>
 </x-app-layout>
