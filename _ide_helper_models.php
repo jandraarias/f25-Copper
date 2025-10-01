@@ -139,7 +139,6 @@ namespace App\Models{
  * @mixin IdeHelperTraveler
  * @property int $id
  * @property int $user_id
- * @property string $name
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property string|null $bio
@@ -155,7 +154,6 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Traveler whereBio($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Traveler whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Traveler whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Traveler whereName($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Traveler whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Traveler whereUserId($value)
  */

@@ -8,9 +8,10 @@ use Illuminate\Support\Facades\Auth;
 class RouteServiceProvider extends ServiceProvider
 {
     /**
-     * This is the default path after login/verification if no role check is used.
+     * Fallback path if no role matches.
+     * Since you have no generic /dashboard, default to traveler dashboard.
      */
-    public const HOME = '/dashboard';
+    public const HOME = '/traveler/dashboard';
 
     /**
      * Get the path users should be redirected to after login/verification.
@@ -19,21 +20,16 @@ class RouteServiceProvider extends ServiceProvider
     {
         $user = Auth::user();
 
-        if (!$user) {
+        if (! $user) {
             return '/';
         }
 
-        switch ($user->role) {
-            case 'admin':
-                return route('admin.dashboard'); // Blade dashboard
-                // return '/admin'; //Filament panel home
-            case 'expert':
-                return route('expert.dashboard');
-            case 'business':
-                return route('business.dashboard');
-            case 'traveler':
-            default:
-                return route('traveler.dashboard');
-        }
+        return match ($user->role) {
+            'admin'    => route('admin.dashboard'),    // Blade admin dashboard
+            'expert'   => route('expert.dashboard'),
+            'business' => route('business.dashboard'),
+            'traveler' => route('traveler.dashboard'),
+            default    => self::HOME, // fallback
+        };
     }
 }

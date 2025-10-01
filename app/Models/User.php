@@ -13,28 +13,39 @@ class User extends Authenticatable
 {
     use HasFactory, Notifiable;
 
-    // Role constants
+    // === Role constants ===
     public const ROLE_TRAVELER = 'traveler';
     public const ROLE_EXPERT   = 'expert';
     public const ROLE_BUSINESS = 'business';
     public const ROLE_ADMIN    = 'admin';
 
+    /**
+     * The attributes that are mass assignable.
+     */
     protected $fillable = [
         'name',
         'email',
         'password',
         'role',
+        'phone_number',
+        'date_of_birth',
     ];
 
+    /**
+     * The attributes that should be hidden for serialization.
+     */
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
+    /**
+     * The attributes that should be cast.
+     */
     protected $casts = [
         'email_verified_at' => 'datetime',
-        'password' => 'hashed',
-        'date_of_birth' => 'date',
+        'password'          => 'hashed',
+        'date_of_birth'     => 'date', // ensures Y-m-d format on save/read
     ];
 
     // === Role helpers ===
@@ -58,7 +69,7 @@ class User extends Authenticatable
         return $this->role === self::ROLE_ADMIN;
     }
 
-    // Relationships
+    // === Relationships ===
     public function traveler()
     {
         return $this->hasOne(Traveler::class);

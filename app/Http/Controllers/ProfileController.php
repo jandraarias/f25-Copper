@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\ProfileUpdateRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -24,12 +23,31 @@ class ProfileController extends Controller
     /**
      * Update the user's profile information.
      */
-    public function update(ProfileUpdateRequest $request): RedirectResponse
+    public function update(Request $request): RedirectResponse
     {
         $user = $request->user();
 
-        // Update User fields
-        $user->fill($request->validated());
+        // Base validation
+        $rules = [
+            'name'  => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'lowercase', 'email', 'max:255'],
+            'bio'   => ['nullable', 'string', 'max:500'],
+        ];
+
+        // Role-specific validation
+        if (in_array($user->role, ['traveler', 'expert'])) {
+            $rules['phone_number']  = ['required', 'string', 'max:20'];
+            // still validate date_of_birth so form errors work, but we won’t overwrite it
+            $rules['date_of_birth'] = ['required', 'date'];
+        } elseif ($user->role === 'business') {
+            $rules['phone_number'] = ['required', 'string', 'max:20'];
+        }
+
+        $validated = $request->validate($rules);
+
+        // Update user fields (except date_of_birth, which is view-only)
+        $updatable = collect($validated)->except('date_of_birth')->toArray();
+        $user->fill($updatable);
 
         if ($user->isDirty('email')) {
             $user->email_verified_at = null;
@@ -38,10 +56,10 @@ class ProfileController extends Controller
         $user->save();
 
         // Update Traveler bio if present
-        if ($request->has('bio')) {
+        if (array_key_exists('bio', $validated)) {
             $traveler = $user->traveler;
             if ($traveler) {
-                $traveler->bio = $request->input('bio');
+                $traveler->bio = $validated['bio'];
                 $traveler->save();
             }
         }
