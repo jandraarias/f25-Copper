@@ -21,7 +21,6 @@ class ItineraryFactory extends Factory
             'description' => $this->faker->sentence(12),
             'start_date' => $start,
             'end_date' => $end,
-            'country' => $this->faker->country(),
             'location' => $this->faker->city(),
         ];
     }

@@ -8,20 +8,20 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class CountryItinerary extends Model
 {
-    use HasFactory;
-
     protected $table = 'country_itinerary';
 
     protected $fillable = [
         'itinerary_id',
-        'country',
+        'country_id',
     ];
 
-    /**
-     * Parent itinerary this country belongs to.
-     */
-    public function itinerary(): BelongsTo
+    public function itinerary()
     {
         return $this->belongsTo(Itinerary::class);
+    }
+
+    public function country()
+    {
+        return $this->belongsTo(Country::class);
     }
 }

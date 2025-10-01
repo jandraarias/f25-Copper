@@ -23,6 +23,6 @@ class Country extends Model
     public function itineraries(): BelongsToMany
     {
         return $this->belongsToMany(Itinerary::class, 'country_itinerary')
-                    ->withTimestamps();
+            ->withTimestamps();
     }
 }

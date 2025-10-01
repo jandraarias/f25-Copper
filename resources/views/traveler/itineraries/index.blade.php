@@ -25,6 +25,7 @@
                                 <tr>
                                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">ID</th>
                                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Name</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Countries</th>
                                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Destination</th>
                                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Dates</th>
                                     <th class="px-4 py-3"></th>
@@ -40,6 +41,11 @@
                                             <div class="font-medium">{{ $itinerary->name }}</div>
                                         </td>
                                         <td class="px-4 py-3">
+                                            <div class="text-gray-700 dark:text-gray-300">
+                                                {{ $itinerary->countries->pluck('name')->join(', ') }}
+                                            </div>
+                                        </td>
+                                        <td class="px-4 py-3">
                                             <div class="text-gray-700 dark:text-gray-300">{{ $itinerary->destination ?? '—' }}</div>
                                         </td>
                                         <td class="px-4 py-3">
@@ -52,30 +58,12 @@
                                             </div>
                                         </td>
                                         <td class="px-4 py-3 whitespace-nowrap text-right">
-                                            <div class="flex items-center gap-2 justify-end">
-                                                <a href="{{ route('traveler.itineraries.show', $itinerary) }}"
-                                                   class="px-3 py-1.5 rounded border border-gray-300 dark:border-gray-600 text-sm hover:bg-gray-50 dark:hover:bg-gray-900">
-                                                    View
-                                                </a>
-                                                <a href="{{ route('traveler.itineraries.edit', $itinerary) }}"
-                                                   class="px-3 py-1.5 rounded border border-gray-300 dark:border-gray-600 text-sm hover:bg-gray-50 dark:hover:bg-gray-900">
-                                                    Edit
-                                                </a>
-                                                <form method="POST" action="{{ route('traveler.itineraries.destroy', $itinerary) }}"
-                                                      onsubmit="return confirm('Delete this itinerary?');">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit"
-                                                            class="px-3 py-1.5 rounded bg-red-600 text-white text-sm">
-                                                        Delete
-                                                    </button>
-                                                </form>
-                                            </div>
+                                            <!-- actions -->
                                         </td>
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="5" class="px-4 py-8 text-center text-gray-600 dark:text-gray-300">
+                                        <td colspan="6" class="px-4 py-8 text-center text-gray-600 dark:text-gray-300">
                                             No itineraries yet.
                                         </td>
                                     </tr>

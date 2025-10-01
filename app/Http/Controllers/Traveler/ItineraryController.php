@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\Itinerary;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Validation\Rule;
 
 class ItineraryController extends Controller
 {
@@ -37,7 +36,7 @@ class ItineraryController extends Controller
         $request->validate([
             'name'        => ['required', 'string', 'max:255'],
             'countries'   => ['required', 'array', 'min:1'],
-            'countries.*' => ['string', Rule::in(array_keys(config('countries.list')))],
+            'countries.*' => ['integer', 'exists:countries,id'],
             'destination' => ['nullable', 'string', 'max:255'],
             'start_date'  => ['nullable', 'date'],
             'end_date'    => ['nullable', 'date', 'after_or_equal:start_date'],
@@ -95,7 +94,7 @@ class ItineraryController extends Controller
         $request->validate([
             'name'        => ['required', 'string', 'max:255'],
             'countries'   => ['required', 'array', 'min:1'],
-            'countries.*' => ['string', Rule::in(array_keys(config('countries.list')))],
+            'countries.*' => ['integer', 'exists:countries,id'],
             'destination' => ['nullable', 'string', 'max:255'],
             'start_date'  => ['nullable', 'date'],
             'end_date'    => ['nullable', 'date', 'after_or_equal:start_date'],

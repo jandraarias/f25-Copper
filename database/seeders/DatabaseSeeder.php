@@ -50,6 +50,12 @@ class DatabaseSeeder extends Seeder
                 ItineraryItemFactory::new()->count(3)->create([
                     'itinerary_id' => $itinerary->id,
                 ]);
+
+                // Attach a random country to each itinerary
+                $country = \App\Models\Country::inRandomOrder()->first();
+                if ($country) {
+                    $itinerary->countries()->attach($country->id);
+                }
             }
 
             // Each Traveler gets 1 preference profile

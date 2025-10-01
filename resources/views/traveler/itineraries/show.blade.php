@@ -15,7 +15,7 @@
 
                     <h3 class="text-lg font-semibold mb-4">Overview</h3>
                     <p><span class="font-medium">Description:</span> {{ $itinerary->description ?? '—' }}</p>
-                    <p><span class="font-medium">Country:</span> {{ $itinerary->country }}</p>
+                    <p><span class="font-medium">Countries:</span> {{ $itinerary->countries->pluck('name')->join(', ') }}</p>
                     <p><span class="font-medium">Destination:</span> {{ $itinerary->destination ?? '—' }}</p>
                     <p><span class="font-medium">Dates:</span>
                         {{ $itinerary->start_date?->format('M j, Y') ?? '—' }}

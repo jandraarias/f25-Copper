@@ -38,9 +38,9 @@
                                 <label class="block text-sm font-medium">Countries</label>
                                 <select name="countries[]" multiple required
                                         class="mt-1 w-full border rounded p-2 dark:bg-gray-900 dark:border-gray-700 h-40">
-                                    @foreach(config('countries.list') as $code => $name)
-                                        <option value="{{ $code }}" @selected(collect(old('countries', []))->contains($code))>
-                                            {{ $name }}
+                                    @foreach(\App\Models\Country::orderBy('name')->get() as $country)
+                                        <option value="{{ $country->id }}" @selected(collect(old('countries', []))->contains($country->id))>
+                                            {{ $country->name }}
                                         </option>
                                     @endforeach
                                 </select>

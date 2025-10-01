@@ -49,13 +49,13 @@
                                 <label class="block text-sm font-medium">Countries</label>
                                 @php
                                     // Preselect previously chosen countries (or old input on validation error)
-                                    $selectedCountries = old('countries', $itinerary->countries->pluck('country')->toArray());
+                                    $selectedCountries = old('countries', $itinerary->countries->pluck('id')->toArray());
                                 @endphp
                                 <select name="countries[]" multiple required
                                         class="mt-1 w-full border rounded p-2 dark:bg-gray-900 dark:border-gray-700 h-40">
-                                    @foreach(config('countries.list') as $code => $name)
-                                        <option value="{{ $code }}" @selected(collect($selectedCountries)->contains($code))>
-                                            {{ $name }}
+                                    @foreach(\App\Models\Country::orderBy('name')->get() as $country)
+                                        <option value="{{ $country->id }}" @selected(collect($selectedCountries)->contains($country->id))>
+                                            {{ $country->name }}
                                         </option>
                                     @endforeach
                                 </select>
