@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
@@ -11,11 +12,10 @@ return new class extends Migration
         Schema::create('itineraries', function (Blueprint $table) {
             $table->id();
             $table->foreignId('traveler_id')->constrained()->cascadeOnDelete();
-            
+            $table->uuid('public_uuid')->nullable()->unique();
             $table->string('name');
-            $table->string('country');                // required
-            $table->string('destination')->nullable(); // optional main city/region
-            $table->string('location')->nullable();    // optional high-level label, not required
+            $table->string('destination')->nullable();
+            $table->string('location')->nullable();    
 
             $table->date('start_date')->nullable();
             $table->date('end_date')->nullable();

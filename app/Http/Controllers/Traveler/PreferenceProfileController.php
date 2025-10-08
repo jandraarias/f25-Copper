@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Traveler;
 
 use App\Http\Controllers\Controller;
+use App\Models\Preference;
 use App\Models\PreferenceProfile;
+use App\Models\PreferenceOption;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -55,7 +57,17 @@ class PreferenceProfileController extends Controller
     {
         $this->authorize('view', $preferenceProfile);
 
-        return view('traveler.preferences.profiles.show', compact('preferenceProfile'));
+        // Load all main interests (for "key" dropdown)
+        $allKeys = PreferenceOption::where('type', 'main')->pluck('name');
+
+        // Load all sub-interests grouped by their parent_id
+        $subInterests = PreferenceOption::where('type', 'sub')->get()->groupBy('parent_id');
+
+        // Get IDs for each main interest to map names → IDs
+        $mainInterestIds = PreferenceOption::where('type', 'main')->pluck('id', 'name');
+
+        // Pass both to the view
+        return view('traveler.preferences.profiles.show', compact('preferenceProfile', 'allKeys', 'subInterests', 'mainInterestIds'));
     }
 
     /**
