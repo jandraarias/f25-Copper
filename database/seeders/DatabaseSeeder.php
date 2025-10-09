@@ -15,7 +15,10 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        // 🔹 Seed the countries first
+        // Seed the  preference options
+        $this->call(PreferencesTableSeeder::class);
+
+        // Seed the countries first
         $this->call(CountrySeeder::class);
 
         // Admin user

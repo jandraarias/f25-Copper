@@ -19,11 +19,11 @@ return new class extends Migration
             $table->string('password');
 
             // Merged fields
-            $table->string('role')->default('traveler')->after('password');
+            $table->string('role')->default('traveler');//->after('password');
             $table->index('role');
 
-            $table->string('phone_number', 20)->nullable()->after('email');
-            $table->date('date_of_birth')->nullable()->after('phone_number');
+            $table->string('phone_number', 20)->nullable();//->after('email');
+            $table->date('date_of_birth')->nullable();//->after('phone_number');
             
             $table->rememberToken();
             $table->timestamps();
