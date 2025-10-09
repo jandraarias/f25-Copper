@@ -130,7 +130,10 @@ Route::middleware(['auth', 'role:traveler'])
         // Preferences nested under profiles (shallow routes for edit/update/destroy)
         Route::resource('preference-profiles.preferences', PreferenceController::class)
             ->shallow()
-            ->only(['store', 'edit', 'update', 'destroy']);
+            ->only(['create','store', 'edit', 'update', 'destroy']);
+        
+        // Add create route for preferences explicitly
+        Route::get('preference-profiles/{preferenceProfile}/preferences/create', [PreferenceController::class, 'create'])->name('preferences.create');
     });
 
 /*

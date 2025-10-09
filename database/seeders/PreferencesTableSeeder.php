@@ -3,13 +3,12 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use App\Models\Preference;
+use App\Models\PreferenceOption;
 
 class PreferencesTableSeeder extends Seeder
 {
     public function run(): void
     {
-        //  Define main interests and sub-interests
         $data = [
             'Cultural & Historical' => ['Landmarks', 'Museums', 'Historical Sites'],
             'Relaxation' => ['Spas', 'Beaches', 'Resorts'],
@@ -25,21 +24,17 @@ class PreferencesTableSeeder extends Seeder
         ];
 
         foreach ($data as $main => $subs) {
-            // Create main interest
-            $mainPref = Preference::create([
+            $mainOption = PreferenceOption::create([
                 'name' => $main,
                 'type' => 'main',
-                'category' => 'interest', 
                 'parent_id' => null,
             ]);
 
             foreach ($subs as $sub) {
-                // Create sub-interest
-                Preference::create([
+                PreferenceOption::create([
                     'name' => $sub,
                     'type' => 'sub',
-                    'category' => 'interest', // same or different as needed
-                    'parent_id' => $mainPref->id,
+                    'parent_id' => $mainOption->id,
                 ]);
             }
         }

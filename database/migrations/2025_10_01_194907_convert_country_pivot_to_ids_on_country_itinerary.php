@@ -56,12 +56,23 @@ return new class extends Migration
 
         // 3) Make the new column required, adjust indexes/uniques, and drop the old column + indexes
         Schema::table('country_itinerary', function (Blueprint $table) {
+            
+            
             // Enforce NOT NULL now that we’ve tried to backfill
             $table->unsignedBigInteger('country_id')->nullable(false)->change();
+        });
 
-            // Drop the old unique and index on the "country" column
-            // (Laravel will infer the index names)
-            $table->dropUnique(['itinerary_id', 'country']);
+        // Drop the foreign key first
+        DB::statement('ALTER TABLE country_itinerary DROP FOREIGN KEY country_itinerary_itinerary_id_foreign');
+
+        // Now it's safe to drop the unique index
+        DB::statement('ALTER TABLE country_itinerary DROP INDEX country_itinerary_itinerary_id_country_unique');
+
+
+            // Now safely modify the table again 
+        Schema::table('country_itinerary', function (Blueprint $table) {
+            // Drop index on just "country"
+            //$table->dropUnique(['itinerary_id', 'country']);
             $table->dropIndex(['country']);
 
             // Add the new unique pair
@@ -70,6 +81,7 @@ return new class extends Migration
             // Finally, drop the old column
             $table->dropColumn('country');
         });
+
     }
 
     public function down(): void

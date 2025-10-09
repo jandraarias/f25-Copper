@@ -13,13 +13,17 @@
                 {{-- Flash messages --}}
                 <x-flash-messages />
 
-                <form method="POST" action="{{ route('traveler.preferences.store') }}" class="space-y-6">
+                <form method="POST" action="{{ route('traveler.preferences-profiles.preferences.store', $preferenceProfile) }}" class="space-y-6">
                     @csrf
 
                     <div>
                         <label class="block text-sm font-medium">Key</label>
-                        <input type="text" name="key" value="{{ old('key') }}"
-                               class="mt-1 block w-full border-gray-300 dark:border-gray-600 rounded-md shadow-sm">
+                        <select name="key" class="mt-1 block w-full border-gray-300 dark:border-gray-600 rounded-md shadow-sm">
+                            <option value="">-- Select a key --</option>
+                            @foreach ($allKeys as $key)
+                                <option value="{{ $key }}" {{ old('key') === $key ? 'selected' : '' }}>{{ ucfirst($key) }}</option>
+                            @endforeach
+                        </select>
                         @error('key')
                             <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
                         @enderror

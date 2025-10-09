@@ -50,17 +50,23 @@
                       class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     @csrf
                     <div>
-                        <label class="block text-sm font-medium">Key</label>
-                        <input type="text" name="key"
-                               class="mt-1 block w-full border-gray-300 dark:border-gray-600 rounded-md shadow-sm">
+                        <label class="block text-sm font-medium">Key (Main Interest)</label>
+                        <select id="key-select" name="key" class="mt-1 block w-full border-gray-300 dark:border-gray-600 rounded-md shadow-sm">
+                            <option value="">-- Select a main interest --</option>
+                            @foreach ($allKeys as $key)
+                                <option value="{{ $key }}" {{ old('key') === $key ? 'selected' : '' }}>{{ $key }}</option>
+                            @endforeach
+                        </select>
                         @error('key')
                             <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
                         @enderror
                     </div>
                     <div>
-                        <label class="block text-sm font-medium">Value</label>
-                        <input type="text" name="value"
-                               class="mt-1 block w-full border-gray-300 dark:border-gray-600 rounded-md shadow-sm">
+                        <label class="block text-sm font-medium">Value (Sub-Interest)</label>
+                        <select id="value-select" name="value" class="mt-1 block w-full border-gray-300 dark:border-gray-600 rounded-md shadow-sm">
+                            <option value="">-- Select a sub-interest --</option> 
+                            <!-- dynamically populated -->      
+                         </select>
                         @error('value')
                             <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
                         @enderror
@@ -75,4 +81,36 @@
             </div>
         </div>
     </div>
+    <script>
+        const subInterests = @json($subInterests);
+        const mainInterestIds = @json($mainInterestIds);
+
+        const keySelect = document.getElementById('key-select');
+        const valueSelect = document.getElementById('value-select');
+
+        keySelect.addEventListener('change', function() {
+            const selectedKey = this.value;
+            const mainId = mainInterestIds[selectedKey];
+
+            valueSelect.innerHTML = '<option value="">-- Select a sub-interest --</option>';
+
+            if (mainId && subInterests[mainId]) {
+                subInterests[mainId].forEach(sub => {
+                    const option = document.createElement('option');
+                    option.value = sub.name;
+                    option.textContent = sub.name;
+                    valueSelect.appendChild(option);
+                });
+            }
+        });
+
+        if (keySelect.value) {
+            keySelect.dispatchEvent(new Event('change'));
+
+            const oldValue = "{{ old('value') }}";
+            if (oldValue) {
+                valueSelect.value = oldValue;
+            }
+        }
+    </script>
 </x-app-layout>

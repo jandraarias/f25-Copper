@@ -71,4 +71,15 @@ class PreferenceController extends Controller
             ->route('traveler.preference-profiles.show', $profileId)
             ->with('success', 'Preference deleted successfully!');
     }
+
+    public function create(PreferenceProfile $preferenceProfile)
+    {
+        $this->authorize('update', $preferenceProfile);
+
+        // Fetch all distinct keys from preferences (seeded or existing)
+        $allKeys = Preference::select('key')->distinct()->pluck('key');
+
+        return view('traveler.preferences.preferences.create', compact('preferenceProfile', 'allKeys'));
+    }
+
 }
