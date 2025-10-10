@@ -11,17 +11,14 @@ class PreferencesTableSeeder extends Seeder
     {
         //  Define main interests and sub-interests
         $data = [
-            'Cultural & Historical' => ['Landmarks', 'Museums', 'Historical Sites'],
-            'Relaxation' => ['Spas', 'Beaches', 'Resorts'],
-            'Food & Drink' => ['Restaurants', 'Street Food', 'Breweries'],
-            'Family-Friendly' => ['Theme Parks', 'Zoos', 'Aquariums'],
-            'Nature & Wildlife' => ['National Parks', 'Wildlife Safaris', 'Botanical Gardens'],
-            'Entertainment' => ['Concerts', 'Movies', 'Theatre'],
-            'Nightlife' => ['Bars', 'Clubs', 'Live Music'],
-            'Social' => ['Meetups', 'Events', 'Volunteering'],
-            'Extreme Sports' => ['Skydiving', 'Bungee Jumping', 'Surfing'],
-            'Hiking & Adventure' => ['Trails', 'Camping', 'Climbing'],
-            'Community-Based' => ['Local Tours', 'Homestays', 'Cultural Exchanges'],
+            'Cultural & Historical' => ['Cultural and Historical Sites', 'Museums', 'Art Galleries', 'Festivals','Local Traditions & Workshops'],
+            'Relaxation & Wellness' => ['Spa', 'Wellness Center', 'Meditation and Yoga', 'Hot Springs'],
+            'Food & Drink' => ['Local Cuisine', 'Fine Dining', 'Street Food', 'Coffee Shops', 'Breweries, Distilleries, Wineries'],
+            'Nature & Adventure' => ['Outdoor Activities', 'Beaches', 'Scenic Sports', 'National Parks & Trails' , 'Theme Parks', 'Zoos', 'Aquariums', 'Interactive Museums'],
+            'Entertainment & Nightlife' => ['Live Music & Concerts', 'Nightclubs', 'Comedy', 'Theatre & Shows', 'Local Performances','Casino'],
+            'Shopping & Lifestyle' => ['Local Markets', 'Malls & Outlets', 'Boutiques & Fashion', ' Artisan Shops'],
+            'Sports & Fitness' => ['Fitness Centers', 'Fitness Events', 'Local Sporting Events'],
+            'Other' => ['Family-Friendly', 'Senior Friendly', 'Pet Friendly', 'Wheelchair Accessible', 'Visual/Hearing Impaired']
         ];
 
         foreach ($data as $main => $subs) {
