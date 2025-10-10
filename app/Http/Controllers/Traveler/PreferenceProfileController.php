@@ -57,17 +57,41 @@ class PreferenceProfileController extends Controller
     {
         $this->authorize('view', $preferenceProfile);
 
-        // Load all main interests (for "key" dropdown)
-        $allKeys = PreferenceOption::where('type', 'main')->pluck('name');
+        // --- Load profile preferences (paginate if you display a table) ---
+        $preferences = $preferenceProfile->preferences()->latest()->paginate(10);
 
-        // Load all sub-interests grouped by their parent_id
-        $subInterests = PreferenceOption::where('type', 'sub')->get()->groupBy('parent_id');
+        // --- Load all main and sub options for dropdowns or tabbed UI ---
+        $mainOptions = \App\Models\PreferenceOption::where('type', 'main')
+            ->orderBy('name')
+            ->get(['id', 'name']);
 
-        // Get IDs for each main interest to map names → IDs
-        $mainInterestIds = PreferenceOption::where('type', 'main')->pluck('id', 'name');
+        $subMap = \App\Models\PreferenceOption::where('type', 'sub')
+            ->orderBy('name')
+            ->get(['id', 'name', 'parent_id'])
+            ->groupBy('parent_id')
+            ->map(fn ($items) => $items->map(fn ($i) => ['id' => $i->id, 'name' => $i->name])->values())
+            ->toArray();
 
-        // Pass both to the view
-        return view('traveler.preferences.profiles.show', compact('preferenceProfile', 'allKeys', 'subInterests', 'mainInterestIds'));
+        // --- Build a lookup for activity display (Main → Sub mapping) ---
+        $activityLookup = [];
+        $subs  = \App\Models\PreferenceOption::where('type', 'sub')->get(['id', 'name', 'parent_id']);
+        $mains = \App\Models\PreferenceOption::where('type', 'main')->pluck('name', 'id');
+
+        foreach ($subs as $sub) {
+            $activityLookup[$sub->name] = [
+                'main' => $mains[$sub->parent_id] ?? 'Unknown',
+                'sub'  => $sub->name,
+            ];
+        }
+
+        // --- Pass everything to the view ---
+        return view('traveler.preferences.profiles.show', [
+            'preferenceProfile' => $preferenceProfile,
+            'preferences'       => $preferences,
+            'mainOptions'       => $mainOptions,
+            'subMap'            => $subMap,
+            'activityLookup'    => $activityLookup,
+        ]);
     }
 
     /**

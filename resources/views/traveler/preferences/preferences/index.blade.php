@@ -15,7 +15,7 @@
 
                 <div class="flex justify-between items-center mb-4">
                     <h3 class="text-lg font-semibold">Preferences</h3>
-                    <a href="{{ route('traveler.preferences.create') }}"
+                    <a href="{{ route('traveler.preferences-profiles.preferences.create', $preferenceProfile) }}"
                        class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
                         + New Preference
                     </a>
@@ -25,16 +25,32 @@
                     <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                         <thead class="bg-gray-50 dark:bg-gray-900">
                             <tr>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Key</th>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Value</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                                    Category
+                                </th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">
+                                    Details
+                                </th>
                                 <th class="px-4 py-3"></th>
                             </tr>
                         </thead>
                         <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                             @forelse ($preferences as $preference)
+                                @php
+                                    $displayKey = ucfirst($preference->key);
+
+                                    // Default value
+                                    $displayValue = $preference->value;
+
+                                    // For 'activity' preferences, resolve readable main/sub interest
+                                    if ($preference->key === 'activity' && isset($activityLookup[$preference->value])) {
+                                        $pair = $activityLookup[$preference->value];
+                                        $displayValue = "{$pair['main']} → {$pair['sub']}";
+                                    }
+                                @endphp
                                 <tr>
-                                    <td class="px-4 py-3">{{ $preference->key }}</td>
-                                    <td class="px-4 py-3">{{ $preference->value }}</td>
+                                    <td class="px-4 py-3">{{ $displayKey }}</td>
+                                    <td class="px-4 py-3">{{ $displayValue }}</td>
                                     <td class="px-4 py-3 text-right">
                                         <div class="flex items-center gap-2 justify-end">
                                             <a href="{{ route('traveler.preferences.edit', $preference) }}"
