@@ -53,17 +53,17 @@
                     }"
                     class="flex items-center gap-2 px-3 py-1.5 rounded-full border border-sand-300 dark:border-ink-600 
                            text-ink-700 dark:text-sand-200 hover:bg-sand-100 dark:hover:bg-ink-700 
-                           transition-all ease-out"
+                           transition-all duration-300 ease-out"
                     title="Toggle dark mode">
 
-                    {{-- light mode --}}
+                    {{-- light --}}
                     <svg x-show="!darkMode" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-copper"
                          fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round"
                               d="M12 3v1m0 16v1m9-9h1M4 12H3m15.364-7.364l.707.707M6.343 17.657l-.707.707m0-12.02l.707.707M18.364 17.657l.707.707" />
                     </svg>
 
-                    {{-- 🌙 --}}
+                    {{-- dark --}}
                     <svg x-show="darkMode" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-copper"
                          fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round"

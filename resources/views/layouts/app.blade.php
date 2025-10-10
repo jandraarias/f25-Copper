@@ -47,7 +47,7 @@
         {{-- Page Header --}}
         @isset($header)
             <header class="bg-white dark:bg-sand-800 border-b border-sand-200 dark:border-ink-700
-                           shadow-sm transition-colors">
+                           shadow-sm transition-colors duration-300">
                 <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
                     {{ $header }}
                 </div>
@@ -55,12 +55,12 @@
         @endisset
 
         {{-- Main Page Content --}}
-        <main class="flex-1 transition-colors">
+        <main class="flex-1 transition-colors duration-300">
             {{ $slot }}
         </main>
 
         {{-- Footer --}}
-        <footer class="py-6 text-center text-sm text-ink-500 dark:text-ink-200/70 transition-colors">
+        <footer class="py-6 text-center text-sm text-ink-500 dark:text-ink-200/70 transition-colors duration-300">
             © {{ date('Y') }} ItinerEase. Designed by <span class="text-copper dark:text-copper-light">Team Copper</span>.
         </footer>
     </div>
