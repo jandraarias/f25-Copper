@@ -11,19 +11,23 @@
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
 
-        <!-- Scripts -->
+        <!-- Vite Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
-    <body class="font-sans antialiased">
+
+    <body class="font-sans antialiased" x-data x-cloak>
         <div class="min-h-screen bg-gray-100 dark:bg-gray-900">
+
+            {{-- Navigation --}}
             @include('layouts.navigation')
 
-            <!-- Flash Messages (auto dismiss with Alpine) -->
+            {{-- Flash Messages (auto dismiss with Alpine) --}}
             @if (session('success'))
-                <div 
-                    x-data="{ show: true }" 
-                    x-show="show" 
-                    x-init="setTimeout(() => show = false, 5000)" 
+                <div
+                    x-data="{ show: true }"
+                    x-show="show"
+                    x-transition
+                    x-init="setTimeout(() => show = false, 5000)"
                     class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4"
                 >
                     <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
@@ -33,10 +37,11 @@
             @endif
 
             @if (session('error'))
-                <div 
-                    x-data="{ show: true }" 
-                    x-show="show" 
-                    x-init="setTimeout(() => show = false, 5000)" 
+                <div
+                    x-data="{ show: true }"
+                    x-show="show"
+                    x-transition
+                    x-init="setTimeout(() => show = false, 5000)"
                     class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4"
                 >
                     <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
@@ -45,7 +50,7 @@
                 </div>
             @endif
 
-            <!-- Page Heading -->
+            {{-- Page Header --}}
             @isset($header)
                 <header class="bg-white dark:bg-gray-800 shadow">
                     <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
@@ -54,7 +59,7 @@
                 </header>
             @endisset
 
-            <!-- Page Content -->
+            {{-- Page Content --}}
             <main>
                 {{ $slot }}
             </main>
