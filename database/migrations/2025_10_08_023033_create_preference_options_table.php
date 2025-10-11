@@ -10,7 +10,7 @@ return new class extends Migration {
         Schema::create('preference_options', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->enum('type', ['main', 'sub']);
+            $table->enum('type', ['main', 'sub', 'sub-sub']);
             $table->string('category')->nullable();
             $table->unsignedBigInteger('parent_id')->nullable();
             $table->foreign('parent_id')->references('id')->on('preference_options')->onDelete('cascade');
