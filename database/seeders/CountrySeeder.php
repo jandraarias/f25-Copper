@@ -12,7 +12,11 @@ class CountrySeeder extends Seeder
      */
     public function run(): void
     {
-        DB::table('countries')->insert([
+        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+        DB::table('countries')->truncate();
+        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+
+        $countries = [
             ['code' => 'AF', 'name' => 'Afghanistan'],
             ['code' => 'AL', 'name' => 'Albania'],
             ['code' => 'DZ', 'name' => 'Algeria'],
@@ -239,7 +243,7 @@ class CountrySeeder extends Seeder
             ['code' => 'YE', 'name' => 'Yemen'],
             ['code' => 'ZM', 'name' => 'Zambia'],
             ['code' => 'ZW', 'name' => 'Zimbabwe'],
-        ]);
+        ];
 
         foreach ($countries as $country) {
             DB::table('countries')->updateOrInsert(
