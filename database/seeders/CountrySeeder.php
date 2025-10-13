@@ -240,5 +240,13 @@ class CountrySeeder extends Seeder
             ['code' => 'ZM', 'name' => 'Zambia'],
             ['code' => 'ZW', 'name' => 'Zimbabwe'],
         ]);
+
+        foreach ($countries as $country) {
+            DB::table('countries')->updateOrInsert(
+                ['code' => $country['code']], // Unique field
+                ['name' => $country['name']]  // Data to update
+            );
+        }
     }
 }
+
