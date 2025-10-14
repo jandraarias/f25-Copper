@@ -66,6 +66,7 @@ class PreferenceController extends Controller
                     $preferenceProfile->preferences()->create([
                         'key'   => $main->name, // e.g. "Nature & Wildlife"
                         'value' => $sub->name,  // e.g. "National Parks"
+                        'requirement' => ($sub->category === 'dietary') ? 'dietary' : 'general',
                     ]);
                 }
             }
@@ -81,7 +82,11 @@ class PreferenceController extends Controller
             'value' => ['required', 'string', 'max:255'],
         ]);
 
-        $preferenceProfile->preferences()->create($validated);
+         $preferenceProfile->preferences()->create([
+        'key'         => $validated['key'],
+        'value'       => $validated['value'],
+        'requirement' => 'general',  // default to general if manual entry
+        ]);
 
         return redirect()
             ->route('traveler.preference-profiles.show', $preferenceProfile)
@@ -142,6 +147,7 @@ class PreferenceController extends Controller
             $preference->update([
                 'key'   => 'activity',
                 'value' => $sub->name,
+                'requirement' => ($sub->category === 'dietary') ? 'dietary' : 'general',
             ]);
         } else {
             $validated = $request->validate([
@@ -149,7 +155,11 @@ class PreferenceController extends Controller
                 'value' => ['required', 'string', 'max:255'],
             ]);
 
-            $preference->update($validated);
+            $preference->update([
+            'key'         => $validated['key'],
+            'value'       => $validated['value'],
+            'requirement' => 'general', // default for manual edits
+            ]);
         }
 
         return redirect()

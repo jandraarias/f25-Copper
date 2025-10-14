@@ -15,13 +15,13 @@ class PreferencesTableSeeder extends Seeder
                 'Museums',
                 'Art Galleries',
                 'Festivals',
-                'Local Traditions & Workshops'
+                'Local Traditions & Workshops',
             ],
             'Relaxation & Wellness' => [
                 'Spa',
                 'Wellness Center',
                 'Meditation and Yoga',
-                'Hot Springs'
+                'Hot Springs',
             ],
             'Food & Drink' => [
                 'Local Cuisine',
@@ -29,17 +29,20 @@ class PreferencesTableSeeder extends Seeder
                 'Street Food',
                 'Coffee Shops',
                 'Breweries, Distilleries, Wineries',
-                // Sub-sub group for dietary preferences
-                'Dietary Preferences' => [
-                    'Gluten Free',
-                    'Dairy Free',
-                    'Nut-Free',
-                    'Shellfish-Free',
-                    'Egg-Free',
-                    'Soy-Free',
-                    'Fish-Free',
-                    'Sesame-Free'
-                ]
+            ],
+             'Cuisine' => [
+                'American',
+                'Italian',
+                'Korean',
+                'Chinese',
+                'Mexican',
+                'Japanese',
+                'Indian',
+                'French',
+                'Thai',
+                'Mediterranean',
+                'Vietnamese',
+                'Greek',
             ],
             'Nature & Adventure' => [
                 'Outdoor Activities',
@@ -49,7 +52,7 @@ class PreferencesTableSeeder extends Seeder
                 'Theme Parks',
                 'Zoos',
                 'Aquariums',
-                'Interactive Museums'
+                'Interactive Museums',
             ],
             'Entertainment & Nightlife' => [
                 'Live Music & Concerts',
@@ -57,59 +60,53 @@ class PreferencesTableSeeder extends Seeder
                 'Comedy',
                 'Theatre & Shows',
                 'Local Performances',
-                'Casino'
+                'Casino',
             ],
             'Shopping & Lifestyle' => [
                 'Local Markets',
                 'Malls & Outlets',
                 'Boutiques & Fashion',
-                'Artisan Shops'
+                'Artisan Shops',
             ],
             'Sports & Fitness' => [
                 'Fitness Centers',
                 'Fitness Events',
-                'Local Sporting Events'
+                'Local Sporting Events',
             ],
             'Other' => [
                 'Family-Friendly',
                 'Senior Friendly',
                 'Pet Friendly',
                 'Wheelchair Accessible',
-                'Visual/Hearing Impaired'
-            ]
+                'Visual/Hearing Impaired',
+            ],
+            'Dietary Restrictions' => [
+                'Gluten Free',
+                'Vegan',
+                'Vegetarian',
+                'Dairy Free',
+                'Nut-Free',
+                'Shellfish-Free',
+                'Egg-Free',
+                'Soy-Free',
+                'Fish-Free',
+                'Sesame-Free',
+            ],
         ];
 
         foreach ($data as $main => $subs) {
-            $mainOption = PreferenceOption::create([
-                'name' => $main,
-                'type' => 'main',
-                'parent_id' => null,
-            ]);
+        $mainOption = PreferenceOption::create([
+            'name' => $main,
+            'type' => 'main',
+            'parent_id' => null,
+        ]);
 
-            foreach ($subs as $key => $sub) {
-                if (is_array($sub)) {
-                    // This handles sub-sub groups, e.g. 'Dietary Preferences' => ['Gluten Free', ...]
-                    // This structure is needed to represent categories with further nested options.
-                    $subOption = PreferenceOption::create([
-                        'name' => $key,
-                        'type' => 'sub',
-                        'parent_id' => $mainOption->id,
-                    ]);
-                    foreach ($sub as $subSub) {
-                        PreferenceOption::create([
-                            'name' => $subSub,
-                            'type' => 'sub-sub',
-                            'parent_id' => $subOption->id,
-                        ]);
-                    }
-                } else {
-                    // Normal sub option
-                    PreferenceOption::create([
-                        'name' => $sub,
-                        'type' => 'sub',
-                        'parent_id' => $mainOption->id,
-                    ]);
-                }
+        foreach ($subs as $sub) {
+            PreferenceOption::create([
+                'name' => $sub,
+                'type' => 'sub',
+                'parent_id' => $mainOption->id,
+                ]);
             }
         }
     }
