@@ -17,8 +17,9 @@ return new class extends Migration
             $table->string('name');
             $table->decimal('lat', 10, 7)->nullable();
             $table->decimal('lon', 10, 7)->nullable();
+            $table->decimal('rating', 3, 2)->nullable(); // ← Consolidated here
             $table->string('category')->nullable();
-            $table->string('source')->defualt('gmaps_scrape_local');
+            $table->string('source')->default('gmaps_scrape_local'); //typo fixed defualt to default 
             $table->json('meta')->nullable();
             $table->timestamps();
 

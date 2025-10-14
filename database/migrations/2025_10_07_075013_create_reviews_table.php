@@ -19,9 +19,10 @@ return new class extends Migration
                   ->cascadeOnDelete();
             $table->string('source')->default('gmaps_scrape_local');
             $table->string('author')->nullable();
-            $table->unsignedTinyInteger('rating')->nullanble();
+            $table->unsignedTinyInteger('rating')->nullable();
             $table->text('text')->nullable();
             $table->timestamp('published_at')->nullable();
+            $table->date('published_at_date')->nullable(); // consolidated + altered to date
             $table->timestamp('fetched_at')->nullable();
             $table->json('meta')->nullable();
             $table->timestamps();
