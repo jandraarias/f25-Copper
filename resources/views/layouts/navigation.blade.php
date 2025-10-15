@@ -8,8 +8,19 @@
             <div class="flex items-center">
                 <!-- Logo -->
                 <div class="shrink-0 flex items-center">
-                    <a href="{{ url('/') }}">
-                        <x-application-logo class="block text-2xl sm:text-[1.35rem] text-ink-900 dark:text-sand-100" />
+                    <a href="{{ url('/') }}" class="flex items-center">
+                        {{-- Light Mode Logo --}}
+                        <img 
+                            src="{{ asset('data/images/logos/itinerease-logo-dark@2x.svg') }}" 
+                            alt="ItinerEase Logo" 
+                            class="h-8 block dark:hidden transition-transform duration-300 hover:scale-105"
+                        >
+                        {{-- Dark Mode Logo --}}
+                        <img 
+                            src="{{ asset('data/images/logos/itinerease-logo-light.svg') }}" 
+                            alt="ItinerEase Logo" 
+                            class="h-8 hidden dark:block transition-transform duration-300 hover:scale-105"
+                        >
                     </a>
                 </div>
 
