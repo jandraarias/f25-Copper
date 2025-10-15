@@ -34,7 +34,7 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             {{-- Name --}}
                             <div class="md:col-span-2">
-                                <label class="block text-sm font-semibold text-ink-700 dark:text-ink-300 mb-2">Itinerary Name</label>
+                                <label class="block text-sm font-semibold text-ink-700 dark:text-sand-100 mb-2">Itinerary Name</label>
                                 <input
                                     name="name"
                                     type="text"
@@ -49,7 +49,7 @@
 
                             {{-- Description --}}
                             <div class="md:col-span-2">
-                                <label class="block text-sm font-semibold text-ink-700 dark:text-ink-300 mb-2">Description</label>
+                                <label class="block text-sm font-semibold text-ink-700 dark:text-sand-100 mb-2">Description</label>
                                 <textarea
                                     name="description"
                                     rows="4"
@@ -63,7 +63,7 @@
                             {{-- Countries --}}
                             <div class="md:col-span-2"
                                  x-data="countrySelect(window.allCountries, @json(old('countries', $itinerary->countries->pluck('id')->toArray())))">
-                                <label class="block text-sm font-semibold text-ink-700 dark:text-ink-300 mb-2">Countries</label>
+                                <label class="block text-sm font-semibold text-ink-700 dark:text-sand-100 mb-2">Countries</label>
 
                                 {{-- Chips --}}
                                 <div class="flex flex-wrap gap-2 mb-3">
@@ -95,7 +95,7 @@
 
                             {{-- Destination --}}
                             <div>
-                                <label class="block text-sm font-semibold text-ink-700 dark:text-ink-300 mb-2">Destination (Optional)</label>
+                                <label class="block text-sm font-semibold text-ink-700 dark:text-sand-100 mb-2">Destination (Optional)</label>
                                 <input
                                     name="destination"
                                     type="text"
@@ -109,7 +109,7 @@
 
                             {{-- Start Date --}}
                             <div>
-                                <label class="block text-sm font-semibold text-ink-700 dark:text-ink-300 mb-2">Start Date</label>
+                                <label class="block text-sm font-semibold text-ink-700 dark:text-sand-100 mb-2">Start Date</label>
                                 <input
                                     name="start_date"
                                     type="date"
@@ -123,7 +123,7 @@
 
                             {{-- End Date --}}
                             <div>
-                                <label class="block text-sm font-semibold text-ink-700 dark:text-ink-300 mb-2">End Date</label>
+                                <label class="block text-sm font-semibold text-ink-700 dark:text-sand-100 mb-2">End Date</label>
                                 <input
                                     name="end_date"
                                     type="date"
@@ -139,7 +139,7 @@
                         {{-- Buttons --}}
                         <div class="mt-10 flex items-center gap-4 justify-end">
                             <a href="{{ route('traveler.itineraries.index') }}"
-                               class="group px-6 py-2.5 rounded-full border border-ink-500 text-ink-700 dark:text-ink-300
+                               class="group px-6 py-2.5 rounded-full border border-ink-500 text-ink-700 dark:text-sand-100
                                       hover:text-copper hover:border-copper hover:scale-[1.03] hover:shadow-glow
                                       transition-all duration-200 ease-out font-medium shadow-soft">
                                 Back to My Itineraries
@@ -196,10 +196,10 @@
                         <table class="min-w-full divide-y divide-sand-200 dark:divide-ink-700">
                             <thead class="bg-sand dark:bg-sand-900/40">
                                 <tr>
-                                    <th class="px-4 py-3 text-left text-xs font-medium text-ink-700 dark:text-ink-300 uppercase">Type</th>
-                                    <th class="px-4 py-3 text-left text-xs font-medium text-ink-700 dark:text-ink-300 uppercase">Title</th>
-                                    <th class="px-4 py-3 text-left text-xs font-medium text-ink-700 dark:text-ink-300 uppercase">Start</th>
-                                    <th class="px-4 py-3 text-left text-xs font-medium text-ink-700 dark:text-ink-300 uppercase">End</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-ink-700 dark:text-sand-100 uppercase">Type</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-ink-700 dark:text-sand-100 uppercase">Title</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-ink-700 dark:text-sand-100 uppercase">Start</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-ink-700 dark:text-sand-100 uppercase">End</th>
                                     <th class="px-4 py-3"></th>
                                 </tr>
                             </thead>
@@ -208,7 +208,7 @@
                                     @include('traveler.itineraries.partials.item-row', ['item' => $item])
                                 @empty
                                     <tr>
-                                        <td colspan="5" class="px-4 py-10 text-center text-ink-500 dark:text-ink-300">
+                                        <td colspan="5" class="px-4 py-10 text-center text-ink-500 dark:text-sand-100">
                                             No items yet. Click “Add Item” to get started.
                                         </td>
                                     </tr>

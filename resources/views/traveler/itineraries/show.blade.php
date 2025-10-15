@@ -69,7 +69,7 @@
                     <h3 class="text-xl font-semibold mb-6">Items</h3>
 
                     @if ($itinerary->items->isEmpty())
-                        <div class="text-center py-10 text-ink-600 dark:text-ink-300">
+                        <div class="text-center py-10 text-ink-600 dark:text-sand-100">
                             <p class="text-lg">No items yet for this itinerary.</p>
                             <p class="text-sm mt-2">Add some via the “Edit” page to start planning!</p>
                         </div>
@@ -78,10 +78,10 @@
                             <table class="min-w-full divide-y divide-sand-200 dark:divide-ink-700">
                                 <thead class="bg-sand dark:bg-sand-900/40">
                                     <tr>
-                                        <th class="px-4 py-3 text-left text-xs font-medium text-ink-700 dark:text-ink-300 uppercase">Type</th>
-                                        <th class="px-4 py-3 text-left text-xs font-medium text-ink-700 dark:text-ink-300 uppercase">Title</th>
-                                        <th class="px-4 py-3 text-left text-xs font-medium text-ink-700 dark:text-ink-300 uppercase">Start</th>
-                                        <th class="px-4 py-3 text-left text-xs font-medium text-ink-700 dark:text-ink-300 uppercase">End</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-ink-700 dark:text-sand-100 uppercase">Type</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-ink-700 dark:text-sand-100 uppercase">Title</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-ink-700 dark:text-sand-100 uppercase">Start</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-ink-700 dark:text-sand-100 uppercase">End</th>
                                         <th class="px-4 py-3"></th>
                                     </tr>
                                 </thead>
@@ -94,8 +94,8 @@
                                         <tr class="hover:bg-sand-50 dark:hover:bg-sand-900/50 transition-colors duration-150">
                                             <td class="px-4 py-3 whitespace-nowrap text-ink-800 dark:text-ink-200">{{ ucfirst($item->type) }}</td>
                                             <td class="px-4 py-3 whitespace-nowrap text-ink-800 dark:text-ink-200">{{ $item->title }}</td>
-                                            <td class="px-4 py-3 whitespace-nowrap text-ink-700 dark:text-ink-300">{{ $st ? $st->format('M j, Y g:ia') : '—' }}</td>
-                                            <td class="px-4 py-3 whitespace-nowrap text-ink-700 dark:text-ink-300">{{ $et ? $et->format('M j, Y g:ia') : '—' }}</td>
+                                            <td class="px-4 py-3 whitespace-nowrap text-ink-700 dark:text-sand-100">{{ $st ? $st->format('M j, Y g:ia') : '—' }}</td>
+                                            <td class="px-4 py-3 whitespace-nowrap text-ink-700 dark:text-sand-100">{{ $et ? $et->format('M j, Y g:ia') : '—' }}</td>
                                             <td class="px-4 py-3 whitespace-nowrap text-right">
                                                 <a href="{{ route('traveler.itineraries.edit', $itinerary) }}"
                                                    class="px-3 py-1.5 rounded-full border border-ink-500 text-ink-700 dark:text-ink-200 
