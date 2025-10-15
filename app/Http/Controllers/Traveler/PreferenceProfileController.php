@@ -27,12 +27,14 @@ class PreferenceProfileController extends Controller
      */
     public function create()
     {
-        [$mainOptions, $subMap] = $this->loadOptions();
+        [$mainOptions, $subMap, $cuisineOptions, $dietaryOptions] = $this->loadOptions();
 
         return view('traveler.preferences.profiles.form', [
-            'mainOptions' => $mainOptions,
-            'subMap'      => $subMap,
-            'preferences' => collect(), // empty for new
+            'mainOptions'    => $mainOptions,
+            'subMap'         => $subMap,
+            'cuisineOptions' => $cuisineOptions,
+            'dietaryOptions' => $dietaryOptions,
+            'preferences'    => collect(), // empty for new
         ]);
     }
 
@@ -65,10 +67,8 @@ class PreferenceProfileController extends Controller
     {
         $this->authorize('view', $preferenceProfile);
 
-        // For the “view” mode — no editing, just show preferences nicely
         $preferences = $preferenceProfile->preferences()->get();
 
-        // Load lookup map for displaying activity names
         $subs  = PreferenceOption::where('type', 'sub')->get(['id', 'name', 'parent_id']);
         $mains = PreferenceOption::where('type', 'main')->pluck('name', 'id');
 
@@ -94,14 +94,22 @@ class PreferenceProfileController extends Controller
     {
         $this->authorize('update', $preferenceProfile);
 
-        [$mainOptions, $subMap] = $this->loadOptions();
+        [$mainOptions, $subMap, $cuisineOptions, $dietaryOptions] = $this->loadOptions();
         $preferences = $preferenceProfile->preferences()->get();
+
+        $selectedActivityIds = PreferenceOption::whereIn(
+            'name',
+            $preferences->where('key', 'activity')->pluck('value')
+        )->pluck('id');
 
         return view('traveler.preferences.profiles.form', [
             'preferenceProfile' => $preferenceProfile,
             'mainOptions'       => $mainOptions,
             'subMap'            => $subMap,
+            'cuisineOptions'    => $cuisineOptions,
+            'dietaryOptions'    => $dietaryOptions,
             'preferences'       => $preferences,
+            'selectedActivityIds' => $selectedActivityIds,
         ]);
     }
 
@@ -158,14 +166,17 @@ class PreferenceProfileController extends Controller
             }
         }
 
-        // --- Budget ---
-        foreach (['budget_min', 'budget_max'] as $key) {
-            if ($request->filled($key)) {
-                $profile->preferences()->create([
-                    'key'   => $key,
-                    'value' => $request->input($key),
-                ]);
-            }
+        // --- Budget (descriptive) ---
+        if ($request->filled('budget')) {
+            $profile->preferences()->create([
+                'key'   => 'budget',
+                'value' => $request->input('budget'),
+            ]);
+        } else {
+            $profile->preferences()->create([
+                'key'   => 'budget',
+                'value' => 'moderate',
+            ]);
         }
 
         // --- Dietary ---
@@ -174,6 +185,16 @@ class PreferenceProfileController extends Controller
                 $profile->preferences()->create([
                     'key'   => 'dietary',
                     'value' => $diet,
+                ]);
+            }
+        }
+
+        // --- Cuisine ---
+        if ($request->filled('cuisine')) {
+            foreach ($request->cuisine as $cuisine) {
+                $profile->preferences()->create([
+                    'key'   => 'cuisine',
+                    'value' => $cuisine,
                 ]);
             }
         }
@@ -190,7 +211,7 @@ class PreferenceProfileController extends Controller
     }
 
     /**
-     * Load reusable main/sub interest options.
+     * Load reusable main/sub interest options, plus cuisine & dietary lists.
      */
     protected function loadOptions(): array
     {
@@ -205,6 +226,24 @@ class PreferenceProfileController extends Controller
             ->map(fn($items) => $items->map(fn($i) => ['id' => $i->id, 'name' => $i->name])->values())
             ->toArray();
 
-        return [$mainOptions, $subMap];
+        // Get main options for Cuisine and Dietary Restrictions
+        $cuisineParent = $mainOptions->firstWhere('name', 'Cuisine');
+        $dietaryParent = $mainOptions->firstWhere('name', 'Dietary Restrictions');
+
+        $cuisineOptions = $cuisineParent
+            ? PreferenceOption::where('parent_id', $cuisineParent->id)
+                ->orderBy('name')
+                ->pluck('name')
+                ->toArray()
+            : [];
+
+        $dietaryOptions = $dietaryParent
+            ? PreferenceOption::where('parent_id', $dietaryParent->id)
+                ->orderBy('name')
+                ->pluck('name')
+                ->toArray()
+            : [];
+
+        return [$mainOptions, $subMap, $cuisineOptions, $dietaryOptions];
     }
 }

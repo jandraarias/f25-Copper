@@ -34,15 +34,15 @@
                 <h3 class="text-lg font-semibold text-copper mb-2">Overview</h3>
                 <p class="text-ink-700 dark:text-ink-200/80 leading-relaxed">
                     Your personalized travel profile brings together your interests, budgets,
-                    dietary needs, and accommodation preferences to help us tailor every trip to you.
+                    dietary needs, cuisines, and accommodation preferences to help us tailor every trip to you.
                 </p>
             </div>
 
             @php
                 $activities = $preferences->where('key', 'activity');
-                $budgetMin = $preferences->where('key', 'budget_min')->first()?->value;
-                $budgetMax = $preferences->where('key', 'budget_max')->first()?->value;
+                $budget = $preferences->where('key', 'budget')->first()?->value;
                 $dietary = $preferences->where('key', 'dietary')->pluck('value');
+                $cuisine = $preferences->where('key', 'cuisine')->pluck('value');
                 $accommodation = $preferences->where('key', 'accommodation')->pluck('value');
             @endphp
 
@@ -55,19 +55,18 @@
                                         2.121 2.121M6.343 6.343l2.121 2.121m0 8.486-2.121 2.121"/>',
                         'items' => $activities,
                         'empty' => 'No activities selected yet.',
-                        'render' => fn($a) => ($activityLookup[$a->value]['main'] ?? '')
-                            ? ($activityLookup[$a->value]['main'].' → '.$activityLookup[$a->value]['sub'])
-                            : $a->value,
+                        // Only show sub-interest name
+                        'render' => fn($a) => $a->value,
                         'color' => 'bg-copper-light text-copper-dark dark:bg-copper-dark/30 dark:text-copper-light',
                     ],
                     [
                         'title' => 'Budget',
                         'icon' => '<path stroke-linecap="round" stroke-linejoin="round"
                                      d="M12 3a9 9 0 100 18 9 9 0 000-18zM8 12h8" />',
-                        'items' => collect([['min' => $budgetMin, 'max' => $budgetMax]]),
-                        'empty' => 'No budget preferences set.',
-                        'render' => null,
-                        'color' => 'text-ink-800 dark:text-ink-200',
+                        'items' => collect([$budget])->filter(),
+                        'empty' => 'No budget preference set.',
+                        'render' => fn($b) => ucfirst(str_replace('_', ' ', $b)),
+                        'color' => 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-100',
                     ],
                     [
                         'title' => 'Dietary Preferences',
@@ -77,6 +76,15 @@
                         'empty' => 'No dietary preferences yet.',
                         'render' => fn($diet) => $diet,
                         'color' => 'bg-forest-100 text-forest dark:bg-forest/20 dark:text-forest-100',
+                    ],
+                    [
+                        'title' => 'Cuisine Preferences',
+                        'icon' => '<path stroke-linecap="round" stroke-linejoin="round"
+                                     d="M4 6h16M4 12h16M4 18h16" />',
+                        'items' => $cuisine,
+                        'empty' => 'No cuisine preferences yet.',
+                        'render' => fn($c) => $c,
+                        'color' => 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-100',
                     ],
                     [
                         'title' => 'Accommodation',
@@ -112,40 +120,20 @@
                         </h3>
                     </div>
 
-                    @if($section['title'] === 'Budget')
-                        @php $budget = $section['items']->first(); @endphp
-                        @if(!$budget['min'] && !$budget['max'])
-                            <p class="text-sm text-ink-500 dark:text-sand-100 italic">
-                                {{ $section['empty'] }}
-                            </p>
-                        @else
-                            <div class="flex flex-col sm:flex-row sm:items-center sm:gap-6 mt-2">
-                                <p class="text-ink-800 dark:text-ink-100 text-base">
-                                    <span class="font-medium">Minimum Budget:</span>
-                                    <span class="text-copper font-semibold">${{ $budget['min'] ?: '—' }}</span>
-                                </p>
-                                <p class="text-ink-800 dark:text-ink-100 text-base">
-                                    <span class="font-medium">Maximum Budget:</span>
-                                    <span class="text-copper font-semibold">${{ $budget['max'] ?: '—' }}</span>
-                                </p>
-                            </div>
-                        @endif
+                    @if($section['items']->isEmpty())
+                        <p class="text-sm text-ink-500 dark:text-sand-100 italic">
+                            {{ $section['empty'] }}
+                        </p>
                     @else
-                        @if($section['items']->isEmpty())
-                            <p class="text-sm text-ink-500 dark:text-sand-100 italic">
-                                {{ $section['empty'] }}
-                            </p>
-                        @else
-                            <div class="flex flex-wrap gap-2 mt-2">
-                                @foreach($section['items'] as $item)
-                                    <span class="inline-flex items-center px-4 py-1.5 rounded-full
-                                                 {{ $section['color'] }} text-sm font-medium
-                                                 hover:scale-[1.05] transition-all duration-200 ease-out">
-                                        {{ is_callable($section['render']) ? $section['render']($item) : $item }}
-                                    </span>
-                                @endforeach
-                            </div>
-                        @endif
+                        <div class="flex flex-wrap gap-2 mt-2">
+                            @foreach($section['items'] as $item)
+                                <span class="inline-flex items-center px-4 py-1.5 rounded-full
+                                             {{ $section['color'] }} text-sm font-medium
+                                             hover:scale-[1.05] transition-all duration-200 ease-out">
+                                    {{ is_callable($section['render']) ? $section['render']($item) : $item }}
+                                </span>
+                            @endforeach
+                        </div>
                     @endif
                 </div>
             @endforeach
