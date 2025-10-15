@@ -23,7 +23,7 @@
                         Welcome, {{ $traveler->name ?? auth()->user()->name }}!
                     </p>
                     <p class="text-sm text-gray-500 dark:text-gray-400">
-                        Here’s your travel summary.
+                        Here’s your travel summary:
                     </p>
                 </div>
             </div>
