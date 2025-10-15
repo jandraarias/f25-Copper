@@ -7,7 +7,7 @@
 
     <title>{{ config('app.name', 'ItinerEase') }}</title>
 
-    <!-- 🔆 Prevent flash: set theme before CSS loads -->
+    <!-- Prevent flash: set theme before CSS loads -->
     <script>
         (function() {
             const storedTheme = localStorage.getItem('theme');
@@ -19,6 +19,10 @@
             }
         })();
     </script>
+
+    <!-- Favicons (Light & Dark) -->
+    <link rel="icon" href="{{ asset('data/images/logos/itinerease-icon-light.svg') }}" type="image/svg+xml" media="(prefers-color-scheme: light)">
+    <link rel="icon" href="{{ asset('data/images/logos/itinerease-icon-dark.svg') }}" type="image/svg+xml" media="(prefers-color-scheme: dark)">
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
@@ -32,6 +36,7 @@
     <div class="min-h-screen flex flex-col">
 
         {{-- Navigation --}}
+        {{-- NOTE: the navigation partial should include the updated logo logic shown below --}}
         @include('layouts.navigation')
 
         {{-- Flash Messages --}}
