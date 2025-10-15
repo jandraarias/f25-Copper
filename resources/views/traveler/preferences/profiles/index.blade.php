@@ -8,7 +8,7 @@
             <a href="{{ route('traveler.preference-profiles.create') }}"
                class="px-5 py-2.5 rounded-full bg-gradient-copper text-white font-medium
                       shadow-soft hover:shadow-glow hover:scale-[1.03]
-                      transition-all duration-200 ease-out dark:shadow-glow-dark">
+                      transition-all duration-200 ease-out">
                 + New Profile
             </a>
         </div>
@@ -20,10 +20,9 @@
 
             {{-- Info Card --}}
             <div class="bg-white dark:bg-sand-800 text-ink-900 dark:text-ink-200
-                        shadow-soft dark:shadow-glow-dark rounded-3xl p-8
-                        border border-sand-200 dark:border-ink-700
-                        transition-all duration-200 ease-out">
-                <p class="text-ink-700 dark:text-ink-200/80 leading-relaxed">
+                        shadow-soft rounded-3xl p-8 border border-sand-200 dark:border-ink-700
+                        transition-all duration-200 ease-out hover:shadow-glow hover:scale-[1.01]">
+                <p class="text-ink-700 dark:text-sand-100 leading-relaxed">
                     Manage your travel preference profiles below. Each profile helps us tailor your trips
                     based on your favorite activities, budget, and lifestyle preferences.
                 </p>
@@ -31,9 +30,8 @@
 
             {{-- Profile List --}}
             <div class="bg-white dark:bg-sand-800 text-ink-900 dark:text-ink-200
-                        shadow-soft dark:shadow-glow-dark rounded-3xl
-                        border border-sand-200 dark:border-ink-700 p-8
-                        transition-all duration-200 ease-out">
+                        shadow-soft rounded-3xl border border-sand-200 dark:border-ink-700 p-8
+                        transition-all duration-200 ease-out hover:shadow-glow hover:scale-[1.01]">
                 <h3 class="text-lg font-semibold text-copper mb-6">Your Profiles</h3>
 
                 @forelse ($profiles as $profile)
@@ -45,7 +43,7 @@
                             <h4 class="text-xl font-semibold text-ink-900 dark:text-ink-100">
                                 {{ $profile->name }}
                             </h4>
-                            <p class="text-sm text-ink-500 dark:text-ink-300">
+                            <p class="text-sm text-ink-500 dark:text-sand-100">
                                 {{ $profile->preferences->count() }}
                                 {{ Str::plural('preference', $profile->preferences->count()) }}
                             </p>
@@ -112,14 +110,14 @@
                     </div>
                 @empty
                     <div class="text-center py-10">
-                        <p class="text-ink-500 dark:text-ink-300 text-sm italic mb-3">
+                        <p class="text-ink-500 dark:text-sand-100 text-sm italic mb-3">
                             You haven’t created any preference profiles yet.
                         </p>
                         <a href="{{ route('traveler.preference-profiles.create') }}"
                            class="group inline-flex items-center gap-2 px-6 py-2.5 rounded-full
-                                  bg-gradient-copper text-white font-medium
-                                  shadow-soft hover:shadow-glow hover:scale-[1.03]
-                                  transition-all duration-200 ease-out dark:shadow-glow-dark">
+                                  bg-gradient-copper text-white font-medium shadow-soft
+                                  hover:shadow-glow hover:scale-[1.03]
+                                  transition-all duration-200 ease-out">
                             <svg xmlns="http://www.w3.org/2000/svg"
                                  class="w-5 h-5 transition-transform duration-200 group-hover:rotate-90"
                                  fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">

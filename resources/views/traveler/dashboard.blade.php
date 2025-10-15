@@ -21,25 +21,27 @@
     <div class="py-12 bg-sand dark:bg-sand-900 min-h-screen transition-colors duration-300">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-10">
 
-            {{-- ✨ Welcome Card --}}
-            <div class="bg-white dark:bg-sand-800 shadow-soft dark:shadow-glow-dark rounded-3xl p-8 border border-sand-200 dark:border-ink-700 hover:shadow-glow hover:scale-[1.01] transition-all duration-200 ease-out">
+            {{-- Welcome Card --}}
+            <div class="bg-white dark:bg-sand-800 shadow-soft rounded-3xl p-8 border border-sand-200 dark:border-ink-700
+                        transition-all duration-200 ease-out hover:shadow-glow hover:scale-[1.01]">
                 <p class="text-lg font-semibold text-ink-900 dark:text-ink-100">
                     Welcome, {{ $traveler->name ?? auth()->user()->name }}!
                 </p>
-                <p class="text-sm text-ink-500 dark:text-ink-300 mt-1">
+                <p class="text-sm text-ink-500 dark:text-sand-100 mt-1">
                     Here’s your travel summary — a snapshot of your journeys and preferences.
                 </p>
             </div>
 
-            {{-- 🧳 Itineraries Summary --}}
-            <div class="bg-white dark:bg-sand-800 shadow-soft dark:shadow-glow-dark rounded-3xl border border-sand-200 dark:border-ink-700 p-8 transition-all duration-200 ease-out hover:shadow-glow hover:scale-[1.01]">
+            {{-- Itineraries Summary --}}
+            <div class="bg-white dark:bg-sand-800 shadow-soft rounded-3xl border border-sand-200 dark:border-ink-700
+                        p-8 transition-all duration-200 ease-out hover:shadow-glow hover:scale-[1.01]">
                 <div class="flex items-center mb-6">
                     <div class="w-10 h-10 flex items-center justify-center rounded-full bg-copper/10 mr-3">
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-copper" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 7.5l8.954-4.477a1.125 1.125 0 011.092 0L21.25 7.5M2.25 7.5v9a1.125 1.125 0 00.598.995l8.954 4.477a1.125 1.125 0 001.092 0l8.954-4.477a1.125 1.125 0 00.598-.995v-9" />
                         </svg>
                     </div>
-                    <h3 class="text-xl font-semibold text-ink-900 dark:text-ink-100">Recent Itineraries</h3>
+                    <h3 class="text-xl font-semibold text-ink-900 dark:text-ink-100">Upcoming Itineraries</h3>
                 </div>
 
                 @forelse ($itineraries as $itinerary)
@@ -54,7 +56,7 @@
                                 <p class="font-semibold text-ink-900 dark:text-ink-100 text-lg">
                                     {{ $itinerary->name }}
                                 </p>
-                                <p class="text-sm text-ink-500 dark:text-ink-300">
+                                <p class="text-sm text-ink-500 dark:text-sand-100">
                                     {{ $sd ?? '—' }} → {{ $ed ?? '—' }}
                                 </p>
                             </div>
@@ -70,7 +72,7 @@
                         </div>
 
                         @if($itinerary->items && $itinerary->items->count())
-                            <ul class="list-disc ml-6 mt-3 text-sm text-ink-700 dark:text-ink-300">
+                            <ul class="list-disc ml-6 mt-3 text-sm text-ink-700 dark:text-sand-100">
                                 @foreach ($itinerary->items->take(3) as $item)
                                     <li>
                                         <span class="font-medium">{{ ucfirst($item->type) }}</span>:
@@ -89,12 +91,13 @@
                         @endif
                     </div>
                 @empty
-                    <p class="text-sm text-ink-500 dark:text-ink-300 italic">You don’t have any itineraries yet.</p>
+                    <p class="text-sm text-ink-500 dark:text-sand-100 italic">You don’t have any itineraries yet.</p>
                 @endforelse
             </div>
 
-            {{-- 🌿 Preference Profiles Summary --}}
-            <div class="bg-white dark:bg-sand-800 shadow-soft dark:shadow-glow-dark rounded-3xl border border-sand-200 dark:border-ink-700 p-8 transition-all duration-200 ease-out hover:shadow-glow hover:scale-[1.01]">
+            {{-- Preference Profiles Summary --}}
+            <div class="bg-white dark:bg-sand-800 shadow-soft rounded-3xl border border-sand-200 dark:border-ink-700
+                        p-8 transition-all duration-200 ease-out hover:shadow-glow hover:scale-[1.01]">
                 <div class="flex items-center mb-6">
                     <div class="w-10 h-10 flex items-center justify-center rounded-full bg-forest/10 mr-3">
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-forest" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
@@ -109,7 +112,7 @@
                         <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3">
                             <div>
                                 <p class="font-semibold text-ink-900 dark:text-ink-100 text-lg">{{ $profile->name }}</p>
-                                <p class="text-sm text-ink-500 dark:text-ink-300">
+                                <p class="text-sm text-ink-500 dark:text-sand-100">
                                     {{ $profile->preferences->count() }} Preferences
                                 </p>
                             </div>
@@ -125,7 +128,7 @@
                         </div>
                     </div>
                 @empty
-                    <p class="text-sm text-ink-500 dark:text-ink-300 italic">You don’t have any preference profiles yet.</p>
+                    <p class="text-sm text-ink-500 dark:text-sand-100 italic">You don’t have any preference profiles yet.</p>
                 @endforelse
             </div>
         </div>

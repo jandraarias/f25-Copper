@@ -104,7 +104,7 @@
                             {{ $itineraries->links() }}
                         </div>
                     @else
-                        <div class="py-12 text-center text-ink-600 dark:text-ink-300">
+                        <div class="py-12 text-center text-ink-600 dark:text-sand-100">
                             <p class="text-lg font-medium mb-4">You don’t have any itineraries yet.</p>
                             <a href="{{ route('traveler.itineraries.create') }}"
                                class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-gradient-copper text-white font-semibold shadow-soft hover:shadow-glow hover:scale-[1.03] transition-all duration-200 ease-out">

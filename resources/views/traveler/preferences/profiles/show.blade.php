@@ -115,7 +115,7 @@
                     @if($section['title'] === 'Budget')
                         @php $budget = $section['items']->first(); @endphp
                         @if(!$budget['min'] && !$budget['max'])
-                            <p class="text-sm text-ink-500 dark:text-ink-300 italic">
+                            <p class="text-sm text-ink-500 dark:text-sand-100 italic">
                                 {{ $section['empty'] }}
                             </p>
                         @else
@@ -132,7 +132,7 @@
                         @endif
                     @else
                         @if($section['items']->isEmpty())
-                            <p class="text-sm text-ink-500 dark:text-ink-300 italic">
+                            <p class="text-sm text-ink-500 dark:text-sand-100 italic">
                                 {{ $section['empty'] }}
                             </p>
                         @else

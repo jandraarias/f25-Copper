@@ -3,7 +3,7 @@
 
 {{-- Shared fields for itinerary items --}}
 <div>
-    <label class="block text-sm font-semibold text-ink-700 dark:text-ink-300 mb-2">Type</label>
+    <label class="block text-sm font-semibold text-ink-700 dark:text-sand-100 mb-2">Type</label>
     <select name="type" required
             class="w-full border border-sand-200 dark:border-ink-700 rounded-xl shadow-sm
                    focus:ring-copper focus:border-copper focus:shadow-glow
@@ -20,7 +20,7 @@
 </div>
 
 <div>
-    <label class="block text-sm font-semibold text-ink-700 dark:text-ink-300 mb-2">Title</label>
+    <label class="block text-sm font-semibold text-ink-700 dark:text-sand-100 mb-2">Title</label>
     <input name="title" type="text" value="{{ old('title', $old['title'] ?? '') }}" required
            class="w-full border border-sand-200 dark:border-ink-700 rounded-xl shadow-sm
                   focus:ring-copper focus:border-copper focus:shadow-glow
@@ -29,7 +29,7 @@
 </div>
 
 <div>
-    <label class="block text-sm font-semibold text-ink-700 dark:text-ink-300 mb-2">Start Time</label>
+    <label class="block text-sm font-semibold text-ink-700 dark:text-sand-100 mb-2">Start Time</label>
     <input name="start_time" type="datetime-local" value="{{ old('start_time', $old['start_time'] ?? '') }}" required
            class="w-full border border-sand-200 dark:border-ink-700 rounded-xl shadow-sm
                   focus:ring-copper focus:border-copper focus:shadow-glow
@@ -38,7 +38,7 @@
 </div>
 
 <div>
-    <label class="block text-sm font-semibold text-ink-700 dark:text-ink-300 mb-2">End Time</label>
+    <label class="block text-sm font-semibold text-ink-700 dark:text-sand-100 mb-2">End Time</label>
     <input name="end_time" type="datetime-local" value="{{ old('end_time', $old['end_time'] ?? '') }}"
            class="w-full border border-sand-200 dark:border-ink-700 rounded-xl shadow-sm
                   focus:ring-copper focus:border-copper focus:shadow-glow
@@ -47,7 +47,7 @@
 </div>
 
 <div class="md:col-span-2">
-    <label class="block text-sm font-semibold text-ink-700 dark:text-ink-300 mb-2">Location</label>
+    <label class="block text-sm font-semibold text-ink-700 dark:text-sand-100 mb-2">Location</label>
     <input name="location" type="text" value="{{ old('location', $old['location'] ?? '') }}"
            class="w-full border border-sand-200 dark:border-ink-700 rounded-xl shadow-sm
                   focus:ring-copper focus:border-copper focus:shadow-glow
@@ -56,7 +56,7 @@
 </div>
 
 <div class="md:col-span-2">
-    <label class="block text-sm font-semibold text-ink-700 dark:text-ink-300 mb-2">Details</label>
+    <label class="block text-sm font-semibold text-ink-700 dark:text-sand-100 mb-2">Details</label>
     <textarea name="details" rows="4"
               class="w-full border border-sand-200 dark:border-ink-700 rounded-xl shadow-sm
                      focus:ring-copper focus:border-copper focus:shadow-glow

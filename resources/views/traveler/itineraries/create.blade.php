@@ -32,7 +32,7 @@
 
                             {{-- Name --}}
                             <div class="md:col-span-2">
-                                <label class="block text-sm font-semibold text-ink-700 dark:text-ink-300 mb-2">Name</label>
+                                <label class="block text-sm font-semibold text-ink-700 dark:text-sand-100 mb-2">Name</label>
                                 <input name="name" type="text" value="{{ old('name') }}" required
                                        class="w-full border border-sand-200 dark:border-ink-700 rounded-xl shadow-sm
                                               focus:ring-copper focus:border-copper focus:shadow-glow transition-all duration-200
@@ -42,7 +42,7 @@
 
                             {{-- Description --}}
                             <div class="md:col-span-2">
-                                <label class="block text-sm font-semibold text-ink-700 dark:text-ink-300 mb-2">Description</label>
+                                <label class="block text-sm font-semibold text-ink-700 dark:text-sand-100 mb-2">Description</label>
                                 <textarea name="description" rows="4" required
                                           class="w-full border border-sand-200 dark:border-ink-700 rounded-xl shadow-sm
                                                  focus:ring-copper focus:border-copper focus:shadow-glow transition-all duration-200
@@ -53,7 +53,7 @@
                             {{-- Countries --}}
                             <div class="md:col-span-2"
                                  x-data="countrySelect(window.allCountries, @json(old('countries', [])))">
-                                <label class="block text-sm font-semibold text-ink-700 dark:text-ink-300 mb-2">Countries</label>
+                                <label class="block text-sm font-semibold text-ink-700 dark:text-sand-100 mb-2">Countries</label>
 
                                 {{-- Selected Chips --}}
                                 <div class="flex flex-wrap gap-2 mb-2">
@@ -84,7 +84,7 @@
 
                             {{-- Destination --}}
                             <div>
-                                <label class="block text-sm font-semibold text-ink-700 dark:text-ink-300 mb-2">Destination (optional)</label>
+                                <label class="block text-sm font-semibold text-ink-700 dark:text-sand-100 mb-2">Destination (optional)</label>
                                 <input name="destination" type="text" value="{{ old('destination') }}"
                                        class="w-full border border-sand-200 dark:border-ink-700 rounded-xl shadow-sm
                                               focus:ring-copper focus:border-copper focus:shadow-glow transition-all duration-200
@@ -94,7 +94,7 @@
 
                             {{-- Start Date --}}
                             <div>
-                                <label class="block text-sm font-semibold text-ink-700 dark:text-ink-300 mb-2">Start Date</label>
+                                <label class="block text-sm font-semibold text-ink-700 dark:text-sand-100 mb-2">Start Date</label>
                                 <input name="start_date" type="date" value="{{ old('start_date') }}"
                                        class="w-full border border-sand-200 dark:border-ink-700 rounded-xl shadow-sm
                                               focus:ring-copper focus:border-copper focus:shadow-glow transition-all duration-200
@@ -104,7 +104,7 @@
 
                             {{-- End Date --}}
                             <div>
-                                <label class="block text-sm font-semibold text-ink-700 dark:text-ink-300 mb-2">End Date</label>
+                                <label class="block text-sm font-semibold text-ink-700 dark:text-sand-100 mb-2">End Date</label>
                                 <input name="end_date" type="date" value="{{ old('end_date') }}"
                                        class="w-full border border-sand-200 dark:border-ink-700 rounded-xl shadow-sm
                                               focus:ring-copper focus:border-copper focus:shadow-glow transition-all duration-200
