@@ -1,7 +1,8 @@
-// app.js
+// resources/js/app.js
 
 import './bootstrap';
 import Alpine from 'alpinejs';
+import intersect from '@alpinejs/intersect'; // Added for x-intersect animations
 import countrySelect from './countrySelect';
 
 // --- Theme persistence & flicker fix ---
@@ -10,7 +11,7 @@ import countrySelect from './countrySelect';
     const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
     const shouldUseDark = storedTheme === 'dark' || (!storedTheme && systemPrefersDark);
 
-    // Set immediately before Alpine starts
+    // Apply before Alpine initializes
     if (shouldUseDark) {
         document.documentElement.classList.add('dark');
     } else {
@@ -20,17 +21,18 @@ import countrySelect from './countrySelect';
     // Optional: smooth transition only during toggle, not on load
     window.enableThemeTransition = function () {
         document.documentElement.classList.add('theme-transition');
-        window.setTimeout(() => {
+        setTimeout(() => {
             document.documentElement.classList.remove('theme-transition');
         }, 400);
     };
 
-    // Toggle theme handler for Alpine or global JS
+    // Global theme toggle (usable by Alpine or plain JS)
     window.toggleTheme = function () {
         const html = document.documentElement;
         const isDark = html.classList.contains('dark');
 
         window.enableThemeTransition();
+
         if (isDark) {
             html.classList.remove('dark');
             localStorage.setItem('theme', 'light');
@@ -42,9 +44,10 @@ import countrySelect from './countrySelect';
 })();
 
 // --- Alpine setup ---
+Alpine.plugin(intersect); // Enables x-intersect animations everywhere
 Alpine.data('countrySelect', countrySelect);
 
-// Optionally, you can make toggleTheme accessible via Alpine
+// Optional global theme store (Alpine-aware)
 Alpine.store('theme', {
     dark: document.documentElement.classList.contains('dark'),
     toggle() {
@@ -53,5 +56,6 @@ Alpine.store('theme', {
     },
 });
 
+// Expose Alpine globally
 window.Alpine = Alpine;
 Alpine.start();
