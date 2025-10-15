@@ -18,6 +18,9 @@ return new class extends Migration {
 
             $table->string('key');    // e.g. "food", "lodging", "transportation"
             $table->string('value');  // e.g. "vegetarian", "budget", "train"
+            // This column marks whether the preference is a general activity 
+            // (e.g. hiking, museums) or a dietary restriction (e.g. gluten-free).
+            $table->enum('requirement', ['general', 'dietary'])->default('general'); 
             $table->timestamps();
         });
     }
