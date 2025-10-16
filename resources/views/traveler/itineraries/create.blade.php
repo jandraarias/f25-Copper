@@ -29,7 +29,6 @@
                         @csrf
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-
                             {{-- Name --}}
                             <div class="md:col-span-2">
                                 <label class="block text-sm font-semibold text-ink-700 dark:text-sand-100 mb-2">Name</label>
@@ -111,6 +110,79 @@
                                               px-4 py-2.5 dark:bg-sand-900" />
                                 @error('end_date')<p class="text-sm text-red-600 mt-1">{{ $message }}</p>@enderror
                             </div>
+
+                            {{-- ===== Collaboration ===== --}}
+                            <div class="md:col-span-2"
+                                 x-data="collabForm({
+                                    enabled: {{ old('is_collaborative') ? 'true' : 'false' }},
+                                    initialInvites: @json(old('invite_emails', []))
+                                 })">
+                                <div class="flex items-center justify-between gap-4">
+                                    <div>
+                                        <label class="block text-sm font-semibold text-ink-700 dark:text-sand-100 mb-1">
+                                            Collaboration
+                                        </label>
+                                        <p class="text-xs text-ink-500 dark:text-ink-300">
+                                            Enable to invite other Copper users by email to co-edit this itinerary. Only you (the creator) can delete it.
+                                        </p>
+                                    </div>
+
+                                    {{-- Pretty toggle bound to a hidden checkbox --}}
+                                    <div class="flex items-center gap-3">
+                                        <input type="hidden" name="is_collaborative" :value="enabled ? 1 : 0">
+                                        <button type="button"
+                                                @click="enabled = !enabled"
+                                                :class="enabled ? 'bg-gradient-copper text-white shadow-glow' : 'border border-copper text-copper'"
+                                                class="px-4 py-1.5 rounded-full text-sm font-medium transition-all duration-200 ease-out">
+                                            <span x-text="enabled ? 'Enabled' : 'Disabled'"></span>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                {{-- Invite UI (visible only when enabled) --}}
+                                <div x-show="enabled" x-transition.opacity.duration.200ms class="mt-4">
+                                    <label class="block text-sm font-semibold text-ink-700 dark:text-sand-100 mb-2">
+                                        Invite Collaborators
+                                    </label>
+
+                                    {{-- Chips --}}
+                                    <div class="flex flex-wrap gap-2 mb-2">
+                                        <template x-for="(email, idx) in invites" :key="email">
+                                            <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-copper text-white text-sm shadow-soft">
+                                                <span x-text="email"></span>
+                                                <button type="button" @click="removeInvite(email)" class="text-white/90 hover:text-white">&times;</button>
+                                                <input type="hidden" name="invite_emails[]" :value="email">
+                                            </span>
+                                        </template>
+                                    </div>
+
+                                    {{-- Input + Add --}}
+                                    <div class="flex items-center gap-2">
+                                        <input x-model="input"
+                                               @keydown.enter.prevent="addFromInput()"
+                                               @paste.prevent="pasteHandler($event)"
+                                               type="email"
+                                               placeholder="friend@example.com"
+                                               class="flex-1 border border-sand-200 dark:border-ink-700 rounded-xl shadow-sm
+                                                      focus:ring-copper focus:border-copper focus:shadow-glow transition-all duration-200
+                                                      px-4 py-2.5 dark:bg-sand-900" />
+                                        <button type="button"
+                                                @click="addFromInput()"
+                                                class="px-4 py-2 rounded-full border border-copper text-copper
+                                                       hover:bg-copper hover:text-white hover:shadow-glow hover:scale-[1.03]
+                                                       transition-all duration-200 ease-out text-sm font-medium">
+                                            Add
+                                        </button>
+                                    </div>
+
+                                    {{-- Inline helper & errors --}}
+                                    <p class="mt-2 text-xs text-ink-500 dark:text-ink-300">
+                                        Tip: Paste a list of emails (comma, space, or newline separated).
+                                    </p>
+                                    @error('invite_emails')<p class="text-sm text-red-600 mt-1">{{ $message }}</p>@enderror
+                                    @error('invite_emails.*')<p class="text-sm text-red-600 mt-1">{{ $message }}</p>@enderror
+                                </div>
+                            </div>
                         </div>
 
                         {{-- Buttons --}}
@@ -136,5 +208,41 @@
     {{-- Inject countries --}}
     <script>
         window.allCountries = @json(\App\Models\Country::select('id','name')->orderBy('name')->get());
+
+        /**
+         * Collaboration Alpine store
+         * - enabled: boolean
+         * - invites: unique, trimmed emails
+         * - input: current text in email box
+         */
+        function collabForm({ enabled = false, initialInvites = [] }) {
+            return {
+                enabled,
+                input: '',
+                invites: Array.from(new Set(initialInvites.filter(Boolean))).sort(),
+                emailRegex: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+
+                add(email) {
+                    const e = (email || '').trim();
+                    if (!e) return;
+                    if (!this.emailRegex.test(e)) return; // basic format check
+                    if (!this.invites.includes(e)) this.invites.push(e);
+                },
+                addFromInput() {
+                    // allow comma/space/newline separated batch input
+                    const parts = this.input.split(/[\s,]+/).filter(Boolean);
+                    parts.forEach(p => this.add(p));
+                    this.input = '';
+                },
+                pasteHandler(evt) {
+                    const text = (evt.clipboardData || window.clipboardData).getData('text');
+                    const parts = (text || '').split(/[\s,]+/).filter(Boolean);
+                    parts.forEach(p => this.add(p));
+                },
+                removeInvite(email) {
+                    this.invites = this.invites.filter(i => i !== email);
+                }
+            }
+        }
     </script>
 </x-app-layout>
