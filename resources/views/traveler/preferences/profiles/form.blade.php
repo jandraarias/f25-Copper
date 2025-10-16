@@ -68,7 +68,13 @@
                         <div class="flex justify-center mb-6">
                             <nav class="flex flex-wrap justify-center bg-sand dark:bg-sand-800
                                         rounded-full p-1 shadow-soft dark:shadow-glow-dark transition-colors duration-300">
-                                @foreach (['activities' => 'Activities', 'budget' => 'Budget', 'dietary' => 'Dietary', 'accommodation' => 'Accommodation'] as $tab => $label)
+                                @foreach ([
+                                    'activities' => 'Activities',
+                                    'budget' => 'Budget',
+                                    'dietary' => 'Dietary',
+                                    'cuisine' => 'Cuisine',
+                                    'accommodation' => 'Accommodation'
+                                ] as $tab => $label)
                                     <button type="button" 
                                             @click="activeTab = '{{ $tab }}'"
                                             :class="activeTab === '{{ $tab }}'
@@ -89,10 +95,21 @@
 
                             <div
                                 x-data="{
-                                    mainList: @js($mainOptions->map(fn($m) => ['id' => $m->id, 'name' => $m->name])->values()),
+                                    mainList: @js(
+                                        $mainOptions
+                                            ->reject(fn($m) => in_array($m->name, ['Cuisine', 'Dietary Restrictions']))
+                                            ->map(fn($m) => ['id' => $m->id, 'name' => $m->name])
+                                            ->values()
+                                    ),
                                     subMap: @js($subMap),
                                     mainId: null,
-                                    selectedSubs: [],
+                                    selectedSubs: @js(
+                                        $preferences
+                                            ->where('key', 'activity')
+                                            ->map(fn($p) => \App\Models\PreferenceOption::where('name', $p->value)->value('id'))
+                                            ->filter()
+                                            ->values()
+                                    ),
                                     addSub(id) {
                                         if (!this.selectedSubs.includes(id)) this.selectedSubs.push(id);
                                     },
@@ -125,7 +142,7 @@
                                                     x-show="!selectedSubs.includes(sub.id)"
                                                     class="group px-4 py-1.5 rounded-full border border-copper text-copper 
                                                            hover:bg-copper hover:text-white hover:shadow-glow text-sm font-medium 
-                                                           transition-all duration-200 ease-out hover:scale-[1.05]">
+                                                           transition-all duration-150 ease-out hover:scale-[1.05]">
                                                 <span x-text="sub.name"></span>
                                             </button>
                                         </template>
@@ -135,7 +152,7 @@
                                         <template x-for="id in selectedSubs" :key="'sel-' + id">
                                             <div class="inline-flex items-center px-3 py-1.5 rounded-full
                                                         bg-copper-light text-copper-dark text-sm font-medium
-                                                        hover:scale-[1.05] transition-all duration-200 ease-out">
+                                                        hover:scale-[1.05] transition-all duration-150 ease-out">
                                                 <span x-text="(Object.values(subMap).flat().find(s => s.id === id) || {}).name"></span>
                                                 <button type="button" @click="removeSub(id)" class="ml-2 text-copper-dark hover:text-copper transition">&times;</button>
                                                 <input type="hidden" name="activities[]" :value="id">
@@ -149,17 +166,38 @@
                         {{-- === Budget === --}}
                         <div x-show="activeTab === 'budget'" x-transition.opacity.duration.250ms>
                             <h3 class="text-lg font-semibold text-copper mb-3">Budget Preferences</h3>
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                                @foreach ([['label'=>'Minimum Budget','name'=>'budget_min','placeholder'=>'$0'], ['label'=>'Maximum Budget','name'=>'budget_max','placeholder'=>'$5000']] as $budget)
-                                    <div>
-                                        <label class="block text-sm font-medium text-ink-700 dark:text-ink-200 mb-1">{{ $budget['label'] }}</label>
-                                        <input type="number" name="{{ $budget['name'] }}" min="0"
-                                               value="{{ old($budget['name']) ?? ($preferences->where('key', $budget['name'])->first()->value ?? '') }}"
-                                               class="w-full border border-sand-200 dark:border-ink-700
-                                                      bg-white dark:bg-sand-900 text-ink-900 dark:text-ink-100
-                                                      rounded-xl shadow-sm focus:ring-copper focus:border-copper
-                                                      focus:shadow-glow transition-all duration-200"
-                                               placeholder="{{ $budget['placeholder'] }}">
+                            <p class="text-sm text-ink-500 dark:text-ink-200/70 mb-3">
+                                Choose your budget level for travel experiences.
+                            </p>
+
+                            @php
+                                $budgetOptions = [
+                                    'inexpensive' => 'Inexpensive',
+                                    'moderate'    => 'Moderate',
+                                    'no_concern'  => 'Cost is No Concern',
+                                ];
+                                $selectedBudget = old('budget') ?? ($preferences->where('key', 'budget')->first()->value ?? 'moderate');
+                            @endphp
+
+                            <div class="flex flex-wrap gap-3">
+                                @foreach ($budgetOptions as $value => $label)
+                                    @php $id = 'budget_'.$value; @endphp
+                                    <div class="inline-block">
+                                        <input
+                                            id="{{ $id }}"
+                                            type="radio"
+                                            name="budget"
+                                            value="{{ $value }}"
+                                            class="peer hidden"
+                                            @checked($selectedBudget === $value)
+                                        >
+                                        <label for="{{ $id }}"
+                                            class="inline-flex items-center px-4 py-1.5 rounded-full border border-copper text-copper 
+                                                    hover:bg-copper hover:text-white text-sm font-medium cursor-pointer shadow-sm
+                                                    transition-all duration-150 ease-out
+                                                    peer-checked:bg-gradient-copper peer-checked:text-white peer-checked:shadow-glow peer-checked:scale-[1.05]">
+                                            {{ $label }}
+                                        </label>
                                     </div>
                                 @endforeach
                             </div>
@@ -169,18 +207,58 @@
                         <div x-show="activeTab === 'dietary'" x-transition.opacity.duration.250ms>
                             <h3 class="text-lg font-semibold text-copper mb-3">Dietary Preferences</h3>
                             <p class="text-sm text-ink-500 dark:text-ink-200/70 mb-3">Select all dietary preferences that apply.</p>
-                            @php
-                                $dietOptions = ['Vegetarian', 'Vegan', 'Pescatarian', 'Gluten-Free', 'Nut-Free', 'Dairy-Free'];
-                            @endphp
+
                             <div class="flex flex-wrap gap-2">
-                                @foreach ($dietOptions as $diet)
-                                    <label class="group inline-flex items-center px-4 py-1.5 rounded-full border border-copper text-copper 
-                                                   hover:bg-copper hover:text-white text-sm font-medium cursor-pointer shadow-sm
-                                                   hover:shadow-glow hover:scale-[1.05] transition-all duration-200 ease-out">
-                                        <input type="checkbox" name="dietary[]" value="{{ $diet }}" class="hidden peer"
-                                               @checked(in_array($diet, old('dietary', $preferences->where('key', 'dietary')->pluck('value')->toArray() ?? [])))>
-                                        <span>{{ $diet }}</span>
-                                    </label>
+                                @foreach ($dietaryOptions as $diet)
+                                    @php $id = 'diet_'.\Illuminate\Support\Str::slug($diet).'_'.$loop->index; @endphp
+                                    <div class="inline-block">
+                                        <input
+                                            id="{{ $id }}"
+                                            type="checkbox"
+                                            name="dietary[]"
+                                            value="{{ $diet }}"
+                                            class="peer hidden"
+                                            @checked(in_array($diet, old('dietary', $preferences->where('key', 'dietary')->pluck('value')->toArray() ?? [])))
+                                        >
+                                        <label for="{{ $id }}"
+                                            class="inline-flex items-center px-4 py-1.5 rounded-full border border-copper text-copper 
+                                                    hover:bg-copper hover:text-white text-sm font-medium cursor-pointer shadow-sm
+                                                    transition-all duration-150 ease-out
+                                                    peer-checked:bg-gradient-copper peer-checked:text-white peer-checked:shadow-glow peer-checked:scale-[1.05]">
+                                            {{ $diet }}
+                                        </label>
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+
+                        {{-- === Cuisine === --}}
+                        <div x-show="activeTab === 'cuisine'" x-transition.opacity.duration.250ms>
+                            <h3 class="text-lg font-semibold text-copper mb-3">Cuisine Preferences</h3>
+                            <p class="text-sm text-ink-500 dark:text-ink-200/70 mb-3">
+                                Select the cuisines you enjoy most.
+                            </p>
+
+                            <div class="flex flex-wrap gap-2">
+                                @foreach ($cuisineOptions as $cuisine)
+                                    @php $id = 'cuisine_'.\Illuminate\Support\Str::slug($cuisine).'_'.$loop->index; @endphp
+                                    <div class="inline-block">
+                                        <input
+                                            id="{{ $id }}"
+                                            type="checkbox"
+                                            name="cuisine[]"
+                                            value="{{ $cuisine }}"
+                                            class="peer hidden"
+                                            @checked(in_array($cuisine, old('cuisine', $preferences->where('key', 'cuisine')->pluck('value')->toArray() ?? [])))
+                                        >
+                                        <label for="{{ $id }}"
+                                            class="inline-flex items-center px-4 py-1.5 rounded-full border border-copper text-copper 
+                                                    hover:bg-copper hover:text-white text-sm font-medium cursor-pointer shadow-sm
+                                                    transition-all duration-150 ease-out
+                                                    peer-checked:bg-gradient-copper peer-checked:text-white peer-checked:shadow-glow peer-checked:scale-[1.05]">
+                                            {{ $cuisine }}
+                                        </label>
+                                    </div>
                                 @endforeach
                             </div>
                         </div>
@@ -194,17 +272,27 @@
                             @endphp
                             <div class="flex flex-wrap gap-2">
                                 @foreach ($accomOptions as $acc)
-                                    <label class="group inline-flex items-center px-4 py-1.5 rounded-full border border-copper text-copper 
-                                                   hover:bg-copper hover:text-white text-sm font-medium cursor-pointer shadow-sm
-                                                   hover:shadow-glow hover:scale-[1.05] transition-all duration-200 ease-out">
-                                        <input type="checkbox" name="accommodation[]" value="{{ $acc }}" class="hidden peer"
-                                               @checked(in_array($acc, old('accommodation', $preferences->where('key', 'accommodation')->pluck('value')->toArray() ?? [])))>
-                                        <span>{{ $acc }}</span>
-                                    </label>
+                                    @php $id = 'accom_'.\Illuminate\Support\Str::slug($acc).'_'.$loop->index; @endphp
+                                    <div class="inline-block">
+                                        <input
+                                            id="{{ $id }}"
+                                            type="checkbox"
+                                            name="accommodation[]"
+                                            value="{{ $acc }}"
+                                            class="peer hidden"
+                                            @checked(in_array($acc, old('accommodation', $preferences->where('key', 'accommodation')->pluck('value')->toArray() ?? [])))
+                                        >
+                                        <label for="{{ $id }}"
+                                            class="inline-flex items-center px-4 py-1.5 rounded-full border border-copper text-copper 
+                                                    hover:bg-copper hover:text-white text-sm font-medium cursor-pointer shadow-sm
+                                                    transition-all duration-150 ease-out
+                                                    peer-checked:bg-gradient-copper peer-checked:text-white peer-checked:shadow-glow peer-checked:scale-[1.05]">
+                                            {{ $acc }}
+                                        </label>
+                                    </div>
                                 @endforeach
                             </div>
                         </div>
-                    </div>
 
                     {{-- === Buttons === --}}
                     <div class="mt-10 flex justify-end gap-4">
@@ -239,7 +327,7 @@
             </div>
         </div>
 
-        {{-- ✨ Toast Notification --}}
+        {{-- Toast Notification --}}
         <div x-show="showToast"
              x-transition.opacity.duration.500ms
              class="fixed bottom-6 right-6 bg-gradient-copper dark:bg-gradient-copper-dark

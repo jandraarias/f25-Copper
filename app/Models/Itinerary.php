@@ -61,4 +61,24 @@ class Itinerary extends Model
             }
         });
     }
+
+    public function invitations()
+    {
+        return $this->hasMany(ItineraryInvitation::class);
+    }
+
+    public function collaborators()
+    {
+        return $this->belongsToMany(User::class, 'itinerary_user')->withTimestamps();
+    }
+
+    public function creator()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function isCollaborative(): bool
+    {
+        return (bool) $this->is_collaborative;
+    }
 }
