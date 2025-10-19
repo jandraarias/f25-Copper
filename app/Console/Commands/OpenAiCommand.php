@@ -11,7 +11,7 @@ class OpenAiCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'openai';
+    protected $signature = 'openai:test';
 
     /**
      * The console command description.
