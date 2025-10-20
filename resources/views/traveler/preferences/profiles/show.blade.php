@@ -34,7 +34,7 @@
                 <h3 class="text-lg font-semibold text-copper mb-2">Overview</h3>
                 <p class="text-ink-700 dark:text-ink-200/80 leading-relaxed">
                     Your personalized travel profile brings together your interests, budgets,
-                    dietary needs, cuisines, and accommodation preferences to help us tailor every trip to you.
+                    dietary needs, and cuisine preferences to help us tailor every trip to you.
                 </p>
             </div>
 
@@ -43,7 +43,6 @@
                 $budget = $preferences->where('key', 'budget')->first()?->value;
                 $dietary = $preferences->where('key', 'dietary')->pluck('value');
                 $cuisine = $preferences->where('key', 'cuisine')->pluck('value');
-                $accommodation = $preferences->where('key', 'accommodation')->pluck('value');
             @endphp
 
             @php
@@ -85,15 +84,6 @@
                         'empty' => 'No cuisine preferences yet.',
                         'render' => fn($c) => $c,
                         'color' => 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-100',
-                    ],
-                    [
-                        'title' => 'Accommodation',
-                        'icon' => '<path stroke-linecap="round" stroke-linejoin="round"
-                                     d="M3 12l9-9 9 9v9a3 3 0 01-3 3H6a3 3 0 01-3-3v-9z" />',
-                        'items' => $accommodation,
-                        'empty' => 'No accommodation preferences yet.',
-                        'render' => fn($a) => $a,
-                        'color' => 'bg-sky-100 text-sky dark:bg-sky/20 dark:text-sky-100',
                     ],
                 ];
             @endphp

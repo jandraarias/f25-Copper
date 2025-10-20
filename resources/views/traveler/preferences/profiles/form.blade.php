@@ -73,7 +73,6 @@
                                     'budget' => 'Budget',
                                     'dietary' => 'Dietary',
                                     'cuisine' => 'Cuisine',
-                                    'accommodation' => 'Accommodation'
                                 ] as $tab => $label)
                                     <button type="button" 
                                             @click="activeTab = '{{ $tab }}'"
@@ -257,37 +256,6 @@
                                                     transition-all duration-150 ease-out
                                                     peer-checked:bg-gradient-copper peer-checked:text-white peer-checked:shadow-glow peer-checked:scale-[1.05]">
                                             {{ $cuisine }}
-                                        </label>
-                                    </div>
-                                @endforeach
-                            </div>
-                        </div>
-
-                        {{-- === Accommodation === --}}
-                        <div x-show="activeTab === 'accommodation'" x-transition.opacity.duration.250ms>
-                            <h3 class="text-lg font-semibold text-copper mb-3">Accommodation Preferences</h3>
-                            <p class="text-sm text-ink-500 dark:text-ink-200/70 mb-3">Select the types of lodging you prefer while traveling.</p>
-                            @php
-                                $accomOptions = ['Hotel', 'Motel', 'Airbnb', 'Hostel', 'Resort', 'Guesthouse'];
-                            @endphp
-                            <div class="flex flex-wrap gap-2">
-                                @foreach ($accomOptions as $acc)
-                                    @php $id = 'accom_'.\Illuminate\Support\Str::slug($acc).'_'.$loop->index; @endphp
-                                    <div class="inline-block">
-                                        <input
-                                            id="{{ $id }}"
-                                            type="checkbox"
-                                            name="accommodation[]"
-                                            value="{{ $acc }}"
-                                            class="peer hidden"
-                                            @checked(in_array($acc, old('accommodation', $preferences->where('key', 'accommodation')->pluck('value')->toArray() ?? [])))
-                                        >
-                                        <label for="{{ $id }}"
-                                            class="inline-flex items-center px-4 py-1.5 rounded-full border border-copper text-copper 
-                                                    hover:bg-copper hover:text-white text-sm font-medium cursor-pointer shadow-sm
-                                                    transition-all duration-150 ease-out
-                                                    peer-checked:bg-gradient-copper peer-checked:text-white peer-checked:shadow-glow peer-checked:scale-[1.05]">
-                                            {{ $acc }}
                                         </label>
                                     </div>
                                 @endforeach

@@ -198,16 +198,6 @@ class PreferenceProfileController extends Controller
                 ]);
             }
         }
-
-        // --- Accommodation ---
-        if ($request->filled('accommodation')) {
-            foreach ($request->accommodation as $accom) {
-                $profile->preferences()->create([
-                    'key'   => 'accommodation',
-                    'value' => $accom,
-                ]);
-            }
-        }
     }
 
     /**
