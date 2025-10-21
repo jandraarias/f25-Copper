@@ -21,6 +21,9 @@ class ImportPlacesReviews extends Command
 
     public function handle(): int
     {
+        // Increases memory limit for large CSVs
+        ini_set('memory_limit', '1G');
+
         $placesPath  = $this->resolvePath($this->option('places')  ?: 'seed/places.csv');
         $reviewsPath = $this->resolvePath($this->option('reviews') ?: 'seed/reviews.csv');
 
@@ -107,8 +110,10 @@ class ImportPlacesReviews extends Command
             $pid = $this->str($r['place_id'] ?? null);
 
             $placeId = null;
-            if ($pid && isset($extMap[$pid]) && $extMap[$pid] > 0) {
-                $placeId = $extMap[$pid];
+            $dry = (bool) $this->option('dry-run');
+
+            if ($pid && isset($extMap[$pid])) {
+                $placeId = $dry ? 1 : $extMap[$pid]; // positive dummy id in dry-run
             } else {
                 $nm = $this->norm($this->str($r['place_name'] ?? $r['name'] ?? null));
                 if ($nm && isset($nameMap[$nm]) && $nameMap[$nm] > 0) {
@@ -116,8 +121,24 @@ class ImportPlacesReviews extends Command
                 }
             }
 
-            if (!$placeId) { $pid ? $noId++ : $noName++; $skipped++; continue; }
+            if (!$placeId) {
+                // Try to create a place on the fly (only if you’re OK with this behavior)
+                $placeName = $this->str($r['place_name'] ?? $r['name'] ?? null);
+                if ($placeName && !$dry) {
+                    $new = Place::create([
+                        'name'   => $placeName,
+                        'source' => 'gmaps_scrape_local',
+                        'meta'   => ['created_from_review' => true],
+                    ]);
+                    $placeId = $new->id;
 
+                    // Optionally remember it so later reviews to the same name resolve fast
+                    $nameKey = $this->norm($placeName);
+                    if ($nameKey) $nameMap[$nameKey] = $placeId;
+                }
+                if (!$placeId) { $pid ? $noId++ : $noName++; $skipped++; continue; }
+            }
+            
             $author = $this->str($r['author'] ?? $r['author_name'] ?? $r['username'] ?? $r['name'] ?? 'Anonymous');
             $text   = $this->str($r['review_text'] ?? $r['text'] ?? $r['comment'] ?? $r['content'] ?? '');
             $rating = $this->intOrNull($r['rating'] ?? $r['stars'] ?? $r['score'] ?? null);
@@ -181,6 +202,45 @@ class ImportPlacesReviews extends Command
         fclose($fp);
         $this->comment("Read ".count($rows)." rows from ".basename($absPath));
         return $rows;
+    }
+
+    private function streamCsv(string $absPath): \Generator
+    {
+        if (!is_file($absPath)) {
+            $this->warn("Missing file: {$absPath}");
+            if (false) yield []; // generator signature
+            return;
+        }
+
+        $fh = fopen($absPath, 'r');
+        if (!$fh) {
+            $this->error("Unable to open: {$absPath}");
+            if (false) yield [];
+            return;
+        }
+
+        // Detect header
+        $header = null;
+        $lineno = 0;
+        while (($row = fgetcsv($fh)) !== false) {
+            $lineno++;
+            if ($header === null) {
+                // lower-case + trim headers
+                $header = array_map(static fn($h) => strtolower(trim((string)$h)), $row);
+                continue;
+            }
+            // skip fully-empty lines
+            if (!array_filter($row, fn($v) => $v !== null && $v !== '')) continue;
+
+            // build assoc
+            $assoc = [];
+            foreach ($row as $i => $val) {
+                $key = $header[$i] ?? ("col_{$i}");
+                $assoc[$key] = is_string($val) ? trim($val) : $val;
+            }
+            yield $assoc;
+        }
+        fclose($fh);
     }
 
     private function str($v): ?string
