@@ -36,7 +36,7 @@ namespace App\Models{
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Country $country
- * @property-read \App\Models\Itinerary|null $itinerary
+ * @property-read \App\Models\Itinerary $itinerary
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CountryItinerary newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CountryItinerary newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CountryItinerary query()
@@ -60,9 +60,10 @@ namespace App\Models{
  * @property \Illuminate\Support\Carbon|null $start_date
  * @property \Illuminate\Support\Carbon|null $end_date
  * @property string|null $description
- * @property int $is_collaborative
+ * @property bool $is_collaborative
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property int|null $preference_profile_id
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\User> $collaborators
  * @property-read int|null $collaborators_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Country> $countries
@@ -72,6 +73,7 @@ namespace App\Models{
  * @property-read int|null $invitations_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ItineraryItem> $items
  * @property-read int|null $items_count
+ * @property-read \App\Models\PreferenceProfile|null $preferenceProfile
  * @property-read \App\Models\Traveler $traveler
  * @method static \Database\Factories\ItineraryFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Itinerary newModelQuery()
@@ -85,6 +87,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Itinerary whereIsCollaborative($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Itinerary whereLocation($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Itinerary whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Itinerary wherePreferenceProfileId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Itinerary wherePublicUuid($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Itinerary whereStartDate($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Itinerary whereTravelerId($value)
@@ -98,7 +101,7 @@ namespace App\Models{
  * @property int $id
  * @property int $itinerary_id
  * @property string $email
- * @property string|null $token
+ * @property string $token
  * @property string $status
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
@@ -132,10 +135,17 @@ namespace App\Models{
  * @property string|null $details
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property int|null $place_id
+ * @property-read mixed $duration
  * @property-read \App\Models\Itinerary $itinerary
+ * @property-read mixed $label
+ * @property-read \App\Models\Place|null $place
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ItineraryItem between(\Illuminate\Support\Carbon|string $start, \Illuminate\Support\Carbon|string $end)
  * @method static \Database\Factories\ItineraryItemFactory factory($count = null, $state = [])
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ItineraryItem forDay(\Illuminate\Support\Carbon|string $date)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ItineraryItem newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ItineraryItem newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ItineraryItem ofType(string $type)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ItineraryItem query()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ItineraryItem whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ItineraryItem whereDetails($value)
@@ -143,6 +153,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ItineraryItem whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ItineraryItem whereItineraryId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ItineraryItem whereLocation($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ItineraryItem wherePlaceId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ItineraryItem whereStartTime($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ItineraryItem whereTitle($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ItineraryItem whereType($value)
@@ -155,18 +166,30 @@ namespace App\Models{
 /**
  * @property int $id
  * @property string $name
- * @property string|null $lat
- * @property string|null $lon
- * @property string|null $rating
+ * @property float|null $lat
+ * @property float|null $lon
+ * @property float|null $rating
  * @property string|null $category
  * @property string $source
  * @property array<array-key, mixed>|null $meta
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read mixed $address
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ItineraryItem> $itineraryItems
+ * @property-read int|null $itinerary_items_count
+ * @property-read mixed $main_category
+ * @property-read mixed $price_level
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Review> $reviews
  * @property-read int|null $reviews_count
+ * @property-read mixed $tags
+ * @property-read mixed $type
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Place hasAnyTags(array $tags)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Place highlyRated(float $min = 4)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Place inCategory(string $category)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Place nearby(float $lat, float $lon, float $radiusKm = 10)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Place newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Place newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Place ofType(string $type)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Place query()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Place whereCategory($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Place whereCreatedAt($value)
@@ -189,6 +212,7 @@ namespace App\Models{
  * @property int|null $parent_id
  * @property string $key
  * @property string $value
+ * @property string $requirement
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\PreferenceProfile $profile
@@ -201,6 +225,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Preference whereKey($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Preference whereParentId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Preference wherePreferenceProfileId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Preference whereRequirement($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Preference whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Preference whereValue($value)
  */
@@ -243,6 +268,8 @@ namespace App\Models{
  * @property string|null $preferred_climate
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Itinerary> $itineraries
+ * @property-read int|null $itineraries_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Preference> $preferences
  * @property-read int|null $preferences_count
  * @property-read \App\Models\Traveler $traveler

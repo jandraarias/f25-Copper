@@ -81,14 +81,54 @@
                                 @error('countries')<p class="text-sm text-red-600 mt-1">{{ $message }}</p>@enderror
                             </div>
 
-                            {{-- Destination --}}
+                            {{-- Location (City) --}}
+                            @php
+                                // Try to read supported cities from meta->city; fallback to Williamsburg, VA for prototype.
+                                $cities = \App\Models\Place::selectRaw("JSON_UNQUOTE(JSON_EXTRACT(meta, '$.city')) as city")
+                                    ->whereNotNull(\Illuminate\Support\Facades\DB::raw("JSON_EXTRACT(meta, '$.city')"))
+                                    ->distinct()
+                                    ->pluck('city')
+                                    ->filter()
+                                    ->sort()
+                                    ->values();
+
+                                if ($cities->isEmpty()) {
+                                    $cities = collect(['Williamsburg, VA']);
+                                }
+                            @endphp
                             <div>
-                                <label class="block text-sm font-semibold text-ink-700 dark:text-sand-100 mb-2">Destination (optional)</label>
-                                <input name="destination" type="text" value="{{ old('destination') }}"
-                                       class="w-full border border-sand-200 dark:border-ink-700 rounded-xl shadow-sm
-                                              focus:ring-copper focus:border-copper focus:shadow-glow transition-all duration-200
-                                              px-4 py-2.5 dark:bg-sand-900" placeholder="City / Region" />
-                                @error('destination')<p class="text-sm text-red-600 mt-1">{{ $message }}</p>@enderror
+                                <label class="block text-sm font-semibold text-ink-700 dark:text-sand-100 mb-2">City</label>
+                                <select name="location" required
+                                        class="w-full border border-sand-200 dark:border-ink-700 rounded-xl shadow-sm
+                                               focus:ring-copper focus:border-copper focus:shadow-glow transition-all duration-200
+                                               px-4 py-2.5 dark:bg-sand-900">
+                                    <option value="">-- Select a city --</option>
+                                    @foreach($cities as $city)
+                                        <option value="{{ $city }}" {{ old('location') === $city ? 'selected' : '' }}>
+                                            {{ $city }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                @error('location')<p class="text-sm text-red-600 mt-1">{{ $message }}</p>@enderror
+                            </div>
+
+                            {{-- Preference Profile --}}
+                            <div>
+                                <label class="block text-sm font-semibold text-ink-700 dark:text-sand-100 mb-2">
+                                    Preference Profile
+                                </label>
+                                <select name="preference_profile_id" required
+                                        class="w-full border border-sand-200 dark:border-ink-700 rounded-xl shadow-sm
+                                               focus:ring-copper focus:border-copper focus:shadow-glow transition-all duration-200
+                                               px-4 py-2.5 dark:bg-sand-900">
+                                    <option value="">-- Select a preference profile --</option>
+                                    @foreach(Auth::user()->traveler->preferenceProfiles as $profile)
+                                        <option value="{{ $profile->id }}" {{ old('preference_profile_id') == $profile->id ? 'selected' : '' }}>
+                                            {{ $profile->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                @error('preference_profile_id')<p class="text-sm text-red-600 mt-1">{{ $message }}</p>@enderror
                             </div>
 
                             {{-- Start Date --}}
@@ -111,7 +151,7 @@
                                 @error('end_date')<p class="text-sm text-red-600 mt-1">{{ $message }}</p>@enderror
                             </div>
 
-                            {{-- ===== Collaboration ===== --}}
+                            {{-- ===== Collaboration (inlined; no missing partial) ===== --}}
                             <div class="md:col-span-2"
                                  x-data="collabForm({
                                     enabled: {{ old('is_collaborative') ? 'true' : 'false' }},
@@ -185,6 +225,21 @@
                             </div>
                         </div>
 
+                        {{-- AI Generation Notice --}}
+                        <div class="mt-8 p-4 rounded-2xl bg-sand-100 dark:bg-sand-700 text-sm text-ink-700 dark:text-sand-200 border border-sand-300 dark:border-ink-600">
+                            <div class="flex items-start gap-3">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-copper mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                          d="M13 16h-1v-4h-1m1-4h.01M12 18a9 9 0 100-18 9 9 0 000 18z" />
+                                </svg>
+                                <p>
+                                    Once you create your itinerary, Copper will automatically generate a personalized travel plan
+                                    based on your <strong>selected city</strong> and <strong>preference profile</strong>.
+                                    You can adjust or regenerate it later from the itinerary page.
+                                </p>
+                            </div>
+                        </div>
+
                         {{-- Buttons --}}
                         <div class="mt-10 flex justify-end gap-4">
                             <a href="{{ route('traveler.itineraries.index') }}"
@@ -205,16 +260,10 @@
         </div>
     </div>
 
-    {{-- Inject countries --}}
+    {{-- Inject countries + collaboration Alpine store --}}
     <script>
         window.allCountries = @json(\App\Models\Country::select('id','name')->orderBy('name')->get());
 
-        /**
-         * Collaboration Alpine store
-         * - enabled: boolean
-         * - invites: unique, trimmed emails
-         * - input: current text in email box
-         */
         function collabForm({ enabled = false, initialInvites = [] }) {
             return {
                 enabled,
@@ -225,11 +274,10 @@
                 add(email) {
                     const e = (email || '').trim();
                     if (!e) return;
-                    if (!this.emailRegex.test(e)) return; // basic format check
+                    if (!this.emailRegex.test(e)) return;
                     if (!this.invites.includes(e)) this.invites.push(e);
                 },
                 addFromInput() {
-                    // allow comma/space/newline separated batch input
                     const parts = this.input.split(/[\s,]+/).filter(Boolean);
                     parts.forEach(p => this.add(p));
                     this.input = '';
