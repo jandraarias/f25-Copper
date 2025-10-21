@@ -143,6 +143,9 @@ class ImportPlacesReviews extends Command
             $text   = $this->str($r['review_text'] ?? $r['text'] ?? $r['comment'] ?? $r['content'] ?? '');
             $rating = $this->intOrNull($r['rating'] ?? $r['stars'] ?? $r['score'] ?? null);
 
+            // skips unrated reviews
+            if ($rating === null) { $skipped++; continue; }
+
             $published = $this->parseDate($this->str($r['published_at_date'] ?? $r['published_at'] ?? $r['time'] ?? $r['timestamp'] ?? $r['date'] ?? null));
             $fetchedAt = now();
 
