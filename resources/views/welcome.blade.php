@@ -1,3 +1,4 @@
+{{-- resources/views/welcome.blade.php --}}
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
@@ -6,205 +7,226 @@
 
     <title>{{ config('app.name', 'ItinerEase') }}</title>
 
+    <!-- Preload theme before CSS -->
+    <script>
+        (function() {
+            const storedTheme = localStorage.getItem('theme');
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            if (storedTheme === 'dark' || (!storedTheme && prefersDark)) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        })();
+    </script>
+
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />
+    <link href="https://fonts.bunny.net/css?family=poppins:400,500,600,700&display=swap" rel="stylesheet" />
 
-    <!-- Smooth scrolling -->
-    <style>
-        html {
-            scroll-behavior: smooth;
-        }
-    </style>
+    <!-- Smooth scroll -->
+    <style> html { scroll-behavior: smooth; } </style>
 
-    <!-- Styles / Scripts -->
+    <!-- Vite -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="bg-[#FDFDFC] dark:bg-[#0a0a0a] text-[#1b1b18] dark:text-[#EDEDEC]" x-data="{ mobileMenu: false }">
 
-    <!-- Sticky Navbar -->
-    <header class="sticky top-0 z-50 w-full px-6 py-4 flex items-center shadow-sm bg-white dark:bg-[#161615]">
-        <!-- Left side: brand + links -->
-        <div class="flex items-center space-x-8">
-            <!-- Brand -->
-            <a href="#hero" class="text-3xl font-extrabold text-indigo-600 hover:text-indigo-800 flex items-center">
-                ItinerEase
+<body class="font-[Poppins] bg-sand text-ink-900 dark:bg-ink-900 dark:text-sand-100 antialiased transition-colors duration-500 ease-in-out"
+      x-data="{ darkMode: localStorage.getItem('theme') === 'dark', mobileMenu: false }"
+      x-init="if (darkMode) document.documentElement.classList.add('dark')">
+
+    <!-- Navbar -->
+    <header class="sticky top-0 z-50 w-full bg-sand dark:bg-sand-800 border-b border-sand-200 dark:border-ink-700 shadow-sm transition-colors duration-300">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+            <!-- Logo -->
+            <a href="#hero" class="flex items-center">
+                <img src="{{ asset('data/images/logos/itinerease-logo-dark@2x.svg') }}" alt="ItinerEase Logo"
+                     class="h-9 block dark:hidden hover:scale-105 transition-transform duration-300">
+                <img src="{{ asset('data/images/logos/itinerease-logo-light.svg') }}" alt="ItinerEase Logo"
+                     class="h-9 hidden dark:block hover:scale-105 transition-transform duration-300">
             </a>
 
-            <!-- Nav links -->
-            <nav class="hidden md:flex items-center space-x-6">
-                <a href="#about" class="text-sm text-gray-700 dark:text-gray-300 hover:text-indigo-600">About</a>
-                <a href="#features" class="text-sm text-gray-700 dark:text-gray-300 hover:text-indigo-600">Features</a>
-                <a href="#team" class="text-sm text-gray-700 dark:text-gray-300 hover:text-indigo-600">Team</a>
-                <a href="#contact" class="text-sm text-gray-700 dark:text-gray-300 hover:text-indigo-600">Contact</a>
+            <!-- Desktop Links -->
+            <nav class="hidden md:flex items-center space-x-8">
+                <a href="#about" class="text-sm font-medium text-ink-700 dark:text-sand-100 hover:text-copper transition-colors">About</a>
+                <a href="#features" class="text-sm font-medium text-ink-700 dark:text-sand-100 hover:text-copper transition-colors">Features</a>
+                <a href="#team" class="text-sm font-medium text-ink-700 dark:text-sand-100 hover:text-copper transition-colors">Team</a>
+                <a href="#contact" class="text-sm font-medium text-ink-700 dark:text-sand-100 hover:text-copper transition-colors">Contact</a>
             </nav>
-        </div>
 
-        <!-- Right side: auth links -->
-        <div class="flex items-center space-x-4 ml-auto">
-            @if (Route::has('login'))
-                @auth
-                    <a href="{{ url('/dashboard') }}" class="text-sm px-4 py-2 rounded bg-indigo-600 text-white">Dashboard</a>
-                @else
-                    <a href="{{ route('login') }}" class="text-sm px-4 py-2 rounded border border-indigo-600 text-indigo-600 hover:bg-indigo-50">Log in</a>
-                    @if (Route::has('register'))
-                        <a href="{{ route('register') }}" class="text-sm px-4 py-2 rounded bg-indigo-600 text-white">Register</a>
-                    @endif
-                @endauth
-            @endif
-        </div>
+            <!-- Right side -->
+            <div class="flex items-center space-x-4">
+                <!-- Theme toggle -->
+                <button @click="
+                    darkMode = !darkMode;
+                    if (darkMode) {
+                        document.documentElement.classList.add('dark');
+                        localStorage.setItem('theme', 'dark');
+                    } else {
+                        document.documentElement.classList.remove('dark');
+                        localStorage.setItem('theme', 'light');
+                    }"
+                    class="p-2 rounded-full border border-sand-300 dark:border-ink-600 text-ink-700 dark:text-sand-200 hover:bg-sand-100 dark:hover:bg-ink-700 transition-all duration-300"
+                    title="Toggle theme">
+                    <svg x-show="!darkMode" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-copper" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                              d="M12 3v1m0 16v1m9-9h1M4 12H3m15.364-7.364l.707.707M6.343 17.657l-.707.707m0-12.02l.707.707M18.364 17.657l.707.707" />
+                    </svg>
+                    <svg x-show="darkMode" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-copper" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                              d="M21 12.79A9 9 0 1111.21 3a7 7 0 009.79 9.79z" />
+                    </svg>
+                </button>
 
-        <!-- Mobile hamburger -->
-        <button @click="mobileMenu = !mobileMenu" class="md:hidden ml-4 text-gray-700 dark:text-gray-300 focus:outline-none flex items-center">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
-                viewBox="0 0 24 24" stroke="currentColor">
-                <path x-show="!mobileMenu" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M4 6h16M4 12h16M4 18h16"/>
-                <path x-show="mobileMenu" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M6 18L18 6M6 6l12 12"/>
-            </svg>
-        </button>
+                <!-- Auth links -->
+                @if (Route::has('login'))
+                    @auth
+                        <a href="{{ url('/dashboard') }}"
+                           class="px-4 py-2 rounded-full bg-gradient-copper text-white font-semibold shadow-soft hover:shadow-glow hover:scale-[1.03] transition-all duration-200 ease-out">
+                            Dashboard
+                        </a>
+                    @else
+                        <a href="{{ route('login') }}"
+                           class="px-4 py-2 rounded-full border border-copper text-copper font-semibold hover:bg-copper/10 transition-all">
+                            Log in
+                        </a>
+                        @if (Route::has('register'))
+                            <a href="{{ route('register') }}"
+                               class="px-4 py-2 rounded-full bg-gradient-copper text-white font-semibold shadow-soft hover:shadow-glow hover:scale-[1.03] transition-all">
+                                Register
+                            </a>
+                        @endif
+                    @endauth
+                @endif
+            </div>
+        </div>
     </header>
 
-    <!-- Mobile nav dropdown -->
-    <div x-show="mobileMenu" x-transition class="md:hidden bg-white dark:bg-[#161615] shadow-lg px-6 py-4 space-y-4">
-        <a @click="mobileMenu=false" href="#about" class="block text-gray-700 dark:text-gray-300 hover:text-indigo-600">About</a>
-        <a @click="mobileMenu=false" href="#features" class="block text-gray-700 dark:text-gray-300 hover:text-indigo-600">Features</a>
-        <a @click="mobileMenu=false" href="#team" class="block text-gray-700 dark:text-gray-300 hover:text-indigo-600">Team</a>
-        <a @click="mobileMenu=false" href="#contact" class="block text-gray-700 dark:text-gray-300 hover:text-indigo-600">Contact</a>
-        @if (Route::has('login'))
-            @auth
-                <a @click="mobileMenu=false" href="{{ url('/dashboard') }}" class="block text-indigo-600 font-semibold">Dashboard</a>
-            @else
-                <a @click="mobileMenu=false" href="{{ route('login') }}" class="block text-indigo-600">Log in</a>
-                @if (Route::has('register'))
-                    <a @click="mobileMenu=false" href="{{ route('register') }}" class="block text-indigo-600">Register</a>
-                @endif
-            @endauth
-        @endif
-    </div>
-
     <!-- Hero -->
-    <section id="hero" class="flex flex-col items-center justify-center text-center py-20 bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-4">
-        <h2 class="text-4xl md:text-5xl font-bold mb-4">Plan and Share Your Trips with Ease</h2>
-        <p class="text-lg max-w-2xl mb-6">ItinerEase helps travelers organize itineraries, manage preferences, and share adventures seamlessly.</p>
-        <div class="space-x-4">
-            <a href="{{ route('register') }}" class="px-6 py-3 bg-white text-indigo-600 font-semibold rounded-lg">Get Started</a>
-            <a href="{{ route('login') }}" class="px-6 py-3 border border-white font-semibold rounded-lg">Log In</a>
+    <section id="hero" class="relative flex flex-col items-center justify-center text-center py-28 px-6 bg-gradient-copper dark:bg-gradient-copper-dark text-white overflow-hidden">
+        <div x-data x-intersect="$el.classList.add('opacity-100','translate-y-0')"
+             class="opacity-0 translate-y-4 transition-all duration-700 ease-out">
+            <h1 class="text-4xl md:text-6xl font-bold mb-6 tracking-tight">Plan and Share Your Trips with Ease</h1>
+            <p class="text-lg md:text-xl max-w-2xl mx-auto text-white/90 mb-8">
+                ItinerEase helps travelers organize itineraries, manage preferences, and share adventures seamlessly.
+            </p>
+            <div class="space-x-4">
+                <a href="{{ route('register') }}"
+                   class="px-6 py-3 bg-white text-copper font-semibold rounded-full hover:bg-sand-100 transition">
+                    Get Started
+                </a>
+                <a href="{{ route('login') }}"
+                   class="px-6 py-3 border border-white rounded-full font-semibold hover:bg-white/10 transition">
+                    Log In
+                </a>
+            </div>
         </div>
     </section>
 
     <!-- About -->
-    <section id="about" class="py-16 px-6 lg:px-20 bg-[#FDFDFC] dark:bg-[#0a0a0a]">
-        <h3 class="text-3xl font-bold text-center mb-8">About Us</h3>
-        <p class="max-w-3xl mx-auto text-center text-lg text-gray-700 dark:text-gray-300">
-            We built ItinerEase to make travel planning simple, collaborative, and fun. Whether you’re a casual traveler, a business professional, or a travel expert, our platform adapts to your needs.
-        </p>
+    <section id="about" class="py-20 px-6 lg:px-20 bg-sand dark:bg-sand-900 text-center transition-colors duration-500">
+        <div x-data x-intersect="$el.classList.add('opacity-100','translate-y-0')"
+             class="opacity-0 translate-y-6 transition-all duration-700 ease-out">
+            <h3 class="text-3xl font-bold mb-6 text-ink-900 dark:text-ink-100">About ItinerEase</h3>
+            <p class="max-w-3xl mx-auto text-lg text-ink-700 dark:text-sand-100">
+                ItinerEase was built to make travel planning effortless, collaborative, and beautifully organized.
+            </p>
+        </div>
     </section>
 
     <!-- Features -->
-    <section id="features" class="py-16 px-6 lg:px-20 bg-gray-50 dark:bg-[#161615]">
-        <h3 class="text-3xl font-bold text-center mb-12">Features</h3>
-        <div class="grid gap-10 md:grid-cols-3 text-center">
-            <div>
-                <h4 class="font-semibold text-xl mb-2">Smart Itineraries</h4>
-                <p class="text-gray-600 dark:text-gray-300">Organize your flights, hotels, and activities all in one place.</p>
-            </div>
-            <div>
-                <h4 class="font-semibold text-xl mb-2">Preference Profiles</h4>
-                <p class="text-gray-600 dark:text-gray-300">Save your travel style so your plans fit you perfectly every time.</p>
-            </div>
-            <div>
-                <h4 class="font-semibold text-xl mb-2">Share & Export</h4>
-                <p class="text-gray-600 dark:text-gray-300">Share trips via link or export a clean PDF itinerary instantly.</p>
+    <section id="features" class="py-24 px-6 lg:px-20 bg-sand-100 dark:bg-sand-800 transition-colors duration-500">
+        <div x-data x-intersect="$el.classList.add('opacity-100','translate-y-0')"
+             class="opacity-0 translate-y-6 transition-all duration-700 ease-out text-center">
+            <h3 class="text-3xl font-bold mb-12 text-ink-900 dark:text-ink-100">Features</h3>
+            <div class="grid md:grid-cols-3 gap-10">
+                <div class="bg-white dark:bg-sand-900 rounded-3xl p-8 shadow-soft hover:shadow-glow hover:scale-[1.02] transition-all">
+                    <h4 class="text-xl font-semibold mb-3 text-copper">Smart Itineraries</h4>
+                    <p class="text-ink-700 dark:text-sand-100">Organize flights, hotels, and activities — all in one elegant dashboard.</p>
+                </div>
+                <div class="bg-white dark:bg-sand-900 rounded-3xl p-8 shadow-soft hover:shadow-glow hover:scale-[1.02] transition-all">
+                    <h4 class="text-xl font-semibold mb-3 text-copper">Preference Profiles</h4>
+                    <p class="text-ink-700 dark:text-sand-100">Save your travel styles and preferences for truly personalized planning.</p>
+                </div>
+                <div class="bg-white dark:bg-sand-900 rounded-3xl p-8 shadow-soft hover:shadow-glow hover:scale-[1.02] transition-all">
+                    <h4 class="text-xl font-semibold mb-3 text-copper">Share & Export</h4>
+                    <p class="text-ink-700 dark:text-sand-100">Easily share your itineraries or export them as beautiful PDFs.</p>
+                </div>
             </div>
         </div>
     </section>
 
-    <!-- Meet the Team -->
-    <section id="team" class="py-16 px-6 lg:px-20 bg-[#FDFDFC] dark:bg-[#0a0a0a]" x-data="{ open: false }">
-        <h3 class="text-3xl font-bold text-center mb-12">Meet the Team</h3>
+    <!-- Team -->
+    <section id="team" class="py-24 px-6 lg:px-20 bg-sand dark:bg-sand-900 text-center transition-colors duration-500" x-data="{ open: false }">
+        <div x-data x-intersect="$el.classList.add('opacity-100','translate-y-0')"
+            class="opacity-0 translate-y-6 transition-all duration-700 ease-out">
+            <h3 class="text-3xl font-bold mb-12 text-ink-900 dark:text-ink-100">Meet the Team</h3>
 
-        <div class="grid gap-12 md:grid-cols-2 text-center">
-            <!-- First 2 members always visible -->
-            <div>
-                <img src="{{ asset('data/images/TeamHeadshots/Balemual Headshot.JPG') }}" alt="Balemual Ymamu" class="rounded-full mx-auto mb-4 w-40 h-40 object-cover">
-                <h4 class="font-semibold">Balemual Ymamu</h4>
-                <p class="text-sm text-gray-500">Software and Database Developer</p>
-                <p class="mt-2 text-gray-600 dark:text-gray-400">Balemual Ymamu is a senior at ODU majoring in Computer Science. He is eager to gain hands-on experience in tech field and look forward to working as a Software Developer after graduation.</p>
-            </div>
-            <div>
-                <img src="{{ asset('data/images/TeamHeadshots/Crystal Headshot.PNG') }}" alt="Crystal Rivas" class="rounded-full mx-auto mb-4 w-40 h-40 object-cover">
-                <h4 class="font-semibold">Crystal Rivas</h4>
-                <p class="text-sm text-gray-500">Software and Database Developer</p>
-                <p class="mt-2 text-gray-600 dark:text-gray-400">Crystal Rivas is a second degree seeking student in Computer Science at ODU with a background in math education. Her expertise in problem solving drives the transition and aims to develop innovative and impactful solutions.</p>
+            {{-- Centered layout for first two members --}}
+            <div class="flex flex-wrap justify-center gap-12">
+                @foreach ([ 
+                    ['Balemual Ymamu', 'Balemual Headshot.JPG', 'Software & Database Developer', 'Balemual Ymamu is a senior at ODU majoring in Computer Science. He is eager to gain hands-on experience in the tech field and looks forward to working as a Software Developer after graduation.'],
+                    ['Crystal Rivas', 'Crystal Headshot.PNG', 'Software & Database Developer', 'Crystal Rivas is a second-degree-seeking student in Computer Science at ODU with a background in math education. Her expertise in problem-solving drives the transition and aims to develop innovative and impactful solutions.']
+                ] as $member)
+                    <div class="w-full sm:w-[22rem] bg-white dark:bg-sand-800 border border-sand-200 dark:border-ink-700 
+                                rounded-3xl shadow-soft hover:shadow-glow hover:scale-[1.02] transition-all duration-300 ease-out p-8">
+                        <img src="{{ asset('data/images/TeamHeadshots/' . $member[1]) }}" alt="{{ $member[0] }}"
+                            class="rounded-full mx-auto mb-4 w-32 h-32 object-cover shadow-md">
+                        <h4 class="font-semibold text-lg text-ink-900 dark:text-ink-100">{{ $member[0] }}</h4>
+                        <p class="text-sm text-copper font-medium mb-2">{{ $member[2] }}</p>
+                        <p class="text-ink-700 dark:text-sand-100">{{ $member[3] }}</p>
+                    </div>
+                @endforeach
             </div>
 
-            <!-- Hidden members -->
+            <div class="mt-10">
+                <button @click="open = !open"
+                        class="px-6 py-2 rounded-full bg-gradient-copper text-white font-semibold hover:shadow-glow hover:scale-[1.03] transition-all"
+                        x-text="open ? 'Show Less' : 'Show More'">
+                </button>
+            </div>
+
             <template x-if="open">
-                <div class="contents">
-                    <div>
-                        <img src="{{ asset('data/images/TeamHeadshots/Fredrick Headshot.JPG') }}" alt="Fredrick Terling" class="rounded-full mx-auto mb-4 w-40 h-40 object-cover">
-                        <h4 class="font-semibold">Fredrick Terling</h4>
-                        <p class="text-sm text-gray-500">Software Developer</p>
-                        <p class="mt-2 text-gray-600 dark:text-gray-400">Fredrick Terling is a senior at ODU majoring in Computer Science. He is currently hoping to get his foot in the door for most tech job opportunities but dreams of being a Game Developer and ultimately a Game Producer.</p>
-                    </div>
-                    <div>
-                        <img src="{{ asset('data/images/TeamHeadshots/Jandra Headshot.JPG') }}" alt="Jandra Arias" class="rounded-full mx-auto mb-4 w-40 h-40 object-cover">
-                        <h4 class="font-semibold">Jandra D. Arias Tavarez</h4>
-                        <p class="text-sm text-gray-500">Software and Database Developer</p>
-                        <p class="mt-2 text-gray-600 dark:text-gray-400">Jandra D. Arias Tavarez is a second degree seeking student at ODU working on her bachelor in Computer Science. She aspires to work as a Software Developer after graduating.</p>
-                    </div>
-                    <div>
-                        <img src="{{ asset('data/images/TeamHeadshots/William P. Headshot.JPG') }}" alt="William Poston" class="rounded-full mx-auto mb-4 w-40 h-40 object-cover">
-                        <h4 class="font-semibold">William Poston</h4>
-                        <p class="text-sm text-gray-500">Software Developer and Webmaster</p>
-                        <p class="mt-2 text-gray-600 dark:text-gray-400">William Poston is a senior at ODU majoring in computer science with a minor in data science. After school, he dreams of being an AI prompt engineer.</p>
-                    </div>
-                    <div>
-                        <img src="{{ asset('data/images/TeamHeadshots/William M. Headshot.JPG') }}" alt="William Mbandi" class="rounded-full mx-auto mb-4 w-40 h-40 object-cover">
-                        <h4 class="font-semibold">William Mbandi</h4>
-                        <p class="text-sm text-gray-500">Software Developer</p>
-                        <p class="mt-2 text-gray-600 dark:text-gray-400">William Mbandi is a senior at ODU majoring in computer science with a minor in cyber security. Wants to work as a Software Developer after he graduates.</p>
-                    </div>
-                    <div>
-                        <img src="{{ asset('data/images/TeamHeadshots/Stephen Headshot.JPG') }}" alt="Stephen Usselman" class="rounded-full mx-auto mb-4 w-40 h-40 object-cover">
-                        <h4 class="font-semibold">Stephen Usselman</h4>
-                        <p class="text-sm text-gray-500">Software Developer and Product Designer</p>
-                        <p class="mt-2 text-gray-600 dark:text-gray-400">Stephen Usselman is a senior at ODU majoring in computer science. He is looking to pursue a career as a Software Developer after university.</p>
-                    </div>
-                    <div>
-                        <img src="{{ asset('data/images/TeamHeadshots/Jacob Headshot.JPG') }}" alt="Jacob Cook" class="rounded-full mx-auto mb-4 w-40 h-40 object-cover">
-                        <h4 class="font-semibold">Jacob Cook</h4>
-                        <p class="text-sm text-gray-500">Mentor</p>
-                        <p class="mt-2 text-gray-600 dark:text-gray-400">Jacob Cook is an ODU Computer Science alumnus, IT Instructor at the Southern Virginia Higher Education Center, and founder/CEO of Southside Tech Services. He has built a career spanning software development, general IT, and hands-on education, while also guiding students and businesses in adopting technology effectively. Jacob is passionate about mentoring, and he enjoys helping students bridge the gap between classroom learning and the real-world challenges of a career in technology.</p>
-                    </div>
+                <div class="grid gap-12 md:grid-cols-2 lg:grid-cols-3 mt-12">
+                    @foreach ([
+                        ['Fredrick Terling','Fredrick Headshot.JPG','Software Developer','Fredrick Terling is a senior at ODU majoring in Computer Science. He is currently hoping to get his foot in the door for most tech job opportunities but dreams of being a Game Developer and ultimately a Game Producer.'],
+                        ['Jandra D. Arias Tavarez','Jandra Headshot.JPG','Software & Database Developer','Jandra D. Arias Tavarez is a second degree seeking student at ODU working on her bachelor in Computer Science. She aspires to work as a Software Developer after graduating.'],
+                        ['William Poston','William P. Headshot.JPG','Software Developer & Webmaster','William Poston is a senior at ODU majoring in computer science with a minor in data science. After school, he dreams of being an AI prompt engineer.'],
+                        ['William Mbandi','William M. Headshot.JPG','Software Developer','William Mbandi is a senior at ODU majoring in computer science with a minor in cyber security. Wants to work as a Software Developer after he graduates.'],
+                        ['Stephen Usselman','Stephen Headshot.JPG','Software Developer & Designer','Stephen Usselman is a senior at ODU majoring in computer science. He is looking to pursue a career as a Software Developer after university.'],
+                        ['Jacob Cook','Jacob Headshot.JPG','Mentor','Jacob Cook is an ODU Computer Science alumnus, IT Instructor at the Southern Virginia Higher Education Center, and founder/CEO of Southside Tech Services. He has built a career spanning software development, general IT, and hands-on education, while also guiding students and businesses in adopting technology effectively. Jacob is passionate about mentoring, and he enjoys helping students bridge the gap between classroom learning and the real-world challenges of a career in technology.']
+                    ] as $member)
+                        <div class="rounded-3xl bg-white dark:bg-sand-800 shadow-soft hover:shadow-glow hover:scale-[1.02] transition-all p-8">
+                            <img src="{{ asset('data/images/TeamHeadshots/' . $member[1]) }}" alt="{{ $member[0] }}"
+                                 class="rounded-full mx-auto mb-4 w-32 h-32 object-cover">
+                            <h4 class="font-semibold text-lg text-ink-900 dark:text-ink-100">{{ $member[0] }}</h4>
+                            <p class="text-sm text-copper font-medium mb-2">{{ $member[2] }}</p>
+                            <p class="text-ink-700 dark:text-sand-100">{{ $member[3] }}</p>
+                        </div>
+                    @endforeach
                 </div>
             </template>
-        </div>
-
-        <!-- Toggle button -->
-        <div class="text-center mt-8">
-            <button 
-                @click="open = !open; $nextTick(() => document.getElementById('team').scrollIntoView({behavior: 'smooth'}))"
-                class="px-6 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700"
-                x-text="open ? 'Show Less' : 'Show More'">
-            </button>
         </div>
     </section>
 
     <!-- Contact -->
-    <section id="contact" class="py-16 px-6 lg:px-20 bg-gray-50 dark:bg-[#161615]">
-        <h3 class="text-3xl font-bold text-center mb-8">Contact Us</h3>
-        <p class="text-center text-lg mb-8">We’d love to hear from you! Reach out with questions, feedback, or partnership inquiries.</p>
-        <div class="text-center">
-            <a href="mailto:contact@itinerEase.com" class="px-6 py-3 bg-indigo-600 text-white rounded-lg">Email Us</a>
+    <section id="contact" class="py-24 px-6 lg:px-20 bg-sand-100 dark:bg-sand-800 text-center transition-colors duration-500">
+        <div x-data x-intersect="$el.classList.add('opacity-100','translate-y-0')"
+             class="opacity-0 translate-y-6 transition-all duration-700 ease-out">
+            <h3 class="text-3xl font-bold mb-6 text-ink-900 dark:text-ink-100">Contact Us</h3>
+            <p class="max-w-2xl mx-auto text-lg mb-8 text-ink-700 dark:text-sand-100">
+                Have questions or want to collaborate? We’d love to hear from you.
+            </p>
+            <a href="mailto:contact@itinerEase.com"
+               class="px-6 py-3 bg-gradient-copper text-white font-semibold rounded-full hover:shadow-glow hover:scale-[1.03] transition-all">
+                Email Us
+            </a>
         </div>
     </section>
 
     <!-- Footer -->
-    <footer class="py-6 text-center text-sm bg-white dark:bg-[#161615]">
-        <p>&copy; {{ date('Y') }} ItinerEase. All rights reserved.</p>
+    <footer class="py-8 bg-sand dark:bg-sand-800 border-t border-sand-200 dark:border-ink-700 text-center text-sm transition-colors duration-500">
+        <p class="text-ink-700 dark:text-sand-100">&copy; {{ date('Y') }} ItinerEase. All rights reserved.</p>
     </footer>
 </body>
 </html>

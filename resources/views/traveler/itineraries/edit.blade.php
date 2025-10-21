@@ -1,313 +1,185 @@
-{{-- resources/views/traveler/itineraries/edit.blade.php --}}
 <x-app-layout x-data="{ showNewItem: false }">
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            {{ __('Edit Itinerary') }}
-        </h2>
+        <div class="flex items-center justify-between">
+            <h2 class="text-2xl font-semibold text-ink-900 dark:text-ink-100">
+                {{ __('Edit Itinerary') }}
+            </h2>
+
+            <a href="{{ route('traveler.itineraries.index') }}"
+               class="group flex items-center gap-2 px-5 py-2.5 rounded-full border border-copper text-copper
+                      hover:bg-copper hover:text-white hover:shadow-glow hover:scale-[1.03]
+                      transition-all duration-200 ease-out font-medium shadow-soft">
+                <svg xmlns="http://www.w3.org/2000/svg"
+                     class="w-4 h-4 transition-transform duration-200 group-hover:-translate-x-0.5"
+                     fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+                </svg>
+                Back
+            </a>
+        </div>
     </x-slot>
 
-    <div class="py-12">
-        <div class="mx-auto max-w-7xl sm:px-6 lg:px-8 space-y-8">
-            {{-- Itinerary form --}}
-            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900 dark:text-gray-100">
+    <div class="py-12 bg-sand dark:bg-sand-900 min-h-screen">
+        <div class="mx-auto max-w-6xl sm:px-6 lg:px-8 space-y-10">
+            {{-- ================== Itinerary Form ================== --}}
+            <div class="bg-white dark:bg-sand-800 border border-sand-200 dark:border-ink-700 rounded-3xl shadow-soft hover:shadow-glow hover:scale-[1.005] transition-all duration-200 ease-out">
+                <div class="p-8 text-ink-900 dark:text-ink-100">
                     <x-flash-messages />
 
                     <form method="POST" action="{{ route('traveler.itineraries.update', $itinerary) }}">
                         @csrf
                         @method('PUT')
 
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             {{-- Name --}}
                             <div class="md:col-span-2">
-                                <label class="block text-sm font-medium">Name</label>
-                                <input
-                                    name="name"
-                                    type="text"
-                                    value="{{ old('name', $itinerary->name) }}"
-                                    required
-                                    class="mt-1 w-full border rounded p-2 dark:bg-gray-900 dark:border-gray-700"
-                                >
+                                <label class="block text-sm font-semibold text-ink-700 dark:text-sand-100 mb-2">Itinerary Name</label>
+                                <input name="name" type="text" value="{{ old('name', $itinerary->name) }}" required
+                                       class="w-full border border-sand-200 dark:border-ink-700 rounded-xl shadow-sm focus:ring-copper focus:border-copper focus:shadow-glow transition-all duration-200 px-4 py-2.5 dark:bg-sand-900">
                                 @error('name')<p class="text-red-600 text-sm mt-1">{{ $message }}</p>@enderror
                             </div>
 
                             {{-- Description --}}
                             <div class="md:col-span-2">
-                                <label class="block text-sm font-medium">Description</label>
-                                <textarea
-                                    name="description"
-                                    rows="5"
-                                    class="mt-1 w-full border rounded p-2 dark:bg-gray-900 dark:border-gray-700"
-                                >{{ old('description', $itinerary->description) }}</textarea>
+                                <label class="block text-sm font-semibold text-ink-700 dark:text-sand-100 mb-2">Description</label>
+                                <textarea name="description" rows="4" class="w-full border border-sand-200 dark:border-ink-700 rounded-xl shadow-sm focus:ring-copper focus:border-copper focus:shadow-glow transition-all duration-200 px-4 py-2.5 dark:bg-sand-900">{{ old('description', $itinerary->description) }}</textarea>
                                 @error('description')<p class="text-red-600 text-sm mt-1">{{ $message }}</p>@enderror
                             </div>
 
-                            {{-- Countries with chips (same as create) --}}
-                            <div class="md:col-span-2"
+                            {{-- Countries --}}
+                            <div class="md:col-span-2" 
                                  x-data="countrySelect(window.allCountries, @json(old('countries', $itinerary->countries->pluck('id')->toArray())))">
-                                <label class="block text-sm font-medium">Countries</label>
-
-                                {{-- Selected chips --}}
-                                <div class="flex flex-wrap gap-2 mb-2">
+                                <label class="block text-sm font-semibold text-ink-700 dark:text-sand-100 mb-2">Countries</label>
+                                <div class="flex flex-wrap gap-2 mb-3">
                                     <template x-for="country in selectedCountries" :key="country.id">
-                                        <span class="flex items-center gap-1 px-3 py-1 rounded-full bg-blue-600 text-white text-sm">
+                                        <span class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-copper text-white text-sm font-medium shadow-soft hover:scale-[1.05] transition-all duration-200 ease-out">
                                             <span x-text="country.name"></span>
-                                            <button type="button" @click="removeCountry(country.id)" class="ml-1 text-white">&times;</button>
+                                            <button type="button" @click="removeCountry(country.id)" class="ml-1 text-white/80 hover:text-white transition">&times;</button>
                                         </span>
                                     </template>
                                 </div>
-
-                                {{-- Hidden inputs for submission --}}
                                 <template x-for="country in selectedCountries" :key="'input-' + country.id">
                                     <input type="hidden" name="countries[]" :value="country.id">
                                 </template>
-
-                                {{-- Dropdown --}}
-                                <select x-model="newCountry" @change="addCountry($event)"
-                                        class="mt-1 w-full border rounded p-2 dark:bg-gray-900 dark:border-gray-700">
+                                <select x-model="newCountry" @change="addCountry($event)" class="w-full border border-sand-200 dark:border-ink-700 rounded-xl shadow-sm focus:ring-copper focus:border-copper focus:shadow-glow transition-all duration-200 px-4 py-2.5 dark:bg-sand-900">
                                     <option value="">-- Select a country --</option>
                                     @foreach(\App\Models\Country::orderBy('name')->get() as $country)
                                         <option value="{{ $country->id }}">{{ $country->name }}</option>
                                     @endforeach
                                 </select>
-
                                 @error('countries')<p class="text-red-600 text-sm mt-1">{{ $message }}</p>@enderror
                             </div>
 
                             {{-- Destination --}}
                             <div>
-                                <label class="block text-sm font-medium">Destination (optional)</label>
-                                <input
-                                    name="destination"
-                                    type="text"
-                                    value="{{ old('destination', $itinerary->destination ?? '') }}"
-                                    placeholder="City / Region (optional)"
-                                    class="mt-1 w-full border rounded p-2 dark:bg-gray-900 dark:border-gray-700"
-                                >
+                                <label class="block text-sm font-semibold text-ink-700 dark:text-sand-100 mb-2">Destination (Optional)</label>
+                                <input name="destination" type="text" value="{{ old('destination', $itinerary->destination ?? '') }}" placeholder="City / Region (optional)" class="w-full border border-sand-200 dark:border-ink-700 rounded-xl shadow-sm focus:ring-copper focus:border-copper focus:shadow-glow transition-all duration-200 px-4 py-2.5 dark:bg-sand-900">
                                 @error('destination')<p class="text-red-600 text-sm mt-1">{{ $message }}</p>@enderror
                             </div>
 
-                            {{-- Start Date --}}
+                            {{-- Dates --}}
                             <div>
-                                <label class="block text-sm font-medium">Start Date</label>
-                                <input
-                                    name="start_date"
-                                    type="date"
-                                    value="{{ old('start_date', optional($itinerary->start_date)->format('Y-m-d')) }}"
-                                    required
-                                    class="mt-1 w-full border rounded p-2 dark:bg-gray-900 dark:border-gray-700"
-                                >
+                                <label class="block text-sm font-semibold text-ink-700 dark:text-sand-100 mb-2">Start Date</label>
+                                <input name="start_date" type="date" value="{{ old('start_date', optional($itinerary->start_date)->format('Y-m-d')) }}" class="w-full border border-sand-200 dark:border-ink-700 rounded-xl shadow-sm focus:ring-copper focus:border-copper focus:shadow-glow transition-all duration-200 px-4 py-2.5 dark:bg-sand-900">
                                 @error('start_date')<p class="text-red-600 text-sm mt-1">{{ $message }}</p>@enderror
                             </div>
-
-                            {{-- End Date --}}
                             <div>
-                                <label class="block text-sm font-medium">End Date</label>
-                                <input
-                                    name="end_date"
-                                    type="date"
-                                    value="{{ old('end_date', optional($itinerary->end_date)->format('Y-m-d')) }}"
-                                    required
-                                    class="mt-1 w-full border rounded p-2 dark:bg-gray-900 dark:border-gray-700"
-                                >
+                                <label class="block text-sm font-semibold text-ink-700 dark:text-sand-100 mb-2">End Date</label>
+                                <input name="end_date" type="date" value="{{ old('end_date', optional($itinerary->end_date)->format('Y-m-d')) }}" class="w-full border border-sand-200 dark:border-ink-700 rounded-xl shadow-sm focus:ring-copper focus:border-copper focus:shadow-glow transition-all duration-200 px-4 py-2.5 dark:bg-sand-900">
                                 @error('end_date')<p class="text-red-600 text-sm mt-1">{{ $message }}</p>@enderror
                             </div>
                         </div>
 
-                        <div class="mt-6 flex items-center gap-2">
-                            <button type="submit" class="px-4 py-2 rounded bg-blue-600 text-white">
-                                Save
-                            </button>
-                            <a href="{{ route('traveler.itineraries.index') }}"
-                               class="px-4 py-2 rounded border border-gray-300 dark:border-gray-600">
+                        {{-- ===== Invite Collaborators ===== --}}
+                        <div class="mt-10 bg-sand-50 dark:bg-sand-900/50 border border-sand-200 dark:border-ink-700 rounded-2xl p-6">
+                            <h3 class="text-lg font-semibold text-copper mb-4">Invite Collaborators</h3>
+
+                            <form method="POST" action="{{ route('traveler.itineraries.invite', $itinerary) }}" class="flex flex-wrap gap-3">
+                                @csrf
+                                <input type="email" name="email" placeholder="Enter collaborator's email"
+                                       class="flex-grow border border-sand-200 dark:border-ink-700 rounded-xl px-4 py-2.5 dark:bg-sand-900
+                                              focus:ring-copper focus:border-copper focus:shadow-glow transition-all duration-200"
+                                       required>
+                                <button type="submit"
+                                        class="px-6 py-2.5 rounded-full bg-gradient-copper text-white font-medium shadow-soft hover:shadow-glow hover:scale-[1.03] transition-all duration-200 ease-out">
+                                    Send Invite
+                                </button>
+                            </form>
+
+                            @if ($itinerary->invitations->isNotEmpty())
+                                <div class="mt-6 space-y-2">
+                                    <h4 class="text-sm font-semibold text-ink-700 dark:text-ink-200">Pending Invitations</h4>
+                                    <ul class="text-sm text-ink-600 dark:text-ink-300">
+                                        @foreach ($itinerary->invitations as $invite)
+                                            <li>
+                                                {{ $invite->email }}
+                                                <span class="text-xs text-ink-400">({{ ucfirst($invite->status) }})</span>
+                                            </li>
+                                        @endforeach
+                                    </ul>
+                                </div>
+                            @endif
+                        </div>
+
+                        {{-- Buttons --}}
+                        <div class="mt-10 flex justify-end gap-4">
+                            <a href="{{ route('traveler.itineraries.index') }}" class="group px-6 py-2.5 rounded-full border border-ink-500 text-ink-700 dark:text-sand-100 hover:text-copper hover:border-copper hover:scale-[1.03] hover:shadow-glow transition-all duration-200 ease-out font-medium shadow-soft">
                                 Back to My Itineraries
                             </a>
+                            <button type="submit" class="group flex items-center justify-center gap-2 px-8 py-2.5 rounded-full bg-gradient-copper text-white font-semibold shadow-soft hover:shadow-glow hover:scale-[1.03] transition-all duration-200 ease-out">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 transition-transform duration-200 group-hover:rotate-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                                </svg>
+                                Save Changes
+                            </button>
                         </div>
                     </form>
                 </div>
             </div>
 
-            {{-- Items manager (unchanged) --}}
-            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900 dark:text-gray-100">
-                    <div class="flex items-center justify-between mb-4">
+            {{-- ================== Items Manager ================== --}}
+            <div class="bg-white dark:bg-sand-800 border border-sand-200 dark:border-ink-700 rounded-3xl shadow-soft hover:shadow-glow hover:scale-[1.005] transition-all duration-200 ease-out">
+                <div class="p-8 text-ink-900 dark:text-ink-100">
+                    <div class="flex items-center justify-between mb-6">
                         <h3 class="text-lg font-semibold">Items</h3>
                         <button type="button" @click="showNewItem = !showNewItem"
-                                class="px-3 py-2 rounded bg-green-600 text-white">
+                                class="px-4 py-2.5 rounded-full bg-gradient-copper text-white font-medium shadow-soft hover:shadow-glow hover:scale-[1.03] transition-all duration-200 ease-out">
                             <span x-show="!showNewItem">+ Add Item</span>
                             <span x-show="showNewItem">Cancel</span>
                         </button>
                     </div>
 
-                    {{-- New Item form --}}
-                    <div x-show="showNewItem" x-cloak class="mb-6">
+                    <div x-show="showNewItem" x-cloak class="mb-8">
                         <form method="POST" action="{{ route('traveler.itineraries.items.store', $itinerary) }}">
                             @csrf
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div>
-                                    <label class="block text-sm font-medium">Type</label>
-                                    <select name="type" required
-                                            class="mt-1 w-full border rounded p-2 dark:bg-gray-900 dark:border-gray-700">
-                                        @php $t = old('type'); @endphp
-                                        <option value="">Select…</option>
-                                        <option value="flight"   @selected($t==='flight')>Flight</option>
-                                        <option value="hotel"    @selected($t==='hotel')>Hotel</option>
-                                        <option value="activity" @selected($t==='activity')>Activity</option>
-                                        <option value="transfer" @selected($t==='transfer')>Transfer</option>
-                                        <option value="note"     @selected($t==='note')>Note</option>
-                                    </select>
-                                    @error('type')<p class="text-red-600 text-sm mt-1">{{ $message }}</p>@enderror
-                                </div>
-
-                                <div>
-                                    <label class="block text-sm font-medium">Title</label>
-                                    <input name="title" type="text" value="{{ old('title') }}" required
-                                           class="mt-1 w-full border rounded p-2 dark:bg-gray-900 dark:border-gray-700">
-                                    @error('title')<p class="text-red-600 text-sm mt-1">{{ $message }}</p>@enderror
-                                </div>
-
-                                <div>
-                                    <label class="block text-sm font-medium">Start Time</label>
-                                    <input name="start_time" type="datetime-local" value="{{ old('start_time') }}" required
-                                           class="mt-1 w-full border rounded p-2 dark:bg-gray-900 dark:border-gray-700">
-                                    @error('start_time')<p class="text-red-600 text-sm mt-1">{{ $message }}</p>@enderror
-                                </div>
-
-                                <div>
-                                    <label class="block text-sm font-medium">End Time</label>
-                                    <input name="end_time" type="datetime-local" value="{{ old('end_time') }}"
-                                           class="mt-1 w-full border rounded p-2 dark:bg-gray-900 dark:border-gray-700">
-                                    @error('end_time')<p class="text-red-600 text-sm mt-1">{{ $message }}</p>@enderror
-                                </div>
-
-                                <div class="md:col-span-2">
-                                    <label class="block text-sm font-medium">Location</label>
-                                    <input name="location" type="text" value="{{ old('location') }}"
-                                           class="mt-1 w-full border rounded p-2 dark:bg-gray-900 dark:border-gray-700">
-                                    @error('location')<p class="text-red-600 text-sm mt-1">{{ $message }}</p>@enderror
-                                </div>
-
-                                <div class="md:col-span-2">
-                                    <label class="block text-sm font-medium">Details</label>
-                                    <textarea name="details" rows="4"
-                                              class="mt-1 w-full border rounded p-2 dark:bg-gray-900 dark:border-gray-700">{{ old('details') }}</textarea>
-                                    @error('details')<p class="text-red-600 text-sm mt-1">{{ $message }}</p>@enderror
-                                </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <x-form.item-fields :old="$old ?? []" />
                             </div>
-
-                            <div class="mt-4">
-                                <button type="submit" class="px-4 py-2 rounded bg-blue-600 text-white">
+                            <div class="mt-6">
+                                <button type="submit" class="px-6 py-2.5 rounded-full bg-gradient-copper text-white font-medium shadow-soft hover:shadow-glow hover:scale-[1.03] transition-all duration-200 ease-out">
                                     Add Item
                                 </button>
                             </div>
                         </form>
                     </div>
 
-                    {{-- Items table (unchanged) --}}
                     <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                            <thead class="bg-gray-50 dark:bg-gray-900">
+                        <table class="min-w-full divide-y divide-sand-200 dark:divide-ink-700">
+                            <thead class="bg-sand dark:bg-sand-900/40">
                                 <tr>
-                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Type</th>
-                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Title</th>
-                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Start</th>
-                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">End</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium uppercase">Type</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium uppercase">Title</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium uppercase">Start</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium uppercase">End</th>
                                     <th class="px-4 py-3"></th>
                                 </tr>
                             </thead>
-                            <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                            <tbody class="bg-white dark:bg-sand-800 divide-y divide-sand-200 dark:divide-ink-700">
                                 @forelse ($itinerary->items as $item)
-                                    @php
-                                        $st = $item->start_time ? \Illuminate\Support\Carbon::parse($item->start_time) : null;
-                                        $et = $item->end_time ? \Illuminate\Support\Carbon::parse($item->end_time) : null;
-                                    @endphp
-                                    <tr x-data="{ open: false }">
-                                        <td class="px-4 py-3 whitespace-nowrap">{{ ucfirst($item->type) }}</td>
-                                        <td class="px-4 py-3 whitespace-nowrap">{{ $item->title }}</td>
-                                        <td class="px-4 py-3 whitespace-nowrap">{{ $st ? $st->format('M j, Y g:ia') : '—' }}</td>
-                                        <td class="px-4 py-3 whitespace-nowrap">{{ $et ? $et->format('M j, Y g:ia') : '—' }}</td>
-                                        <td class="px-4 py-3 whitespace-nowrap text-right">
-                                            <div class="flex items-center gap-2 justify-end">
-                                                <button type="button" @click="open = !open"
-                                                        class="px-3 py-1.5 rounded border border-gray-300 dark:border-gray-600 text-sm">
-                                                    Edit
-                                                </button>
-
-                                                <form method="POST" action="{{ route('traveler.items.destroy', $item) }}"
-                                                      onsubmit="return confirm('Delete this item?');">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit"
-                                                            class="px-3 py-1.5 rounded bg-red-600 text-white text-sm">
-                                                        Delete
-                                                    </button>
-                                                </form>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr x-show="open" x-cloak>
-                                        <td colspan="5" class="px-4 py-4 bg-gray-50 dark:bg-gray-900">
-                                            <form method="POST" action="{{ route('traveler.items.update', $item) }}">
-                                                @csrf
-                                                @method('PUT')
-                                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                    <div>
-                                                        <label class="block text-sm font-medium">Type</label>
-                                                        <select name="type" required
-                                                                class="mt-1 w-full border rounded p-2 dark:bg-gray-900 dark:border-gray-700">
-                                                            @php $t = old('type', $item->type); @endphp
-                                                            <option value="flight"   @selected($t==='flight')>Flight</option>
-                                                            <option value="hotel"    @selected($t==='hotel')>Hotel</option>
-                                                            <option value="activity" @selected($t==='activity')>Activity</option>
-                                                            <option value="transfer" @selected($t==='transfer')>Transfer</option>
-                                                            <option value="note"     @selected($t==='note')>Note</option>
-                                                        </select>
-                                                    </div>
-
-                                                    <div>
-                                                        <label class="block text-sm font-medium">Title</label>
-                                                        <input name="title" type="text" value="{{ old('title', $item->title) }}" required
-                                                               class="mt-1 w-full border rounded p-2 dark:bg-gray-900 dark:border-gray-700">
-                                                    </div>
-
-                                                    <div>
-                                                        <label class="block text-sm font-medium">Start Time</label>
-                                                        <input name="start_time" type="datetime-local"
-                                                               value="{{ old('start_time', $st ? $st->format('Y-m-d\TH:i') : '') }}" required
-                                                               class="mt-1 w-full border rounded p-2 dark:bg-gray-900 dark:border-gray-700">
-                                                    </div>
-
-                                                    <div>
-                                                        <label class="block text-sm font-medium">End Time</label>
-                                                        <input name="end_time" type="datetime-local"
-                                                               value="{{ old('end_time', $et ? $et->format('Y-m-d\TH:i') : '') }}"
-                                                               class="mt-1 w-full border rounded p-2 dark:bg-gray-900 dark:border-gray-700">
-                                                    </div>
-
-                                                    <div class="md:col-span-2">
-                                                        <label class="block text-sm font-medium">Location</label>
-                                                        <input name="location" type="text" value="{{ old('location', $item->location) }}"
-                                                               class="mt-1 w-full border rounded p-2 dark:bg-gray-900 dark:border-gray-700">
-                                                    </div>
-
-                                                    <div class="md:col-span-2">
-                                                        <label class="block text-sm font-medium">Details</label>
-                                                        <textarea name="details" rows="4"
-                                                                  class="mt-1 w-full border rounded p-2 dark:bg-gray-900 dark:border-gray-700">{{ old('details', $item->details) }}</textarea>
-                                                    </div>
-                                                </div>
-
-                                                <div class="mt-4">
-                                                    <button type="submit" class="px-4 py-2 rounded bg-blue-600 text-white">
-                                                        Save Item
-                                                    </button>
-                                                </div>
-                                            </form>
-                                        </td>
-                                    </tr>
+                                    @include('traveler.itineraries.partials.item-row', ['item' => $item])
                                 @empty
                                     <tr>
-                                        <td colspan="5" class="px-4 py-8 text-center text-gray-600 dark:text-gray-300">
+                                        <td colspan="5" class="px-4 py-10 text-center text-ink-500 dark:text-sand-100">
                                             No items yet. Click “Add Item” to get started.
                                         </td>
                                     </tr>
@@ -320,9 +192,8 @@
         </div>
     </div>
 
-    {{-- inject countries --}}
+    {{-- Inject Countries --}}
     <script>
-        // @ts-nocheck
         window.allCountries = @json(\App\Models\Country::select('id','name')->orderBy('name')->get());
     </script>
 </x-app-layout>

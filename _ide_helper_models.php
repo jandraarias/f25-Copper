@@ -32,14 +32,15 @@ namespace App\Models{
 /**
  * @property int $id
  * @property int $itinerary_id
- * @property \App\Models\Country|null $country
+ * @property int $country_id
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\Itinerary $itinerary
+ * @property-read \App\Models\Country $country
+ * @property-read \App\Models\Itinerary|null $itinerary
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CountryItinerary newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CountryItinerary newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CountryItinerary query()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|CountryItinerary whereCountry($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CountryItinerary whereCountryId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CountryItinerary whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CountryItinerary whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CountryItinerary whereItineraryId($value)
@@ -51,19 +52,24 @@ namespace App\Models{
 namespace App\Models{
 /**
  * @property int $id
- * @property string $name
- * @property string $description
- * @property \Illuminate\Support\Carbon $start_date
- * @property \Illuminate\Support\Carbon $end_date
- * @property string $country
- * @property string|null $location
  * @property int $traveler_id
+ * @property string|null $public_uuid
+ * @property string $name
+ * @property string|null $destination
+ * @property string|null $location
+ * @property \Illuminate\Support\Carbon|null $start_date
+ * @property \Illuminate\Support\Carbon|null $end_date
+ * @property string|null $description
+ * @property int $is_collaborative
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property string|null $public_uuid
- * @property string|null $destination
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\User> $collaborators
+ * @property-read int|null $collaborators_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Country> $countries
  * @property-read int|null $countries_count
+ * @property-read \App\Models\User|null $creator
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ItineraryInvitation> $invitations
+ * @property-read int|null $invitations_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ItineraryItem> $items
  * @property-read int|null $items_count
  * @property-read \App\Models\Traveler $traveler
@@ -71,12 +77,12 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Itinerary newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Itinerary newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Itinerary query()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Itinerary whereCountry($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Itinerary whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Itinerary whereDescription($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Itinerary whereDestination($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Itinerary whereEndDate($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Itinerary whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Itinerary whereIsCollaborative($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Itinerary whereLocation($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Itinerary whereName($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Itinerary wherePublicUuid($value)
@@ -91,11 +97,38 @@ namespace App\Models{
 /**
  * @property int $id
  * @property int $itinerary_id
+ * @property string $email
+ * @property string|null $token
+ * @property string $status
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\Itinerary $itinerary
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ItineraryInvitation accepted()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ItineraryInvitation declined()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ItineraryInvitation newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ItineraryInvitation newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ItineraryInvitation pending()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ItineraryInvitation query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ItineraryInvitation whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ItineraryInvitation whereEmail($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ItineraryInvitation whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ItineraryInvitation whereItineraryId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ItineraryInvitation whereStatus($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ItineraryInvitation whereToken($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ItineraryInvitation whereUpdatedAt($value)
+ */
+	class ItineraryInvitation extends \Eloquent {}
+}
+
+namespace App\Models{
+/**
+ * @property int $id
+ * @property int $itinerary_id
  * @property string $type
  * @property string $title
+ * @property string $location
  * @property \Illuminate\Support\Carbon|null $start_time
  * @property \Illuminate\Support\Carbon|null $end_time
- * @property string|null $location
  * @property string|null $details
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
@@ -121,12 +154,43 @@ namespace App\Models{
 namespace App\Models{
 /**
  * @property int $id
+ * @property string $name
+ * @property string|null $lat
+ * @property string|null $lon
+ * @property string|null $rating
+ * @property string|null $category
+ * @property string $source
+ * @property array<array-key, mixed>|null $meta
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Review> $reviews
+ * @property-read int|null $reviews_count
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Place newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Place newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Place query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Place whereCategory($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Place whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Place whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Place whereLat($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Place whereLon($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Place whereMeta($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Place whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Place whereRating($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Place whereSource($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Place whereUpdatedAt($value)
+ */
+	class Place extends \Eloquent {}
+}
+
+namespace App\Models{
+/**
+ * @property int $id
  * @property int $preference_profile_id
+ * @property int|null $parent_id
  * @property string $key
  * @property string $value
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property int|null $parent_id
  * @property-read \App\Models\PreferenceProfile $profile
  * @method static \Database\Factories\PreferenceFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Preference newModelQuery()
@@ -141,6 +205,32 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Preference whereValue($value)
  */
 	class Preference extends \Eloquent {}
+}
+
+namespace App\Models{
+/**
+ * @property int $id
+ * @property string $name
+ * @property string $type
+ * @property string|null $category
+ * @property int|null $parent_id
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, PreferenceOption> $children
+ * @property-read int|null $children_count
+ * @property-read PreferenceOption|null $parent
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PreferenceOption newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PreferenceOption newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PreferenceOption query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PreferenceOption whereCategory($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PreferenceOption whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PreferenceOption whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PreferenceOption whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PreferenceOption whereParentId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PreferenceOption whereType($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PreferenceOption whereUpdatedAt($value)
+ */
+	class PreferenceOption extends \Eloquent {}
 }
 
 namespace App\Models{
@@ -174,12 +264,46 @@ namespace App\Models{
 
 namespace App\Models{
 /**
+ * @property int $id
+ * @property int $place_id
+ * @property string $source
+ * @property string|null $author
+ * @property int|null $rating
+ * @property string|null $text
+ * @property string|null $published_at
+ * @property \Illuminate\Support\Carbon|null $published_at_date
+ * @property \Illuminate\Support\Carbon|null $fetched_at
+ * @property array<array-key, mixed>|null $meta
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\Place $place
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Review newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Review newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Review query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Review whereAuthor($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Review whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Review whereFetchedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Review whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Review whereMeta($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Review wherePlaceId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Review wherePublishedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Review wherePublishedAtDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Review whereRating($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Review whereSource($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Review whereText($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Review whereUpdatedAt($value)
+ */
+	class Review extends \Eloquent {}
+}
+
+namespace App\Models{
+/**
  * @mixin IdeHelperTraveler
  * @property int $id
  * @property int $user_id
+ * @property string|null $bio
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property string|null $bio
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Itinerary> $itineraries
  * @property-read int|null $itineraries_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PreferenceProfile> $preferenceProfiles
@@ -206,12 +330,16 @@ namespace App\Models{
  * @property string $email
  * @property \Illuminate\Support\Carbon|null $email_verified_at
  * @property string $password
- * @property string|null $remember_token
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
  * @property string $role
  * @property string|null $phone_number
  * @property \Illuminate\Support\Carbon|null $date_of_birth
+ * @property string|null $remember_token
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Itinerary> $collaborativeItineraries
+ * @property-read int|null $collaborative_itineraries_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Itinerary> $createdItineraries
+ * @property-read int|null $created_itineraries_count
  * @property-read \Illuminate\Notifications\DatabaseNotificationCollection<int, \Illuminate\Notifications\DatabaseNotification> $notifications
  * @property-read int|null $notifications_count
  * @property-read \App\Models\Traveler|null $traveler

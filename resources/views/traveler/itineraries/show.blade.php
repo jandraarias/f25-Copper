@@ -1,85 +1,115 @@
-{{-- resources/views/traveler/itineraries/show.blade.php --}}
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            {{ $itinerary->name }}
-        </h2>
+        <div class="flex items-center justify-between">
+            <h2 class="text-2xl font-semibold text-ink-900 dark:text-ink-100">
+                {{ $itinerary->name }}
+            </h2>
+
+            <a href="{{ route('traveler.itineraries.index') }}"
+               class="group flex items-center gap-2 px-5 py-2.5 rounded-full border border-copper text-copper 
+                      hover:bg-copper hover:text-white hover:shadow-glow hover:scale-[1.03] 
+                      transition-all duration-200 ease-out font-medium shadow-soft">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 transition-transform duration-200 group-hover:-translate-x-0.5"
+                     fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+                </svg>
+                Back
+            </a>
+        </div>
     </x-slot>
 
-    <div class="py-12">
-        <div class="mx-auto max-w-5xl sm:px-6 lg:px-8 space-y-8">
-            {{-- Itinerary details --}}
-            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900 dark:text-gray-100">
+    <div class="py-12 bg-sand dark:bg-sand-900 min-h-screen">
+        <div class="mx-auto max-w-5xl sm:px-6 lg:px-8 space-y-10">
+
+            {{-- Overview Card --}}
+            <div class="bg-white dark:bg-sand-800 border border-sand-200 dark:border-ink-700 rounded-3xl shadow-soft hover:shadow-glow hover:scale-[1.005] transition-all duration-200 ease-out">
+                <div class="p-8 text-ink-900 dark:text-ink-100">
                     <x-flash-messages />
 
-                    <h3 class="text-lg font-semibold mb-4">Overview</h3>
-                    <p><span class="font-medium">Description:</span> {{ $itinerary->description ?? '—' }}</p>
-                    <p><span class="font-medium">Countries:</span> {{ $itinerary->countries->pluck('name')->join(', ') }}</p>
-                    <p><span class="font-medium">Destination:</span> {{ $itinerary->destination ?? '—' }}</p>
-                    <p><span class="font-medium">Dates:</span>
-                        {{ $itinerary->start_date?->format('M j, Y') ?? '—' }}
-                        —
-                        {{ $itinerary->end_date?->format('M j, Y') ?? '—' }}
-                    </p>
+                    <h3 class="text-xl font-semibold mb-6">Overview</h3>
 
-                    <div class="mt-6 flex gap-2">
+                    <div class="space-y-3 text-ink-800 dark:text-ink-200">
+                        <p>
+                            <span class="font-semibold text-ink-900 dark:text-ink-100">Description:</span>
+                            {{ $itinerary->description ?? '—' }}
+                        </p>
+                        <p>
+                            <span class="font-semibold text-ink-900 dark:text-ink-100">Countries:</span>
+                            {{ $itinerary->countries->pluck('name')->join(', ') ?: '—' }}
+                        </p>
+                        <p>
+                            <span class="font-semibold text-ink-900 dark:text-ink-100">Destination:</span>
+                            {{ $itinerary->destination ?? '—' }}
+                        </p>
+                        <p>
+                            <span class="font-semibold text-ink-900 dark:text-ink-100">Dates:</span>
+                            {{ $itinerary->start_date?->format('M j, Y') ?? '—' }}
+                            —
+                            {{ $itinerary->end_date?->format('M j, Y') ?? '—' }}
+                        </p>
+                    </div>
+
+                    <div class="mt-10 flex gap-4 justify-end">
                         <a href="{{ route('traveler.itineraries.edit', $itinerary) }}"
-                           class="px-4 py-2 rounded bg-blue-600 text-white">
+                           class="group flex items-center justify-center gap-2 px-6 py-2.5 rounded-full bg-gradient-copper text-white font-semibold shadow-soft 
+                                  hover:shadow-glow hover:scale-[1.03] transition-all duration-200 ease-out">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 transition-transform duration-200 group-hover:rotate-6"
+                                 fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M11 5h2m2 0h.01M15 9h.01M13 9h.01M11 9h.01M9 9h.01M7 9h.01M5 9h.01M3 9h.01M21 9h.01M12 19v2M12 3v2" />
+                            </svg>
                             Edit Itinerary
-                        </a>
-                        <a href="{{ route('traveler.itineraries.index') }}"
-                           class="px-4 py-2 rounded border border-gray-300 dark:border-gray-600">
-                            Back to My Itineraries
                         </a>
                     </div>
                 </div>
             </div>
 
-            {{-- Items list --}}
-            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900 dark:text-gray-100">
-                    <h3 class="text-lg font-semibold mb-4">Items</h3>
+            {{-- Items Table --}}
+            <div class="bg-white dark:bg-sand-800 border border-sand-200 dark:border-ink-700 rounded-3xl shadow-soft hover:shadow-glow hover:scale-[1.005] transition-all duration-200 ease-out">
+                <div class="p-8 text-ink-900 dark:text-ink-100">
+                    <h3 class="text-xl font-semibold mb-6">Items</h3>
 
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                            <thead class="bg-gray-50 dark:bg-gray-900">
-                                <tr>
-                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Type</th>
-                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Title</th>
-                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Start</th>
-                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">End</th>
-                                    <th class="px-4 py-3"></th>
-                                </tr>
-                            </thead>
-                            <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                                @forelse ($itinerary->items as $item)
-                                    @php
-                                        $st = $item->start_time ? \Illuminate\Support\Carbon::parse($item->start_time) : null;
-                                        $et = $item->end_time ? \Illuminate\Support\Carbon::parse($item->end_time) : null;
-                                    @endphp
+                    @if ($itinerary->items->isEmpty())
+                        <div class="text-center py-10 text-ink-600 dark:text-sand-100">
+                            <p class="text-lg">No items yet for this itinerary.</p>
+                            <p class="text-sm mt-2">Add some via the “Edit” page to start planning!</p>
+                        </div>
+                    @else
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-sand-200 dark:divide-ink-700">
+                                <thead class="bg-sand dark:bg-sand-900/40">
                                     <tr>
-                                        <td class="px-4 py-3 whitespace-nowrap">{{ ucfirst($item->type) }}</td>
-                                        <td class="px-4 py-3 whitespace-nowrap">{{ $item->title }}</td>
-                                        <td class="px-4 py-3 whitespace-nowrap">{{ $st ? $st->format('M j, Y g:ia') : '—' }}</td>
-                                        <td class="px-4 py-3 whitespace-nowrap">{{ $et ? $et->format('M j, Y g:ia') : '—' }}</td>
-                                        <td class="px-4 py-3 whitespace-nowrap text-right">
-                                            <a href="{{ route('traveler.itineraries.edit', $itinerary) }}"
-                                               class="px-3 py-1.5 rounded border border-gray-300 dark:border-gray-600 text-sm hover:bg-gray-50 dark:hover:bg-gray-900">
-                                                Edit
-                                            </a>
-                                        </td>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-ink-700 dark:text-sand-100 uppercase">Type</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-ink-700 dark:text-sand-100 uppercase">Title</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-ink-700 dark:text-sand-100 uppercase">Start</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-ink-700 dark:text-sand-100 uppercase">End</th>
+                                        <th class="px-4 py-3"></th>
                                     </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="5" class="px-4 py-8 text-center text-gray-600 dark:text-gray-300">
-                                            No items yet.
-                                        </td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div>
+                                </thead>
+                                <tbody class="bg-white dark:bg-sand-800 divide-y divide-sand-200 dark:divide-ink-700">
+                                    @foreach ($itinerary->items as $item)
+                                        @php
+                                            $st = $item->start_time ? \Illuminate\Support\Carbon::parse($item->start_time) : null;
+                                            $et = $item->end_time ? \Illuminate\Support\Carbon::parse($item->end_time) : null;
+                                        @endphp
+                                        <tr class="hover:bg-sand-50 dark:hover:bg-sand-900/50 transition-colors duration-150">
+                                            <td class="px-4 py-3 whitespace-nowrap text-ink-800 dark:text-ink-200">{{ ucfirst($item->type) }}</td>
+                                            <td class="px-4 py-3 whitespace-nowrap text-ink-800 dark:text-ink-200">{{ $item->title }}</td>
+                                            <td class="px-4 py-3 whitespace-nowrap text-ink-700 dark:text-sand-100">{{ $st ? $st->format('M j, Y g:ia') : '—' }}</td>
+                                            <td class="px-4 py-3 whitespace-nowrap text-ink-700 dark:text-sand-100">{{ $et ? $et->format('M j, Y g:ia') : '—' }}</td>
+                                            <td class="px-4 py-3 whitespace-nowrap text-right">
+                                                <a href="{{ route('traveler.itineraries.edit', $itinerary) }}"
+                                                   class="px-3 py-1.5 rounded-full border border-ink-500 text-ink-700 dark:text-ink-200 
+                                                          hover:text-copper hover:border-copper hover:shadow-glow hover:scale-[1.03] 
+                                                          transition-all duration-200 ease-out text-sm">
+                                                    Edit
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>

@@ -69,6 +69,16 @@ class User extends Authenticatable
         return $this->role === self::ROLE_ADMIN;
     }
 
+    public function createdItineraries()
+    {
+        return $this->hasMany(Itinerary::class);
+    }
+
+    public function collaborativeItineraries()
+    {
+        return $this->belongsToMany(Itinerary::class, 'itinerary_user')->withTimestamps();
+    }
+
     // === Relationships ===
     public function traveler()
     {
