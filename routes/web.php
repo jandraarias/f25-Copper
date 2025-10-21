@@ -117,6 +117,11 @@ Route::middleware(['auth', 'role:traveler'])
         // Itineraries CRUD (owners + collaborators via policy)
         Route::resource('itineraries', ItineraryController::class);
 
+        // 🆕 AI Itinerary Generation / Regeneration
+        // This route allows a traveler to manually trigger (re)generation of itinerary items.
+        Route::post('itineraries/{itinerary}/generate', [ItineraryController::class, 'generate'])
+            ->name('itineraries.generate');
+
         // Collaboration: Invite route (authenticated travelers)
         Route::post('itineraries/{itinerary}/invite', [ItineraryController::class, 'invite'])
             ->name('itineraries.invite');
@@ -132,11 +137,15 @@ Route::middleware(['auth', 'role:traveler'])
         // Preferences nested under profiles
         Route::resource('preference-profiles.preferences', PreferenceController::class)
             ->shallow()
-            ->only(['create','store','edit','update','destroy']);
+            ->only(['create', 'store', 'edit', 'update', 'destroy']);
 
         // Explicit create route for preferences
         Route::get('preference-profiles/{preferenceProfile}/preferences/create', [PreferenceController::class, 'create'])
             ->name('preferences.create');
+
+        // Regenerate (AI) Itinerary
+        Route::post('itineraries/{itinerary}/generate', [ItineraryController::class, 'generate'])
+            ->name('itineraries.generate');
     });
 
 /*
