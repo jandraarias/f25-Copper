@@ -11,6 +11,7 @@
         "filament/filament": "^4.0",
         "laravel/framework": "^12.0",
         "laravel/tinker": "^2.10.1",
+        "league/csv": "*",
         "openai-php/laravel": "^0.17.1"
     },
     "require-dev": {
