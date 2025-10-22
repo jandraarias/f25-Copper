@@ -32,8 +32,8 @@ class OpenAITag extends Command
      */
     public function handle(\OpenAI\Client $client)
     {
-           //$numLocations = Place::count();
-           $numLocations = 3;
+           $numLocations = Place::count();
+           //$numLocations = 3;
            $tagArraysforCSV = [];
 
            //Creates a list of OpenAI tag responses as a list of Strings

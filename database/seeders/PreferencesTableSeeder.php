@@ -24,7 +24,6 @@ class PreferencesTableSeeder extends Seeder
                 'Hot Springs',
             ],
             'Food & Drink' => [
-                'Local Cuisine',
                 'Fine Dining',
                 'Street Food',
                 'Coffee Shops',
