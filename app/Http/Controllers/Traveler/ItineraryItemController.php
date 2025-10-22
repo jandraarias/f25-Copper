@@ -9,12 +9,14 @@ use Illuminate\Http\Request;
 
 class ItineraryItemController extends Controller
 {
-    /**
-     * Store a newly created item in an itinerary.
-     */
     public function store(Request $request, Itinerary $itinerary)
     {
         $this->authorize('update', $itinerary);
+
+        // Optional: block manual add if AI-generated items exist
+        if ($itinerary->items()->count() > 0) {
+            return back()->with('warning', 'This itinerary is AI-generated. You can edit or regenerate it instead.');
+        }
 
         $request->validate([
             'type'      => ['required', 'string', 'max:50'],
@@ -32,9 +34,6 @@ class ItineraryItemController extends Controller
             ->with('success', 'Itinerary item added successfully!');
     }
 
-    /**
-     * Update the specified itinerary item.
-     */
     public function update(Request $request, ItineraryItem $item)
     {
         $this->authorize('update', $item->itinerary);
@@ -55,9 +54,6 @@ class ItineraryItemController extends Controller
             ->with('success', 'Itinerary item updated successfully!');
     }
 
-    /**
-     * Remove the specified itinerary item.
-     */
     public function destroy(ItineraryItem $item)
     {
         $this->authorize('delete', $item->itinerary);

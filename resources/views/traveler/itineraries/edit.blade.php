@@ -1,4 +1,4 @@
-<x-app-layout x-data="{ showNewItem: false }">
+<x-app-layout>
     <x-slot name="header">
         <div class="flex items-center justify-between">
             <h2 class="text-2xl font-semibold text-ink-900 dark:text-ink-100">
@@ -9,8 +9,7 @@
                class="group flex items-center gap-2 px-5 py-2.5 rounded-full border border-copper text-copper
                       hover:bg-copper hover:text-white hover:shadow-glow hover:scale-[1.03]
                       transition-all duration-200 ease-out font-medium shadow-soft">
-                <svg xmlns="http://www.w3.org/2000/svg"
-                     class="w-4 h-4 transition-transform duration-200 group-hover:-translate-x-0.5"
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 group-hover:-translate-x-0.5 transition-transform duration-200"
                      fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
                 </svg>
@@ -19,10 +18,11 @@
         </div>
     </x-slot>
 
-    <div class="py-12 bg-sand dark:bg-sand-900 min-h-screen">
+    <div class="py-12 bg-sand dark:bg-sand-900 min-h-screen overflow-x-hidden">
         <div class="mx-auto max-w-6xl sm:px-6 lg:px-8 space-y-10">
+
             {{-- ================== Itinerary Form ================== --}}
-            <div class="bg-white dark:bg-sand-800 border border-sand-200 dark:border-ink-700 rounded-3xl shadow-soft hover:shadow-glow hover:scale-[1.005] transition-all duration-200 ease-out">
+            <div class="bg-white dark:bg-sand-800 border border-sand-200 dark:border-ink-700 rounded-3xl shadow-soft hover:shadow-glow transition-all duration-200 ease-out">
                 <div class="p-8 text-ink-900 dark:text-ink-100">
                     <x-flash-messages />
 
@@ -35,101 +35,70 @@
                             <div class="md:col-span-2">
                                 <label class="block text-sm font-semibold text-ink-700 dark:text-sand-100 mb-2">Itinerary Name</label>
                                 <input name="name" type="text" value="{{ old('name', $itinerary->name) }}" required
-                                       class="w-full border border-sand-200 dark:border-ink-700 rounded-xl shadow-sm focus:ring-copper focus:border-copper focus:shadow-glow transition-all duration-200 px-4 py-2.5 dark:bg-sand-900">
-                                @error('name')<p class="text-red-600 text-sm mt-1">{{ $message }}</p>@enderror
+                                       class="w-full border border-sand-200 dark:border-ink-700 rounded-xl shadow-sm
+                                              focus:ring-copper focus:border-copper px-4 py-2.5 dark:bg-sand-900
+                                              overflow-hidden text-ellipsis">
                             </div>
 
                             {{-- Description --}}
                             <div class="md:col-span-2">
-                                <label class="block text-sm font-semibold text-ink-700 dark:text-sand-100 mb-2">Description</label>
-                                <textarea name="description" rows="4" class="w-full border border-sand-200 dark:border-ink-700 rounded-xl shadow-sm focus:ring-copper focus:border-copper focus:shadow-glow transition-all duration-200 px-4 py-2.5 dark:bg-sand-900">{{ old('description', $itinerary->description) }}</textarea>
-                                @error('description')<p class="text-red-600 text-sm mt-1">{{ $message }}</p>@enderror
-                            </div>
-
-                            {{-- Countries --}}
-                            <div class="md:col-span-2" 
-                                 x-data="countrySelect(window.allCountries, @json(old('countries', $itinerary->countries->pluck('id')->toArray())))">
-                                <label class="block text-sm font-semibold text-ink-700 dark:text-sand-100 mb-2">Countries</label>
-                                <div class="flex flex-wrap gap-2 mb-3">
-                                    <template x-for="country in selectedCountries" :key="country.id">
-                                        <span class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-copper text-white text-sm font-medium shadow-soft hover:scale-[1.05] transition-all duration-200 ease-out">
-                                            <span x-text="country.name"></span>
-                                            <button type="button" @click="removeCountry(country.id)" class="ml-1 text-white/80 hover:text-white transition">&times;</button>
-                                        </span>
-                                    </template>
-                                </div>
-                                <template x-for="country in selectedCountries" :key="'input-' + country.id">
-                                    <input type="hidden" name="countries[]" :value="country.id">
-                                </template>
-                                <select x-model="newCountry" @change="addCountry($event)" class="w-full border border-sand-200 dark:border-ink-700 rounded-xl shadow-sm focus:ring-copper focus:border-copper focus:shadow-glow transition-all duration-200 px-4 py-2.5 dark:bg-sand-900">
-                                    <option value="">-- Select a country --</option>
-                                    @foreach(\App\Models\Country::orderBy('name')->get() as $country)
-                                        <option value="{{ $country->id }}">{{ $country->name }}</option>
-                                    @endforeach
-                                </select>
-                                @error('countries')<p class="text-red-600 text-sm mt-1">{{ $message }}</p>@enderror
-                            </div>
-
-                            {{-- Destination --}}
-                            <div>
-                                <label class="block text-sm font-semibold text-ink-700 dark:text-sand-100 mb-2">Destination (Optional)</label>
-                                <input name="destination" type="text" value="{{ old('destination', $itinerary->destination ?? '') }}" placeholder="City / Region (optional)" class="w-full border border-sand-200 dark:border-ink-700 rounded-xl shadow-sm focus:ring-copper focus:border-copper focus:shadow-glow transition-all duration-200 px-4 py-2.5 dark:bg-sand-900">
-                                @error('destination')<p class="text-red-600 text-sm mt-1">{{ $message }}</p>@enderror
+                                <label class="block text-sm font-semibold mb-2 text-ink-700 dark:text-sand-100">Description</label>
+                                <textarea name="description" rows="4"
+                                          class="w-full border border-sand-200 dark:border-ink-700 rounded-xl shadow-sm
+                                                 focus:ring-copper focus:border-copper px-4 py-2.5 dark:bg-sand-900
+                                                 overflow-wrap break-words">{{ old('description', $itinerary->description) }}</textarea>
                             </div>
 
                             {{-- Dates --}}
                             <div>
-                                <label class="block text-sm font-semibold text-ink-700 dark:text-sand-100 mb-2">Start Date</label>
-                                <input name="start_date" type="date" value="{{ old('start_date', optional($itinerary->start_date)->format('Y-m-d')) }}" class="w-full border border-sand-200 dark:border-ink-700 rounded-xl shadow-sm focus:ring-copper focus:border-copper focus:shadow-glow transition-all duration-200 px-4 py-2.5 dark:bg-sand-900">
-                                @error('start_date')<p class="text-red-600 text-sm mt-1">{{ $message }}</p>@enderror
+                                <label class="block text-sm font-semibold mb-2">Start Date</label>
+                                <input name="start_date" type="date"
+                                       value="{{ old('start_date', optional($itinerary->start_date)->format('Y-m-d')) }}"
+                                       class="w-full border border-sand-200 dark:border-ink-700 rounded-xl shadow-sm
+                                              focus:ring-copper px-4 py-2.5 dark:bg-sand-900">
                             </div>
                             <div>
-                                <label class="block text-sm font-semibold text-ink-700 dark:text-sand-100 mb-2">End Date</label>
-                                <input name="end_date" type="date" value="{{ old('end_date', optional($itinerary->end_date)->format('Y-m-d')) }}" class="w-full border border-sand-200 dark:border-ink-700 rounded-xl shadow-sm focus:ring-copper focus:border-copper focus:shadow-glow transition-all duration-200 px-4 py-2.5 dark:bg-sand-900">
-                                @error('end_date')<p class="text-red-600 text-sm mt-1">{{ $message }}</p>@enderror
+                                <label class="block text-sm font-semibold mb-2">End Date</label>
+                                <input name="end_date" type="date"
+                                       value="{{ old('end_date', optional($itinerary->end_date)->format('Y-m-d')) }}"
+                                       class="w-full border border-sand-200 dark:border-ink-700 rounded-xl shadow-sm
+                                              focus:ring-copper px-4 py-2.5 dark:bg-sand-900">
+                            </div>
+
+                            {{-- Location --}}
+                            <div>
+                                <label class="block text-sm font-semibold mb-2">Location</label>
+                                <input name="location" type="text" value="{{ old('location', $itinerary->location) }}"
+                                       class="w-full border border-sand-200 dark:border-ink-700 rounded-xl shadow-sm
+                                              focus:ring-copper px-4 py-2.5 dark:bg-sand-900">
+                            </div>
+
+                            {{-- Preference Profile --}}
+                            <div>
+                                <label class="block text-sm font-semibold mb-2">Preference Profile</label>
+                                <select name="preference_profile_id" required
+                                        class="w-full border border-sand-200 dark:border-ink-700 rounded-xl shadow-sm
+                                               focus:ring-copper focus:border-copper px-4 py-2.5 dark:bg-sand-900">
+                                    <option value="">-- Select --</option>
+                                    @foreach(Auth::user()->traveler->preferenceProfiles as $profile)
+                                        <option value="{{ $profile->id }}" {{ old('preference_profile_id', $itinerary->preference_profile_id) == $profile->id ? 'selected' : '' }}>
+                                            {{ $profile->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
                             </div>
                         </div>
 
-                        {{-- ===== Invite Collaborators ===== --}}
-                        <div class="mt-10 bg-sand-50 dark:bg-sand-900/50 border border-sand-200 dark:border-ink-700 rounded-2xl p-6">
-                            <h3 class="text-lg font-semibold text-copper mb-4">Invite Collaborators</h3>
-
-                            <form method="POST" action="{{ route('traveler.itineraries.invite', $itinerary) }}" class="flex flex-wrap gap-3">
-                                @csrf
-                                <input type="email" name="email" placeholder="Enter collaborator's email"
-                                       class="flex-grow border border-sand-200 dark:border-ink-700 rounded-xl px-4 py-2.5 dark:bg-sand-900
-                                              focus:ring-copper focus:border-copper focus:shadow-glow transition-all duration-200"
-                                       required>
-                                <button type="submit"
-                                        class="px-6 py-2.5 rounded-full bg-gradient-copper text-white font-medium shadow-soft hover:shadow-glow hover:scale-[1.03] transition-all duration-200 ease-out">
-                                    Send Invite
-                                </button>
-                            </form>
-
-                            @if ($itinerary->invitations->isNotEmpty())
-                                <div class="mt-6 space-y-2">
-                                    <h4 class="text-sm font-semibold text-ink-700 dark:text-ink-200">Pending Invitations</h4>
-                                    <ul class="text-sm text-ink-600 dark:text-ink-300">
-                                        @foreach ($itinerary->invitations as $invite)
-                                            <li>
-                                                {{ $invite->email }}
-                                                <span class="text-xs text-ink-400">({{ ucfirst($invite->status) }})</span>
-                                            </li>
-                                        @endforeach
-                                    </ul>
-                                </div>
-                            @endif
-                        </div>
-
-                        {{-- Buttons --}}
-                        <div class="mt-10 flex justify-end gap-4">
-                            <a href="{{ route('traveler.itineraries.index') }}" class="group px-6 py-2.5 rounded-full border border-ink-500 text-ink-700 dark:text-sand-100 hover:text-copper hover:border-copper hover:scale-[1.03] hover:shadow-glow transition-all duration-200 ease-out font-medium shadow-soft">
-                                Back to My Itineraries
+                        <div class="mt-8 flex justify-end gap-4 flex-wrap">
+                            <a href="{{ route('traveler.itineraries.show', $itinerary) }}"
+                               class="px-6 py-2.5 rounded-full border border-ink-500 text-ink-700 dark:text-ink-200
+                                      hover:text-copper hover:border-copper hover:shadow-glow transition-all">
+                                Cancel
                             </a>
-                            <button type="submit" class="group flex items-center justify-center gap-2 px-8 py-2.5 rounded-full bg-gradient-copper text-white font-semibold shadow-soft hover:shadow-glow hover:scale-[1.03] transition-all duration-200 ease-out">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 transition-transform duration-200 group-hover:rotate-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-                                </svg>
+
+                            <button type="submit"
+                                    class="px-8 py-2.5 rounded-full bg-gradient-copper text-white font-semibold shadow-soft
+                                           hover:shadow-glow hover:scale-[1.03] transition-all">
                                 Save Changes
                             </button>
                         </div>
@@ -137,63 +106,119 @@
                 </div>
             </div>
 
-            {{-- ================== Items Manager ================== --}}
-            <div class="bg-white dark:bg-sand-800 border border-sand-200 dark:border-ink-700 rounded-3xl shadow-soft hover:shadow-glow hover:scale-[1.005] transition-all duration-200 ease-out">
-                <div class="p-8 text-ink-900 dark:text-ink-100">
-                    <div class="flex items-center justify-between mb-6">
-                        <h3 class="text-lg font-semibold">Items</h3>
-                        <button type="button" @click="showNewItem = !showNewItem"
-                                class="px-4 py-2.5 rounded-full bg-gradient-copper text-white font-medium shadow-soft hover:shadow-glow hover:scale-[1.03] transition-all duration-200 ease-out">
-                            <span x-show="!showNewItem">+ Add Item</span>
-                            <span x-show="showNewItem">Cancel</span>
+            {{-- ================== Grouped Itinerary Items ================== --}}
+            @php
+                $grouped = $itinerary->items->sortBy('start_time')->groupBy(fn($item) =>
+                    \Illuminate\Support\Carbon::parse($item->start_time)->format('Y-m-d')
+                );
+            @endphp
+
+            <div class="space-y-8">
+                @forelse ($grouped as $date => $items)
+                    <div x-data="{ open: false }" class="bg-white dark:bg-sand-800 border border-sand-200 dark:border-ink-700 rounded-2xl shadow-soft transition-all">
+                        {{-- Day Header --}}
+                        <button @click="open = !open"
+                                class="w-full flex justify-between items-center px-6 py-4 text-left
+                                       text-lg font-semibold text-ink-900 dark:text-ink-100 hover:bg-sand-50 dark:hover:bg-sand-900/40 rounded-t-2xl">
+                            <span>{{ \Illuminate\Support\Carbon::parse($date)->format('l, F j, Y') }}</span>
+                            <svg x-bind:class="open ? 'rotate-180' : ''"
+                                 class="w-5 h-5 transition-transform duration-300 ease-out" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                            </svg>
                         </button>
-                    </div>
 
-                    <div x-show="showNewItem" x-cloak class="mb-8">
-                        <form method="POST" action="{{ route('traveler.itineraries.items.store', $itinerary) }}">
-                            @csrf
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <x-form.item-fields :old="$old ?? []" />
-                            </div>
-                            <div class="mt-6">
-                                <button type="submit" class="px-6 py-2.5 rounded-full bg-gradient-copper text-white font-medium shadow-soft hover:shadow-glow hover:scale-[1.03] transition-all duration-200 ease-out">
-                                    Add Item
-                                </button>
-                            </div>
-                        </form>
-                    </div>
+                        {{-- Collapsible Day Items --}}
+                        <div x-show="open" x-collapse x-transition.opacity.duration.300ms class="px-6 pb-6 space-y-4">
+                            @foreach ($items as $item)
+                                <div x-data="{ editing: false }" class="itinerary-card border border-sand-200 dark:border-ink-700 rounded-xl p-4 shadow-sm hover:shadow-glow hover:scale-[1.01] transition-all duration-200 ease-out">
+                                    {{-- Summary View --}}
+                                    <div x-show="!editing" class="flex justify-between items-start flex-wrap gap-3">
+                                        <div class="min-w-0 flex-1">
+                                            <h4 class="font-semibold text-ink-900 dark:text-ink-100 break-words">{{ $item->title }}</h4>
+                                            <p class="text-sm text-ink-700 dark:text-sand-200 break-words">
+                                                {{ ucfirst($item->type) }} —
+                                                {{ \Illuminate\Support\Carbon::parse($item->start_time)->format('g:ia') }}
+                                                -
+                                                {{ \Illuminate\Support\Carbon::parse($item->end_time)->format('g:ia') }}
+                                            </p>
+                                            @if ($item->details)
+                                                <p class="text-sm text-ink-600 dark:text-sand-300 mt-1 break-words leading-relaxed">{{ $item->details }}</p>
+                                            @endif
+                                        </div>
+                                        <div class="flex gap-2 flex-shrink-0">
+                                            <button @click="editing = true"
+                                                    class="px-3 py-1.5 rounded-full border border-ink-500 text-ink-700 dark:text-ink-200
+                                                           hover:text-copper hover:border-copper hover:shadow-glow text-sm">
+                                                Edit
+                                            </button>
+                                            <form method="POST" action="{{ route('traveler.items.destroy', $item) }}" onsubmit="return confirm('Delete this item?')">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit"
+                                                        class="px-3 py-1.5 rounded-full border border-red-400 text-red-500 text-sm
+                                                               hover:bg-red-500 hover:text-white hover:shadow-glow transition-all">
+                                                    Delete
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
 
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-sand-200 dark:divide-ink-700">
-                            <thead class="bg-sand dark:bg-sand-900/40">
-                                <tr>
-                                    <th class="px-4 py-3 text-left text-xs font-medium uppercase">Type</th>
-                                    <th class="px-4 py-3 text-left text-xs font-medium uppercase">Title</th>
-                                    <th class="px-4 py-3 text-left text-xs font-medium uppercase">Start</th>
-                                    <th class="px-4 py-3 text-left text-xs font-medium uppercase">End</th>
-                                    <th class="px-4 py-3"></th>
-                                </tr>
-                            </thead>
-                            <tbody class="bg-white dark:bg-sand-800 divide-y divide-sand-200 dark:divide-ink-700">
-                                @forelse ($itinerary->items as $item)
-                                    @include('traveler.itineraries.partials.item-row', ['item' => $item])
-                                @empty
-                                    <tr>
-                                        <td colspan="5" class="px-4 py-10 text-center text-ink-500 dark:text-sand-100">
-                                            No items yet. Click “Add Item” to get started.
-                                        </td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
+                                    {{-- Edit Form --}}
+                                    <div x-show="editing" x-collapse x-transition class="mt-4">
+                                        <form method="POST" action="{{ route('traveler.items.update', $item) }}" class="space-y-4">
+                                            @csrf
+                                            @method('PUT')
+                                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                <x-form.item-fields :old="[
+                                                    'type' => $item->type,
+                                                    'title' => $item->title,
+                                                    'start_time' => optional($item->start_time)->format('Y-m-d\TH:i'),
+                                                    'end_time' => optional($item->end_time)->format('Y-m-d\TH:i'),
+                                                    'location' => $item->location,
+                                                    'details' => $item->details,
+                                                ]" />
+                                            </div>
+                                            <div class="flex justify-end gap-4 flex-wrap">
+                                                <button type="button" @click="editing = false"
+                                                        class="px-5 py-2.5 rounded-full border border-ink-500 text-ink-700 dark:text-ink-200 text-sm
+                                                               hover:text-copper hover:border-copper hover:shadow-glow transition-all">
+                                                    Cancel
+                                                </button>
+                                                <button type="submit"
+                                                        class="px-6 py-2.5 rounded-full bg-gradient-copper text-white font-medium shadow-soft
+                                                               hover:shadow-glow hover:scale-[1.03] transition-all">
+                                                    Save Item
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
                     </div>
-                </div>
+                @empty
+                    <div class="text-center text-ink-600 dark:text-sand-200 py-12">
+                        No itinerary items yet. Try generating or adding items manually.
+                    </div>
+                @endforelse
             </div>
         </div>
     </div>
 
-    {{-- Inject Countries --}}
-    <script>
-        window.allCountries = @json(\App\Models\Country::select('id','name')->orderBy('name')->get());
-    </script>
+    <style>
+        /* Contain text overflow globally */
+        .itinerary-card, .itinerary-item {
+            overflow-wrap: break-word;
+            word-break: break-word;
+            hyphens: auto;
+        }
+        .text-ellipsis {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        body, .min-h-screen, .max-w-6xl {
+            overflow-x: hidden;
+        }
+    </style>
 </x-app-layout>

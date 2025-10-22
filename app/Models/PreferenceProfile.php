@@ -22,16 +22,33 @@ class PreferenceProfile extends Model
         'traveler_id' => 'integer',
     ];
 
+    /**
+     * The traveler who owns this preference profile.
+     */
     public function traveler(): BelongsTo
     {
         return $this->belongsTo(Traveler::class);
     }
 
+    /**
+     * The preferences stored under this profile.
+     */
     public function preferences(): HasMany
     {
         return $this->hasMany(Preference::class);
     }
 
+    /**
+     * Itineraries that were generated using this profile.
+     */
+    public function itineraries(): HasMany
+    {
+        return $this->hasMany(Itinerary::class, 'preference_profile_id');
+    }
+
+    /**
+     * Automatically attach to the logged-in traveler's account.
+     */
     protected static function booted(): void
     {
         static::creating(function (self $model): void {
@@ -40,5 +57,15 @@ class PreferenceProfile extends Model
                 $model->traveler_id = $user->traveler->id;
             }
         });
+    }
+
+    /**
+     * Helper: convert preferences into associative array.
+     */
+    public function toPreferenceArray(): array
+    {
+        return $this->preferences
+            ->mapWithKeys(fn ($pref) => [$pref->key => $pref->value])
+            ->toArray();
     }
 }
