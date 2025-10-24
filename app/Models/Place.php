@@ -17,10 +17,16 @@ class Place extends Model
      */
     protected $fillable = [
         'name',
+        'description',
+        'num_reviews',
+        'phone',
+        'address',
         'lat',
         'lon',
         'rating',
-        'category',
+        'categories',
+        'tags',
+        'image',
         'source',
         'meta',
     ];
