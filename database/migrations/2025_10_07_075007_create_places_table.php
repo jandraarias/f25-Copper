@@ -15,10 +15,16 @@ return new class extends Migration
         Schema::create('places', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->text('description')->nullable();
+            $table->unsignedInteger('num_reviews')->nullable();
+            $table->string('address')->nullable();
+            $table->string('phone')->nullable();
             $table->decimal('lat', 10, 7)->nullable();
             $table->decimal('lon', 10, 7)->nullable();
             $table->decimal('rating', 3, 2)->nullable(); // ← Consolidated here
-            $table->string('category')->nullable();
+            $table->string('categories')->nullable();
+            $table->string('tags')->nullable();
+            $table->string('image')->nullable();
             $table->string('source')->default('gmaps_scrape_local'); //typo fixed defualt to default 
             $table->json('meta')->nullable();
             $table->timestamps();
