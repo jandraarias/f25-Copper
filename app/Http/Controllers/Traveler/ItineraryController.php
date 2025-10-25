@@ -113,7 +113,7 @@ class ItineraryController extends Controller
             ->with('success', "Itinerary created and {$result['created_count']} items generated successfully!");
     }
 
-    /** ✅ Show a specific itinerary (public/non-edit view) */
+    /** Show a specific itinerary (public/non-edit view) */
     public function show(Itinerary $itinerary)
     {
         $this->authorize('view', $itinerary);
