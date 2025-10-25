@@ -33,7 +33,7 @@ class OpenAITag extends Command
      */
     public function handle(\OpenAI\Client $client)
     {
-           
+           //Creating a reader to read CSV records and then a list to hold our updated records
            $csvPath = storage_path('app\private\places\Williamsburg_food_overview.csv');
            $reader = Reader::createFromPath($csvPath, 'r');
            $reader->setHeaderOffset(0);
@@ -53,13 +53,6 @@ class OpenAITag extends Command
               //The API connection seems to be refused a lot more frequently when it happens too frequently so this lowers the amount of connection failures to more reasonable levels
               sleep(5);
            }
-           //Creating a reader to read CSV records and then a list to hold our updated records
-           $csvPath = storage_path('app\private\places\Williamsburg_attractions_overview.csv');
-           $reader = Reader::createFromPath($csvPath, 'r');
-           $reader->setHeaderOffset(0);
-           $records = $reader->getRecords();
-           $updatedRecords = [];
-
            //Go through the records and replace the "review_keywords" column with the Tags from our OpenAI calls
            $iterator = 0;
            foreach ($records as $record) {
@@ -71,7 +64,7 @@ class OpenAITag extends Command
            }
 
            //Write the updated records to a new csv
-           $writer = Writer::createFromPath(storage_path('app\private\places\Williamsburg_food_overview2.csv'), 'w+');
+           $writer = Writer::createFromPath(storage_path('app\private\places\Williamsburg_food_overview.csv'), 'w+');
            $header = $reader->getHeader();
            $writer->insertOne($header);
            $writer->insertAll($updatedRecords);
