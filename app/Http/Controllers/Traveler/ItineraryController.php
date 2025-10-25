@@ -50,7 +50,6 @@ class ItineraryController extends Controller
         $existingCollaborators = $itinerary->collaborators->pluck('email')->toArray();
         $pendingInvites = $itinerary->invitations->pluck('email')->toArray();
 
-        // Fetch available preference profiles for the traveler
         $preferenceProfiles = Auth::user()->traveler
             ->preferenceProfiles()
             ->select('id', 'name')
@@ -101,7 +100,6 @@ class ItineraryController extends Controller
             $this->processInvitations($itinerary, $validated['invite_emails'] ?? []);
         }
 
-        // Generate itinerary automatically
         $result = $this->generationService->generateForItinerary($itinerary);
 
         if (!$result['ok']) {
@@ -115,21 +113,25 @@ class ItineraryController extends Controller
             ->with('success', "Itinerary created and {$result['created_count']} items generated successfully!");
     }
 
-    /** Show a specific itinerary */
+    /** ✅ Show a specific itinerary (public/non-edit view) */
     public function show(Itinerary $itinerary)
     {
         $this->authorize('view', $itinerary);
+
+        // Load related data for display
         $itinerary->load(['items.place', 'countries', 'collaborators', 'invitations']);
 
-        return view('traveler.itineraries.show', compact('itinerary'));
+        // Mark this as the public display view for Blade routing
+        $isPublicView = true;
+
+        // Pass both variables to the view
+        return view('traveler.itineraries.show', compact('itinerary', 'isPublicView'));
     }
 
     /** Regenerate itinerary items manually */
     public function generate(Itinerary $itinerary)
     {
         $this->authorize('update', $itinerary);
-
-        // Optionally clear existing itinerary items if regenerating
         $itinerary->items()->delete();
 
         if (!$itinerary->preference_profile_id || !$itinerary->location) {
