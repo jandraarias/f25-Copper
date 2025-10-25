@@ -1,0 +1,121 @@
+place_id,place_name,source,source_id,rating,text,author_name,author_profile_url,published_at,raw,category,created_at,updated_at
+2,Ocala Downtown,yelp,ocala-1,4.5,Loved it!,David Red,,2025-03-16 00:00:00,"{""city"":""Ocala""}",Downtown,2025-03-16 00:00:00,2025-03-16 00:00:00
+5,Ocala Coffee House,yelp,ocala-2,3.4,Loved it!,Bob Johnson,,2025-03-19 00:00:00,"{""city"":""Ocala""}",Cafe,2025-03-19 00:00:00,2025-03-19 00:00:00
+10,Ocala Cinema,yelp,ocala-3,3.8,Loved it!,Alice Brown,,2024-11-10 00:00:00,"{""city"":""Ocala""}",Cinema,2024-11-10 00:00:00,2024-11-10 00:00:00
+8,Ocala Botanical Garden,yelp,ocala-4,3.4,Highly recommended.,Michael Blue,,2025-10-02 00:00:00,"{""city"":""Ocala""}",Garden,2025-10-02 00:00:00,2025-10-02 00:00:00
+4,Ocala Farmers Market,yelp,ocala-5,4.2,Could be better.,John Doe,,2024-12-21 00:00:00,"{""city"":""Ocala""}",Market,2024-12-21 00:00:00,2024-12-21 00:00:00
+4,Ocala Farmers Market,yelp,ocala-6,3.8,Amazing experience!,John Doe,,2025-02-02 00:00:00,"{""city"":""Ocala""}",Market,2025-02-02 00:00:00,2025-02-02 00:00:00
+8,Ocala Botanical Garden,yelp,ocala-7,4.9,Loved it!,James Green,,2024-11-08 00:00:00,"{""city"":""Ocala""}",Garden,2024-11-08 00:00:00,2024-11-08 00:00:00
+3,Ocala Art Museum,yelp,ocala-8,3.7,Highly recommended.,Linda Black,,2025-05-28 00:00:00,"{""city"":""Ocala""}",Museum,2025-05-28 00:00:00,2025-05-28 00:00:00
+2,Ocala Downtown,yelp,ocala-9,4.0,Would visit again.,Mary White,,2025-07-30 00:00:00,"{""city"":""Ocala""}",Downtown,2025-07-30 00:00:00,2025-07-30 00:00:00
+6,Ocala Library,yelp,ocala-10,4.9,Five stars!,Alice Brown,,2025-09-29 00:00:00,"{""city"":""Ocala""}",Library,2025-09-29 00:00:00,2025-09-29 00:00:00
+2,Ocala Downtown,yelp,ocala-11,4.9,Amazing experience!,David Red,,2025-01-09 00:00:00,"{""city"":""Ocala""}",Downtown,2025-01-09 00:00:00,2025-01-09 00:00:00
+7,Ocala Zoo,yelp,ocala-12,4.4,Friendly staff and clean.,John Doe,,2025-03-22 00:00:00,"{""city"":""Ocala""}",Zoo,2025-03-22 00:00:00,2025-03-22 00:00:00
+9,Ocala Historical Museum,yelp,ocala-13,3.8,Not bad.,Jane Smith,,2025-09-23 00:00:00,"{""city"":""Ocala""}",Museum,2025-09-23 00:00:00,2025-09-23 00:00:00
+9,Ocala Historical Museum,yelp,ocala-14,4.9,Friendly staff and clean.,John Doe,,2025-09-28 00:00:00,"{""city"":""Ocala""}",Museum,2025-09-28 00:00:00,2025-09-28 00:00:00
+9,Ocala Historical Museum,yelp,ocala-15,3.7,Amazing experience!,James Green,,2024-11-25 00:00:00,"{""city"":""Ocala""}",Museum,2024-11-25 00:00:00,2024-11-25 00:00:00
+7,Ocala Zoo,yelp,ocala-16,4.5,Amazing experience!,David Red,,2025-01-13 00:00:00,"{""city"":""Ocala""}",Zoo,2025-01-13 00:00:00,2025-01-13 00:00:00
+7,Ocala Zoo,yelp,ocala-17,4.4,Would visit again.,Michael Blue,,2025-05-01 00:00:00,"{""city"":""Ocala""}",Zoo,2025-05-01 00:00:00,2025-05-01 00:00:00
+6,Ocala Library,yelp,ocala-18,3.8,Would visit again.,John Doe,,2025-01-24 00:00:00,"{""city"":""Ocala""}",Library,2025-01-24 00:00:00,2025-01-24 00:00:00
+9,Ocala Historical Museum,yelp,ocala-19,3.4,Loved it!,Mary White,,2025-09-21 00:00:00,"{""city"":""Ocala""}",Museum,2025-09-21 00:00:00,2025-09-21 00:00:00
+1,Ocala City Park,yelp,ocala-20,4.4,Would visit again.,Michael Blue,,2025-01-01 00:00:00,"{""city"":""Ocala""}",Park,2025-01-01 00:00:00,2025-01-01 00:00:00
+9,Ocala Historical Museum,yelp,ocala-21,3.7,Five stars!,David Red,,2025-02-15 00:00:00,"{""city"":""Ocala""}",Museum,2025-02-15 00:00:00,2025-02-15 00:00:00
+1,Ocala City Park,yelp,ocala-22,4.9,Five stars!,Alice Brown,,2025-06-17 00:00:00,"{""city"":""Ocala""}",Park,2025-06-17 00:00:00,2025-06-17 00:00:00
+1,Ocala City Park,yelp,ocala-23,3.5,Great ambiance.,Patricia Gray,,2025-09-28 00:00:00,"{""city"":""Ocala""}",Park,2025-09-28 00:00:00,2025-09-28 00:00:00
+5,Ocala Coffee House,yelp,ocala-24,3.2,Friendly staff and clean.,Alice Brown,,2025-09-13 00:00:00,"{""city"":""Ocala""}",Cafe,2025-09-13 00:00:00,2025-09-13 00:00:00
+8,Ocala Botanical Garden,yelp,ocala-25,4.6,Not bad.,Alice Brown,,2025-06-24 00:00:00,"{""city"":""Ocala""}",Garden,2025-06-24 00:00:00,2025-06-24 00:00:00
+9,Ocala Historical Museum,yelp,ocala-26,4.4,Five stars!,Patricia Gray,,2024-11-02 00:00:00,"{""city"":""Ocala""}",Museum,2024-11-02 00:00:00,2024-11-02 00:00:00
+8,Ocala Botanical Garden,yelp,ocala-27,3.6,Great ambiance.,Alice Brown,,2025-02-28 00:00:00,"{""city"":""Ocala""}",Garden,2025-02-28 00:00:00,2025-02-28 00:00:00
+9,Ocala Historical Museum,yelp,ocala-28,4.8,Not bad.,David Red,,2024-10-23 00:00:00,"{""city"":""Ocala""}",Museum,2024-10-23 00:00:00,2024-10-23 00:00:00
+9,Ocala Historical Museum,yelp,ocala-29,3.1,Not bad.,John Doe,,2025-08-02 00:00:00,"{""city"":""Ocala""}",Museum,2025-08-02 00:00:00,2025-08-02 00:00:00
+7,Ocala Zoo,yelp,ocala-30,4.0,Loved it!,Alice Brown,,2025-08-01 00:00:00,"{""city"":""Ocala""}",Zoo,2025-08-01 00:00:00,2025-08-01 00:00:00
+9,Ocala Historical Museum,yelp,ocala-31,3.0,Loved it!,Bob Johnson,,2025-10-05 00:00:00,"{""city"":""Ocala""}",Museum,2025-10-05 00:00:00,2025-10-05 00:00:00
+5,Ocala Coffee House,yelp,ocala-32,4.6,Loved it!,Alice Brown,,2025-06-15 00:00:00,"{""city"":""Ocala""}",Cafe,2025-06-15 00:00:00,2025-06-15 00:00:00
+8,Ocala Botanical Garden,yelp,ocala-33,3.5,Great ambiance.,Alice Brown,,2025-06-13 00:00:00,"{""city"":""Ocala""}",Garden,2025-06-13 00:00:00,2025-06-13 00:00:00
+3,Ocala Art Museum,yelp,ocala-34,4.7,Amazing experience!,Alice Brown,,2025-02-13 00:00:00,"{""city"":""Ocala""}",Museum,2025-02-13 00:00:00,2025-02-13 00:00:00
+3,Ocala Art Museum,yelp,ocala-35,5.0,Not bad.,James Green,,2024-11-28 00:00:00,"{""city"":""Ocala""}",Museum,2024-11-28 00:00:00,2024-11-28 00:00:00
+9,Ocala Historical Museum,yelp,ocala-36,3.8,Very nice place.,Jane Smith,,2024-11-13 00:00:00,"{""city"":""Ocala""}",Museum,2024-11-13 00:00:00,2024-11-13 00:00:00
+9,Ocala Historical Museum,yelp,ocala-37,3.2,Amazing experience!,Alice Brown,,2025-09-10 00:00:00,"{""city"":""Ocala""}",Museum,2025-09-10 00:00:00,2025-09-10 00:00:00
+4,Ocala Farmers Market,yelp,ocala-38,4.4,Highly recommended.,Alice Brown,,2025-10-05 00:00:00,"{""city"":""Ocala""}",Market,2025-10-05 00:00:00,2025-10-05 00:00:00
+3,Ocala Art Museum,yelp,ocala-39,3.3,Friendly staff and clean.,Jane Smith,,2024-12-09 00:00:00,"{""city"":""Ocala""}",Museum,2024-12-09 00:00:00,2024-12-09 00:00:00
+10,Ocala Cinema,yelp,ocala-40,3.1,Friendly staff and clean.,Linda Black,,2025-04-12 00:00:00,"{""city"":""Ocala""}",Cinema,2025-04-12 00:00:00,2025-04-12 00:00:00
+4,Ocala Farmers Market,yelp,ocala-41,4.8,Amazing experience!,Patricia Gray,,2025-09-16 00:00:00,"{""city"":""Ocala""}",Market,2025-09-16 00:00:00,2025-09-16 00:00:00
+6,Ocala Library,yelp,ocala-42,3.2,Amazing experience!,John Doe,,2025-03-28 00:00:00,"{""city"":""Ocala""}",Library,2025-03-28 00:00:00,2025-03-28 00:00:00
+8,Ocala Botanical Garden,yelp,ocala-43,4.1,Highly recommended.,Mary White,,2025-08-13 00:00:00,"{""city"":""Ocala""}",Garden,2025-08-13 00:00:00,2025-08-13 00:00:00
+3,Ocala Art Museum,yelp,ocala-44,3.8,Loved it!,Patricia Gray,,2025-04-29 00:00:00,"{""city"":""Ocala""}",Museum,2025-04-29 00:00:00,2025-04-29 00:00:00
+3,Ocala Art Museum,yelp,ocala-45,3.9,Very nice place.,John Doe,,2025-04-23 00:00:00,"{""city"":""Ocala""}",Museum,2025-04-23 00:00:00,2025-04-23 00:00:00
+9,Ocala Historical Museum,yelp,ocala-46,4.5,Not bad.,Patricia Gray,,2025-10-20 00:00:00,"{""city"":""Ocala""}",Museum,2025-10-20 00:00:00,2025-10-20 00:00:00
+4,Ocala Farmers Market,yelp,ocala-47,3.0,Not bad.,James Green,,2024-11-30 00:00:00,"{""city"":""Ocala""}",Market,2024-11-30 00:00:00,2024-11-30 00:00:00
+1,Ocala City Park,yelp,ocala-48,4.0,Amazing experience!,David Red,,2025-06-12 00:00:00,"{""city"":""Ocala""}",Park,2025-06-12 00:00:00,2025-06-12 00:00:00
+4,Ocala Farmers Market,yelp,ocala-49,4.7,Five stars!,Patricia Gray,,2024-11-23 00:00:00,"{""city"":""Ocala""}",Market,2024-11-23 00:00:00,2024-11-23 00:00:00
+5,Ocala Coffee House,yelp,ocala-50,3.9,Great ambiance.,Bob Johnson,,2025-09-11 00:00:00,"{""city"":""Ocala""}",Cafe,2025-09-11 00:00:00,2025-09-11 00:00:00
+2,Ocala Downtown,yelp,ocala-51,4.3,Amazing experience!,David Red,,2025-05-08 00:00:00,"{""city"":""Ocala""}",Downtown,2025-05-08 00:00:00,2025-05-08 00:00:00
+5,Ocala Coffee House,yelp,ocala-52,3.2,Highly recommended.,Mary White,,2025-01-11 00:00:00,"{""city"":""Ocala""}",Cafe,2025-01-11 00:00:00,2025-01-11 00:00:00
+8,Ocala Botanical Garden,yelp,ocala-53,4.2,Not bad.,David Red,,2025-03-07 00:00:00,"{""city"":""Ocala""}",Garden,2025-03-07 00:00:00,2025-03-07 00:00:00
+10,Ocala Cinema,yelp,ocala-54,5.0,Very nice place.,Patricia Gray,,2024-12-25 00:00:00,"{""city"":""Ocala""}",Cinema,2024-12-25 00:00:00,2024-12-25 00:00:00
+5,Ocala Coffee House,yelp,ocala-55,3.1,Not bad.,Bob Johnson,,2025-07-01 00:00:00,"{""city"":""Ocala""}",Cafe,2025-07-01 00:00:00,2025-07-01 00:00:00
+10,Ocala Cinema,yelp,ocala-56,4.3,Would visit again.,Jane Smith,,2024-12-08 00:00:00,"{""city"":""Ocala""}",Cinema,2024-12-08 00:00:00,2024-12-08 00:00:00
+3,Ocala Art Museum,yelp,ocala-57,5.0,Friendly staff and clean.,James Green,,2025-09-02 00:00:00,"{""city"":""Ocala""}",Museum,2025-09-02 00:00:00,2025-09-02 00:00:00
+10,Ocala Cinema,yelp,ocala-58,4.4,Would visit again.,Alice Brown,,2025-01-03 00:00:00,"{""city"":""Ocala""}",Cinema,2025-01-03 00:00:00,2025-01-03 00:00:00
+5,Ocala Coffee House,yelp,ocala-59,3.1,Five stars!,John Doe,,2025-02-23 00:00:00,"{""city"":""Ocala""}",Cafe,2025-02-23 00:00:00,2025-02-23 00:00:00
+8,Ocala Botanical Garden,yelp,ocala-60,4.6,Very nice place.,Mary White,,2024-11-19 00:00:00,"{""city"":""Ocala""}",Garden,2024-11-19 00:00:00,2024-11-19 00:00:00
+6,Ocala Library,yelp,ocala-61,4.8,Would visit again.,Patricia Gray,,2025-01-12 00:00:00,"{""city"":""Ocala""}",Library,2025-01-12 00:00:00,2025-01-12 00:00:00
+4,Ocala Farmers Market,yelp,ocala-62,3.9,Friendly staff and clean.,Linda Black,,2024-11-15 00:00:00,"{""city"":""Ocala""}",Market,2024-11-15 00:00:00,2024-11-15 00:00:00
+6,Ocala Library,yelp,ocala-63,4.1,Friendly staff and clean.,James Green,,2025-09-03 00:00:00,"{""city"":""Ocala""}",Library,2025-09-03 00:00:00,2025-09-03 00:00:00
+1,Ocala City Park,yelp,ocala-64,3.3,Could be better.,Jane Smith,,2025-10-07 00:00:00,"{""city"":""Ocala""}",Park,2025-10-07 00:00:00,2025-10-07 00:00:00
+10,Ocala Cinema,yelp,ocala-65,4.7,Loved it!,Linda Black,,2025-05-28 00:00:00,"{""city"":""Ocala""}",Cinema,2025-05-28 00:00:00,2025-05-28 00:00:00
+8,Ocala Botanical Garden,yelp,ocala-66,3.6,Highly recommended.,Bob Johnson,,2025-03-12 00:00:00,"{""city"":""Ocala""}",Garden,2025-03-12 00:00:00,2025-03-12 00:00:00
+4,Ocala Farmers Market,yelp,ocala-67,4.5,Amazing experience!,Bob Johnson,,2025-08-04 00:00:00,"{""city"":""Ocala""}",Market,2025-08-04 00:00:00,2025-08-04 00:00:00
+7,Ocala Zoo,yelp,ocala-68,4.4,Great ambiance.,Mary White,,2025-02-06 00:00:00,"{""city"":""Ocala""}",Zoo,2025-02-06 00:00:00,2025-02-06 00:00:00
+8,Ocala Botanical Garden,yelp,ocala-69,3.3,Amazing experience!,James Green,,2025-10-16 00:00:00,"{""city"":""Ocala""}",Garden,2025-10-16 00:00:00,2025-10-16 00:00:00
+2,Ocala Downtown,yelp,ocala-70,4.3,Loved it!,John Doe,,2025-05-09 00:00:00,"{""city"":""Ocala""}",Downtown,2025-05-09 00:00:00,2025-05-09 00:00:00
+8,Ocala Botanical Garden,yelp,ocala-71,4.6,Loved it!,Mary White,,2025-03-17 00:00:00,"{""city"":""Ocala""}",Garden,2025-03-17 00:00:00,2025-03-17 00:00:00
+2,Ocala Downtown,yelp,ocala-72,4.1,Could be better.,Jane Smith,,2024-12-17 00:00:00,"{""city"":""Ocala""}",Downtown,2024-12-17 00:00:00,2024-12-17 00:00:00
+10,Ocala Cinema,yelp,ocala-73,3.3,Highly recommended.,Patricia Gray,,2025-07-24 00:00:00,"{""city"":""Ocala""}",Cinema,2025-07-24 00:00:00,2025-07-24 00:00:00
+5,Ocala Coffee House,yelp,ocala-74,3.5,Not bad.,John Doe,,2025-09-29 00:00:00,"{""city"":""Ocala""}",Cafe,2025-09-29 00:00:00,2025-09-29 00:00:00
+7,Ocala Zoo,yelp,ocala-75,3.0,Amazing experience!,Patricia Gray,,2025-05-13 00:00:00,"{""city"":""Ocala""}",Zoo,2025-05-13 00:00:00,2025-05-13 00:00:00
+1,Ocala City Park,yelp,ocala-76,4.0,Highly recommended.,Alice Brown,,2025-01-19 00:00:00,"{""city"":""Ocala""}",Park,2025-01-19 00:00:00,2025-01-19 00:00:00
+6,Ocala Library,yelp,ocala-77,4.4,Five stars!,James Green,,2025-10-06 00:00:00,"{""city"":""Ocala""}",Library,2025-10-06 00:00:00,2025-10-06 00:00:00
+7,Ocala Zoo,yelp,ocala-78,3.5,Loved it!,Bob Johnson,,2025-07-17 00:00:00,"{""city"":""Ocala""}",Zoo,2025-07-17 00:00:00,2025-07-17 00:00:00
+7,Ocala Zoo,yelp,ocala-79,3.3,Great ambiance.,Michael Blue,,2025-06-27 00:00:00,"{""city"":""Ocala""}",Zoo,2025-06-27 00:00:00,2025-06-27 00:00:00
+6,Ocala Library,yelp,ocala-80,3.7,Five stars!,Alice Brown,,2025-02-25 00:00:00,"{""city"":""Ocala""}",Library,2025-02-25 00:00:00,2025-02-25 00:00:00
+3,Ocala Art Museum,yelp,ocala-81,5.0,Great ambiance.,James Green,,2025-03-17 00:00:00,"{""city"":""Ocala""}",Museum,2025-03-17 00:00:00,2025-03-17 00:00:00
+7,Ocala Zoo,yelp,ocala-82,3.2,Friendly staff and clean.,Mary White,,2024-12-04 00:00:00,"{""city"":""Ocala""}",Zoo,2024-12-04 00:00:00,2024-12-04 00:00:00
+7,Ocala Zoo,yelp,ocala-83,4.8,Five stars!,Bob Johnson,,2025-05-05 00:00:00,"{""city"":""Ocala""}",Zoo,2025-05-05 00:00:00,2025-05-05 00:00:00
+10,Ocala Cinema,yelp,ocala-84,4.8,Highly recommended.,James Green,,2025-01-24 00:00:00,"{""city"":""Ocala""}",Cinema,2025-01-24 00:00:00,2025-01-24 00:00:00
+5,Ocala Coffee House,yelp,ocala-85,3.0,Could be better.,Jane Smith,,2025-06-01 00:00:00,"{""city"":""Ocala""}",Cafe,2025-06-01 00:00:00,2025-06-01 00:00:00
+10,Ocala Cinema,yelp,ocala-86,3.2,Loved it!,James Green,,2025-10-04 00:00:00,"{""city"":""Ocala""}",Cinema,2025-10-04 00:00:00,2025-10-04 00:00:00
+4,Ocala Farmers Market,yelp,ocala-87,3.6,Would visit again.,David Red,,2025-07-29 00:00:00,"{""city"":""Ocala""}",Market,2025-07-29 00:00:00,2025-07-29 00:00:00
+1,Ocala City Park,yelp,ocala-88,4.9,Amazing experience!,Patricia Gray,,2025-01-10 00:00:00,"{""city"":""Ocala""}",Park,2025-01-10 00:00:00,2025-01-10 00:00:00
+7,Ocala Zoo,yelp,ocala-89,4.0,Very nice place.,James Green,,2024-11-15 00:00:00,"{""city"":""Ocala""}",Zoo,2024-11-15 00:00:00,2024-11-15 00:00:00
+6,Ocala Library,yelp,ocala-90,4.4,Loved it!,John Doe,,2024-11-23 00:00:00,"{""city"":""Ocala""}",Library,2024-11-23 00:00:00,2024-11-23 00:00:00
+5,Ocala Coffee House,yelp,ocala-91,4.0,Amazing experience!,Bob Johnson,,2024-12-03 00:00:00,"{""city"":""Ocala""}",Cafe,2024-12-03 00:00:00,2024-12-03 00:00:00
+2,Ocala Downtown,yelp,ocala-92,4.1,Not bad.,Michael Blue,,2024-12-16 00:00:00,"{""city"":""Ocala""}",Downtown,2024-12-16 00:00:00,2024-12-16 00:00:00
+7,Ocala Zoo,yelp,ocala-93,3.3,Not bad.,Alice Brown,,2025-09-16 00:00:00,"{""city"":""Ocala""}",Zoo,2025-09-16 00:00:00,2025-09-16 00:00:00
+6,Ocala Library,yelp,ocala-94,3.9,Very nice place.,Michael Blue,,2024-11-06 00:00:00,"{""city"":""Ocala""}",Library,2024-11-06 00:00:00,2024-11-06 00:00:00
+2,Ocala Downtown,yelp,ocala-95,3.1,Could be better.,Patricia Gray,,2025-02-01 00:00:00,"{""city"":""Ocala""}",Downtown,2025-02-01 00:00:00,2025-02-01 00:00:00
+2,Ocala Downtown,yelp,ocala-96,4.7,Great ambiance.,Patricia Gray,,2024-12-09 00:00:00,"{""city"":""Ocala""}",Downtown,2024-12-09 00:00:00,2024-12-09 00:00:00
+1,Ocala City Park,yelp,ocala-97,3.0,Not bad.,Alice Brown,,2025-01-30 00:00:00,"{""city"":""Ocala""}",Park,2025-01-30 00:00:00,2025-01-30 00:00:00
+9,Ocala Historical Museum,yelp,ocala-98,3.7,Highly recommended.,Mary White,,2024-12-13 00:00:00,"{""city"":""Ocala""}",Museum,2024-12-13 00:00:00,2024-12-13 00:00:00
+9,Ocala Historical Museum,yelp,ocala-99,4.7,Highly recommended.,Jane Smith,,2025-04-27 00:00:00,"{""city"":""Ocala""}",Museum,2025-04-27 00:00:00,2025-04-27 00:00:00
+9,Ocala Historical Museum,yelp,ocala-100,5.0,Very nice place.,John Doe,,2025-01-04 00:00:00,"{""city"":""Ocala""}",Museum,2025-01-04 00:00:00,2025-01-04 00:00:00
+9,Ocala Historical Museum,yelp,ocala-101,3.1,Not bad.,Mary White,,2025-07-02 00:00:00,"{""city"":""Ocala""}",Museum,2025-07-02 00:00:00,2025-07-02 00:00:00
+6,Ocala Library,yelp,ocala-102,4.4,Highly recommended.,Jane Smith,,2025-01-20 00:00:00,"{""city"":""Ocala""}",Library,2025-01-20 00:00:00,2025-01-20 00:00:00
+8,Ocala Botanical Garden,yelp,ocala-103,3.4,Amazing experience!,Patricia Gray,,2024-10-24 00:00:00,"{""city"":""Ocala""}",Garden,2024-10-24 00:00:00,2024-10-24 00:00:00
+10,Ocala Cinema,yelp,ocala-104,3.5,Highly recommended.,James Green,,2025-07-16 00:00:00,"{""city"":""Ocala""}",Cinema,2025-07-16 00:00:00,2025-07-16 00:00:00
+1,Ocala City Park,yelp,ocala-105,4.0,Could be better.,David Red,,2025-07-07 00:00:00,"{""city"":""Ocala""}",Park,2025-07-07 00:00:00,2025-07-07 00:00:00
+8,Ocala Botanical Garden,yelp,ocala-106,4.9,Could be better.,Jane Smith,,2025-06-27 00:00:00,"{""city"":""Ocala""}",Garden,2025-06-27 00:00:00,2025-06-27 00:00:00
+9,Ocala Historical Museum,yelp,ocala-107,4.0,Great ambiance.,Patricia Gray,,2025-09-02 00:00:00,"{""city"":""Ocala""}",Museum,2025-09-02 00:00:00,2025-09-02 00:00:00
+9,Ocala Historical Museum,yelp,ocala-108,4.0,Would visit again.,Michael Blue,,2025-01-27 00:00:00,"{""city"":""Ocala""}",Museum,2025-01-27 00:00:00,2025-01-27 00:00:00
+8,Ocala Botanical Garden,yelp,ocala-109,4.9,Friendly staff and clean.,Alice Brown,,2025-08-19 00:00:00,"{""city"":""Ocala""}",Garden,2025-08-19 00:00:00,2025-08-19 00:00:00
+4,Ocala Farmers Market,yelp,ocala-110,3.0,Amazing experience!,Bob Johnson,,2025-05-28 00:00:00,"{""city"":""Ocala""}",Market,2025-05-28 00:00:00,2025-05-28 00:00:00
+1,Ocala City Park,yelp,ocala-111,3.8,Loved it!,Linda Black,,2024-12-27 00:00:00,"{""city"":""Ocala""}",Park,2024-12-27 00:00:00,2024-12-27 00:00:00
+9,Ocala Historical Museum,yelp,ocala-112,4.7,Loved it!,John Doe,,2025-04-30 00:00:00,"{""city"":""Ocala""}",Museum,2025-04-30 00:00:00,2025-04-30 00:00:00
+6,Ocala Library,yelp,ocala-113,4.2,Loved it!,Alice Brown,,2024-10-22 00:00:00,"{""city"":""Ocala""}",Library,2024-10-22 00:00:00,2024-10-22 00:00:00
+1,Ocala City Park,yelp,ocala-114,4.2,Could be better.,Jane Smith,,2024-12-19 00:00:00,"{""city"":""Ocala""}",Park,2024-12-19 00:00:00,2024-12-19 00:00:00
+10,Ocala Cinema,yelp,ocala-115,4.9,Great ambiance.,Patricia Gray,,2025-07-17 00:00:00,"{""city"":""Ocala""}",Cinema,2025-07-17 00:00:00,2025-07-17 00:00:00
+5,Ocala Coffee House,yelp,ocala-116,3.7,Highly recommended.,John Doe,,2025-06-11 00:00:00,"{""city"":""Ocala""}",Cafe,2025-06-11 00:00:00,2025-06-11 00:00:00
+8,Ocala Botanical Garden,yelp,ocala-117,4.7,Amazing experience!,Mary White,,2025-07-14 00:00:00,"{""city"":""Ocala""}",Garden,2025-07-14 00:00:00,2025-07-14 00:00:00
+7,Ocala Zoo,yelp,ocala-118,3.3,Five stars!,Jane Smith,,2025-02-23 00:00:00,"{""city"":""Ocala""}",Zoo,2025-02-23 00:00:00,2025-02-23 00:00:00
+9,Ocala Historical Museum,yelp,ocala-119,4.2,Would visit again.,Jane Smith,,2024-11-17 00:00:00,"{""city"":""Ocala""}",Museum,2024-11-17 00:00:00,2024-11-17 00:00:00
+4,Ocala Farmers Market,yelp,ocala-120,3.3,Amazing experience!,David Red,,2025-08-22 00:00:00,"{""city"":""Ocala""}",Market,2025-08-22 00:00:00,2025-08-22 00:00:00
