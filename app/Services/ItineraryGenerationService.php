@@ -129,13 +129,18 @@ class ItineraryGenerationService
 
                 ItineraryItem::create([
                     'itinerary_id' => $itinerary->id,
-                    'place_id'     => $place->id,             // requires nullable FK to places
-                    'type'         => $slot['type'],          // 'activity' | 'food'
+                    'place_id'     => $place->id,
+                    'type'         => $slot['type'],
                     'title'        => $place->name,
-                    'location'     => $place->address,        // from Place accessor (meta['address'])
+                    'location'      => $place->address,            
+                    'rating'       => $place->rating,             
+                    'google_maps_url' => $place->meta['maps_url'] 
+                                        ?? $place->meta['google_maps'] 
+                                        ?? null,                 
                     'start_time'   => $start,
                     'end_time'     => $end,
-                    'details'      => $this->buildDetails($place, $prefs),
+                    'details'      => $place->description 
+                                        ?? $this->buildDetails($place, $prefs), // still keep details text
                 ]);
 
                 $created++;
@@ -279,16 +284,9 @@ class ItineraryGenerationService
     {
         $bits = [];
 
-        if ($place->address) {
-            $bits[] = $place->address;
-        }
-
+        // Price Level
         if ($place->price_level) {
             $bits[] = 'Price level ' . $place->price_level;
-        }
-
-        if ($place->rating) {
-            $bits[] = 'Rating ' . number_format($place->rating, 1);
         }
 
         // Add link if present in meta
