@@ -20,13 +20,16 @@ class ItineraryItem extends Model
     protected $fillable = [
         'itinerary_id',
         'place_id',
-        'type',          // 'activity' or 'food'
+        'type',           // 'activity' or 'food'
         'title',
-        'location',      // short address or descriptive location
+        'location',    
+        'rating',  
+        'google_maps_url',
         'start_time',
         'end_time',
-        'details',       // description, notes, or summary
+        'details',
     ];
+
 
     protected $casts = [
         'start_time' => 'datetime',

@@ -20,15 +20,15 @@ class Itinerary extends Model
         'description',
         'traveler_id',
         'destination',
-        'location',               // ✅ city/location support
-        'preference_profile_id',  // ✅ foreign key to PreferenceProfile
-        'is_collaborative',       // ✅ for easier mass assignment
+        'location',               // city/location support
+        'preference_profile_id',  // foreign key to PreferenceProfile
+        'is_collaborative',       // for easier mass assignment
     ];
 
     protected $casts = [
         'start_date' => 'date',
         'end_date'   => 'date',
-        'is_collaborative' => 'boolean', // ✅ ensures consistent type
+        'is_collaborative' => 'boolean', // ensures consistent type
     ];
 
     /**
