@@ -6,9 +6,11 @@ use App\Models\Itinerary;
 use App\Models\ItineraryItem;
 use App\Models\Place;
 use Carbon\Carbon;
-use Illuminate\Support\Arr;
+use OpenAI;
+use GuzzleHttp\Client;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Str;
+use Illuminate\Support\Facades\App;
+
 
 class ItineraryGenerationService
 {
@@ -52,8 +54,7 @@ class ItineraryGenerationService
         // 1) Pull preferences
         // ------------------------------------------------------------------
         $profile = $itinerary->preferenceProfile()->with('preferences')->first();
-        $prefs = $this->flattenPreferences($profile?->preferences ?? collect());
-        // $prefs example: ['budget' => 'low', 'dietary' => 'vegetarian', 'interests' => ['history','museums']]
+        $prefs = $profile->toPreferenceArray();
 
         // ------------------------------------------------------------------
         // 2) Query candidate places for city
@@ -75,31 +76,29 @@ class ItineraryGenerationService
         }
 
         // ------------------------------------------------------------------
-        // 3) Score and sort by preference fit
-        // ------------------------------------------------------------------
-        $activities = $this->scoreAndSort($activities, prefs: $prefs);
-        $foods      = $this->scoreAndSort($foods, $prefs);
-
-        // ------------------------------------------------------------------
         // 4) Build days and create 2 activities + 2 food per day
         // ------------------------------------------------------------------
         $days = $this->eachDate(Carbon::parse($itinerary->start_date), Carbon::parse($itinerary->end_date));
 
+        //OpenAI Sorting
+        $activities = $this->AiSelectandSort($activities, $prefs, $days);
+        $foods = $this->AiSelectandSort($foods, $prefs, $days);
+
+        //$activities = Place::orderBy('id', 'asc')->take(10)->get();
+        //$foods = Place::orderBy('id', 'desc')->take(10)->get();
+
+        $activitiesIterator = $activities->getIterator();
+        $foodsIterator = $foods->getIterator();
+        
         // If forcing, clear existing items first
         if ($force) {
             $itinerary->items()->delete();
         }
 
-        $usedNames = ['activity' => [], 'food' => []];
         $created = 0;
 
         foreach ($days as $day) {
-            // Pick unique places per category
-            $pickedActivities = $this->pickUnique($activities, $usedNames['activity'], 2);
-            $usedNames['activity'] = array_merge($usedNames['activity'], $pickedActivities->pluck('name')->all());
-
-            $pickedFoods = $this->pickUnique($foods, $usedNames['food'], 2);
-            $usedNames['food'] = array_merge($usedNames['food'], $pickedFoods->pluck('name')->all());
+           
 
             // Time slots: simple, tweak as needed
             $slots = [
@@ -109,144 +108,45 @@ class ItineraryGenerationService
                 ['type' => 'food',     'time' => '18:30:00', 'dur_min' => 90],
             ];
 
-            // Interleave A, F, A, F
-            $pairs = collect()
-                ->push($pickedActivities->get(0))
-                ->push($pickedFoods->get(0))
-                ->push($pickedActivities->get(1))
-                ->push($pickedFoods->get(1));
+           // Interleave activities and food for the day.
+            foreach ($slots as $slot) {
+                 $place = null;
+                if ($slot['type'] === 'activity' && $activitiesIterator->valid()) {
+                    $place = $activitiesIterator->current();
+                    $activitiesIterator->next();
+                } elseif ($slot['type'] === 'food' && $foodsIterator->valid()) {
+                    $place = $foodsIterator->current();
+                    $foodsIterator->next();
+            }
+                if($place) {
+                    echo $place->name;
+                    $start = Carbon::parse($day->toDateString() . ' ' . $slot['time']);
+                    $end   = (clone $start)->addMinutes($slot['dur_min']);
 
-            foreach ($slots as $i => $slot) {
-                /** @var Place|null $place */
-                $place = $pairs->get($i);
-                if (!$place) {
-                    continue;
+                    ItineraryItem::create([
+                        'itinerary_id' => $itinerary->id,
+                        'place_id'     => $place->id,
+                        'type'         => $slot['type'],
+                        'title'        => $place->name,
+                        'location'      => $place->address,
+                        'rating'       => $place->rating,             
+                        'google_maps_url' => $place->meta['maps_url'] 
+                                            ?? $place->meta['google_maps'] 
+                                            ?? null,                 
+                        'start_time'   => $start,
+                        'end_time'     => $end,
+                        'details'      => $place->description 
+                    ]);
+                    $created++;
                 }
-
-                $start = Carbon::parse($day->toDateString() . ' ' . $slot['time']);
-                $end   = (clone $start)->addMinutes($slot['dur_min']);
-
-                ItineraryItem::create([
-                    'itinerary_id' => $itinerary->id,
-                    'place_id'     => $place->id,
-                    'type'         => $slot['type'],
-                    'title'        => $place->name,
-                    'location'      => $place->address,
-                    'rating'       => $place->rating,             
-                    'google_maps_url' => $place->meta['maps_url'] 
-                                        ?? $place->meta['google_maps'] 
-                                        ?? null,                 
-                    'start_time'   => $start,
-                    'end_time'     => $end,
-                    'details'      => $place->description 
-                                        ?? $this->buildDetails($place, $prefs), // still keep details text
-                ]);
-
-                $created++;
             }
         }
-
         return ['ok' => true, 'created_count' => $created];
     }
 
     // ----------------------------------------------------------------------
     // Helpers
     // ----------------------------------------------------------------------
-
-    /**
-     * Turn Preference rows into a simple associative array.
-     * Handles values that are comma-separated by normalizing to arrays where needed.
-     */
-    private function flattenPreferences(Collection $collection): array
-    {
-        $out = [];
-
-        foreach ($collection as $pref) {
-            $key = Str::slug((string)$pref->key, '_');   // e.g., "Food Type" -> "food_type"
-            $val = $pref->value;
-
-            // Normalize comma lists into arrays for keys that look like sets
-            if (is_string($val) && preg_match('/,/', $val)) {
-                $val = collect(preg_split('/\s*,\s*/', $val))
-                    ->filter()
-                    ->map(fn ($v) => strtolower(trim($v)))
-                    ->values()
-                    ->all();
-            }
-
-            $out[$key] = $val;
-        }
-
-        // Optional alias: interests might be stored as json in profile too — merge if present
-        if (isset($collection[0]?->profile?->interests) && is_array($collection[0]->profile->interests)) {
-            $out['interests'] = array_values(array_unique(array_merge(
-                $out['interests'] ?? [],
-                array_map(fn ($v) => strtolower(trim((string)$v)), $collection[0]->profile->interests)
-            )));
-        }
-
-        return $out;
-    }
-
-    /**
-     * Partition places into [activities, foods] using Place::type accessor.
-     *
-     * @return array{0:Collection,1:Collection}
-     */
-    private function partitionByType(Collection $places): array
-    {
-        $foods = $places->filter(fn (Place $p) => $p->type === 'food')->values();
-        $activities = $places->filter(fn (Place $p) => $p->type === 'activity')->values();
-        return [$activities, $foods];
-    }
-
-    /**
-     * Score and sort a collection of Place models by preference fit.
-     */
-    private function scoreAndSort(Collection $places, array $prefs): Collection
-    {
-        $scored = $places->map(function (Place $p) use ($prefs) {
-            $score = 0.0;
-
-            // Tag overlap (interests)
-            $prefTags = (array)($prefs['interests'] ?? $prefs['tags'] ?? []);
-            if (!empty($prefTags)) {
-                $overlap = count(array_intersect($p->tags, $prefTags));
-                $score += 3 * $overlap;
-            }
-
-            // Budget alignment (map low/medium/high -> 1/2/3; place price_level may be null)
-            if (isset($prefs['budget'])) {
-                $map = ['low' => 1, 'medium' => 2, 'high' => 3];
-                $target = $map[strtolower((string)$prefs['budget'])] ?? null;
-                $placeLevel = $p->price_level ?? null;
-                if ($target && $placeLevel) {
-                    $score -= abs($placeLevel - $target);
-                }
-            }
-
-            // Dietary constraints (only applied to food)
-            if (($prefs['dietary'] ?? null) && $p->type === 'food') {
-                $diet = strtolower((string)$prefs['dietary']);
-                // If the diet tag is missing, penalize. If present, reward.
-                $score += in_array($diet, $p->tags, true) ? 2 : -3;
-            }
-
-            // Rating preference
-            $score += (float)($p->rating ?? 0) * 0.5;
-
-            // Slight boost to variety by random tiebreaker
-            $score += mt_rand(0, 10) / 1000;
-
-            return [$p, $score];
-        });
-
-        return $scored
-            ->sortByDesc(fn ($pair) => $pair[1])
-            ->map(fn ($pair) => $pair[0])
-            ->values();
-    }
-
     /**
      * Inclusive date range.
      *
@@ -262,56 +162,28 @@ class ItineraryGenerationService
     }
 
     /**
-     * Pick N places not already used by name.
+     * Partition places into [activities, foods] using Place::type accessor.
+     *
+     * @return array{0:Collection,1:Collection}
      */
-    private function pickUnique(Collection $sorted, array $usedNames, int $count): Collection
+    private function partitionByType(Collection $places): array
     {
-        $picked = collect();
-        foreach ($sorted as $place) {
-            if (!in_array($place->name, $usedNames, true)) {
-                $picked->push($place);
-                if ($picked->count() >= $count) break;
-            }
-        }
-        return $picked;
+        $foods = $places->filter(fn (Place $p) => $p->type === 'food')->values();
+        $activities = $places->filter(fn (Place $p) => $p->type === 'activity')->values();
+        return [$activities, $foods];
     }
 
     /**
-     * Build human-friendly details for an itinerary item.
+     * 
      */
-    private function buildDetails(Place $place, array $prefs): string
-    {
-        $bits = [];
-
-        // Price Level
-        if ($place->price_level) {
-            $bits[] = 'Price level ' . $place->price_level;
+    private function AiSelectandSort(Collection $places, array $prefs, array $days): Collection {
+        //If App is running locally we disable SSL verification
+        $client = $this->getOpenAIClient();
+        $numDays = count($days) + 1;
+        $prefArray = [];
+        foreach($prefs as $value) {
+            $prefArray[] = $value;
         }
-
-        // Add link if present in meta
-        $link = $place->meta['link'] ?? $place->meta['url'] ?? null;
-        if ($link) {
-            $bits[] = $link;
-        }
-
-        // Include matched tags if we have interests
-        $prefTags = (array)($prefs['interests'] ?? $prefs['tags'] ?? []);
-        if (!empty($prefTags)) {
-            $matched = array_intersect($place->tags, $prefTags);
-            if (!empty($matched)) {
-                $bits[] = 'Matches: ' . implode(', ', $matched);
-            }
-        }
-
-        return implode(' • ', $bits);
-    }
-
-    /**
-     * Build human-friendly details for an itinerary item.
-     */
-    private function AiSelectandSort(Collection $places, array $prefs, array $days, \OpenAI\Client $client): Collection {
-        $numDays = $days.length();
-        $prefArray = $prefs['interests'] ?? $prefs['tags'];
         $placeArray = [];
 
         $prefString = implode(', ', $prefArray);
@@ -325,7 +197,7 @@ class ItineraryGenerationService
         //Prompt placed to OpenAI
         $prompt = "Given this selection of user preferences " . $prefString . "\n Select two places per day for this amount of days " . $numDays . "\n Here is the list of places
         alongside tags that match user preferences and the average rating from reviews between 1-5. Prefer places that have higher ratings and that match user preferences" . "
-        Here is the list of places \n" . $placeString;
+        Here is the list of places \n" . $placeString . "\n Give me just the names of the places as a comma seperated list";
 
         //OpenAI role assignments
         $messages = [
@@ -366,17 +238,38 @@ class ItineraryGenerationService
                 $attempt++;
             }
         } while ($attempt < 3);
-        
+
         //Turn the String reply into an array of place name substrings
         $reply = explode(',', $reply);
         $chosenPlaces = new Collection([]);
 
         foreach($reply as $AiPlace) {
-            $entry = Place::where('name', $AiPlace)->first();
+            $entry = Place::where('name', trim($AiPlace))->first();
             $chosenPlaces->push($entry);
         }
-
         return $chosenPlaces;
+    }
+
+    /**
+     * 
+     */
+    private function getOpenAIClient() {
+        $apikey = getenv('OPENAI_API_KEY');
+        if (App::isLocal()) {
+            $httpClient = new Client([
+                'verify' => false, // This is the option to disable SSL verification
+            ]);
+            $clientLocal = OpenAI::factory()
+                ->withAPIKey($apikey)
+                ->withHttpClient($httpClient)
+                ->make();
+            return $clientLocal;
+        }
+        else {
+            $clientLive = OpenAI::client($apikey);
+            return $clientLive;
+        }
+        
     }
 
 }
