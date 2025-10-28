@@ -16,7 +16,10 @@ class CountrySeeder extends Seeder
         DB::table('countries')->truncate();
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
+        
         $countries = [
+            ['code' => 'US', 'name' => 'United States'],
+            /*
             ['code' => 'AF', 'name' => 'Afghanistan'],
             ['code' => 'AL', 'name' => 'Albania'],
             ['code' => 'DZ', 'name' => 'Algeria'],
@@ -243,6 +246,8 @@ class CountrySeeder extends Seeder
             ['code' => 'YE', 'name' => 'Yemen'],
             ['code' => 'ZM', 'name' => 'Zambia'],
             ['code' => 'ZW', 'name' => 'Zimbabwe'],
+            */
+
         ];
 
         foreach ($countries as $country) {
