@@ -9,6 +9,17 @@ use Carbon\Carbon;
 use App\Models\Place;
 use App\Models\Review;
 
+/**
+ * Artisan command: imports Places & Reviews from two CSVs.
+ *
+ * Key behaviors:
+ * - Optional --truncate to wipe tables before import.
+ * - Optional --dry-run to simulate without DB writes.
+ * - Places are upserted (by name+lat+lon, else by name).
+ * - Reviews link to places primarily by place_id, falling back to name.
+ * - Unrated reviews are skipped (rating required).
+ */
+
 class ImportPlacesReviews extends Command
 {
     protected $signature = 'data:import
@@ -30,6 +41,7 @@ class ImportPlacesReviews extends Command
         $this->info("Places CSV  : {$placesPath}");
         $this->info("Reviews CSV : {$reviewsPath}");
 
+        // Optionally wipe both tables before importing.
         if ($this->option('truncate')) {
             if (! $this->confirm('This will DELETE all places and reviews. Continue?', false)) {
                 $this->warn('Aborted.');
@@ -40,34 +52,40 @@ class ImportPlacesReviews extends Command
             $this->comment('Truncated places and reviews.');
         }
 
+        // Read both CSVs fully into arrays 
         $places  = $this->readCsv($placesPath);
         $reviews = $this->readCsv($reviewsPath);
 
+        // If both are empty/missing, exit cleanly.
         if (!count($places) && !count($reviews)) {
             $this->warn('No rows found in either CSV. Nothing to do.');
             return self::SUCCESS;
         }
-
+        
+        // Whether to simulate only (no DB writes)
         $dry = (bool) $this->option('dry-run');
 
-        // Build a strict map by place_id
+        // Maps for linking reviews → places
         $extMap  = [];   // place_id (string) -> places.id
         $nameMap = [];   // normalized name -> places.id (fallback only)
 
         $created = 0; $updated = 0;
         foreach ($places as $r) {
+            // Extract key fields from a place row
             $placeId = $this->str($r['place_id'] ?? null);
             $name    = $this->str($r['name'] ?? $r['place_name'] ?? null);
-            if (!$name) continue;
+            if (!$name) continue; // must have a name
 
             $lat = $this->num($r['lat'] ?? $r['latitude'] ?? null);
             $lon = $this->num($r['lon'] ?? $r['lng'] ?? $r['longitude'] ?? null);
 
             if (!$dry) {
+                // Try to find an existing place by (name, lat, lon) if coordinates exist; else by name only.
                 $query = $lat !== null && $lon !== null
                     ? ['name'=>$name,'lat'=>$lat,'lon'=>$lon]
                     : ['name'=>$name];
-
+                
+                // Prepare persisted columns. `meta` stores raw CSV row for traceability.
                 $payload = [
                     'name'     => $name,
                     'lat'      => $lat,
@@ -78,13 +96,16 @@ class ImportPlacesReviews extends Command
                     'meta'     => $r, // array; Review::$casts will JSON it
                 ];
 
+                // Upsert behavior
                 $place = Place::where($query)->first();
                 if ($place) { $place->fill($payload)->save(); $updated++; }
                 else        { $place = Place::create($payload); $created++; }
 
+                // mapping for quick review linkage
                 if ($placeId) $extMap[$placeId] = $place->id;
                 if ($name)    $nameMap[$this->norm($name)] = $place->id;
             } else {
+                // In dry-run, just count and build fake positive IDs so we can still test flows
                 $created++;
                 if ($placeId) $extMap[$placeId] = -1;
                 if ($name)    $nameMap[$this->norm($name)] = -1;
@@ -107,20 +128,23 @@ class ImportPlacesReviews extends Command
         // Now import reviews
         $inserted = 0; $skipped = 0; $noId = 0; $noName = 0;
         foreach ($reviews as $r) {
+            // Preferred linkage: by external place_id
             $pid = $this->str($r['place_id'] ?? null);
-
             $placeId = null;
+
             $dry = (bool) $this->option('dry-run');
 
             if ($pid && isset($extMap[$pid])) {
                 $placeId = $dry ? 1 : $extMap[$pid]; // positive dummy id in dry-run
             } else {
+                // Fallback: link by normalized name.
                 $nm = $this->norm($this->str($r['place_name'] ?? $r['name'] ?? null));
                 if ($nm && isset($nameMap[$nm]) && $nameMap[$nm] > 0) {
                     $placeId = $nameMap[$nm];
                 }
             }
 
+            // If still not found, optionally create a stub Place from the review (only if not dry-run).
             if (!$placeId) {
                 // Try to create a place on the fly (only if you’re OK with this behavior)
                 $placeName = $this->str($r['place_name'] ?? $r['name'] ?? null);
@@ -136,9 +160,11 @@ class ImportPlacesReviews extends Command
                     $nameKey = $this->norm($placeName);
                     if ($nameKey) $nameMap[$nameKey] = $placeId;
                 }
+                // If still missing, count which kind failed (missing pid vs missing name).
                 if (!$placeId) { $pid ? $noId++ : $noName++; $skipped++; continue; }
             }
             
+            // Extract review fields.
             $author = $this->str($r['author'] ?? $r['author_name'] ?? $r['username'] ?? $r['name'] ?? 'Anonymous');
             $text   = $this->str($r['review_text'] ?? $r['text'] ?? $r['comment'] ?? $r['content'] ?? '');
             $rating = $this->intOrNull($r['rating'] ?? $r['stars'] ?? $r['score'] ?? null);
@@ -146,11 +172,13 @@ class ImportPlacesReviews extends Command
             // skips unrated reviews
             if ($rating === null) { $skipped++; continue; }
 
+            // Parse published date from various possible columns
             $published = $this->parseDate($this->str($r['published_at_date'] ?? $r['published_at'] ?? $r['time'] ?? $r['timestamp'] ?? $r['date'] ?? null));
             $fetchedAt = now();
 
             if (!$dry) {
                 // basic de-dupe
+                // Consider duplicates same if same place_id + author + text + published_at_date (NULLs handled explicitly).
                 $q = Review::where('place_id', $placeId);
                 $author !== '' ? $q->where('author', $author) : $q->whereNull('author');
                 $text   !== '' ? $q->where('text', $text)     : $q->whereNull('text');
@@ -158,6 +186,7 @@ class ImportPlacesReviews extends Command
 
                 if ($q->exists()) { $skipped++; continue; }
 
+                // Create the review.
                 Review::create([
                     'place_id'          => $placeId,
                     'source'            => 'gmaps_scrape_local',
@@ -173,6 +202,7 @@ class ImportPlacesReviews extends Command
             $inserted++;
         }
 
+        // Summary log (with breakdown on why reviews were skipped)
         $this->info("Reviews → inserted {$inserted}, skipped {$skipped} (no ext match: {$noId}, no name match: {$noName})");
         $this->info('Import complete');
         return self::SUCCESS;
@@ -180,11 +210,20 @@ class ImportPlacesReviews extends Command
 
     /* ---------------- helpers ---------------- */
 
+    /**
+     * Convert a path option into a real path.
+     * - If absolute file exists → return as-is
+     * - Else resolve relative to storage/app
+     */
     private function resolvePath(string $input): string
     {
         return is_file($input) ? $input : Storage::disk('local')->path($input);
     }
 
+    /**
+     * Read a small/medium CSV fully into memory.
+     * - First row = header (lowercased & trimmed)
+     */
     private function readCsv(string $absPath): array
     {
         if (!is_file($absPath)) { $this->warn("Missing file: {$absPath}"); return []; }
@@ -192,7 +231,13 @@ class ImportPlacesReviews extends Command
 
         $rows = []; $header = null;
         while (($row = fgetcsv($fp)) !== false) {
-            if ($header === null) { $header = array_map(fn($h)=>Str::of($h)->lower()->trim()->toString(), $row); continue; }
+            if ($header === null) { 
+                // Use the first line as the header
+                $header = array_map(fn($h)=>Str::of($h)->lower()->trim()->toString(), $row); 
+                continue; 
+            }
+            
+            // Skip fully empty rows.
             if (!array_filter($row, fn($v)=>$v!==null && $v!=='')) continue;
 
             $assoc=[];
@@ -207,6 +252,10 @@ class ImportPlacesReviews extends Command
         return $rows;
     }
 
+    /**
+     * Stream a CSV generator (alternative for very large files).
+     * Not used in main flow right now, but available to avoid loading the entire file into memory.
+     */
     private function streamCsv(string $absPath): \Generator
     {
         if (!is_file($absPath)) {
@@ -246,6 +295,7 @@ class ImportPlacesReviews extends Command
         fclose($fh);
     }
 
+    // Normalize any value to a trimmed string
     private function str($v): ?string
     {
         if ($v === null) return null;
@@ -253,6 +303,7 @@ class ImportPlacesReviews extends Command
         return trim((string)$v);
     }
 
+    // Parse a number (float) from common string formats like "4.6" or "1,234.5"
     private function num($v): ?float
     {
         if ($v === null || $v === '') return null;
@@ -260,12 +311,14 @@ class ImportPlacesReviews extends Command
         return is_numeric($s) ? (float)$s : null;
     }
 
+    // Int or null helper (used for ratings)
     private function intOrNull($v): ?int
     {
         if ($v === null || $v === '') return null;
         return is_numeric($v) ? (int)$v : null;
     }
 
+    // Normalize a name for case-insensitive & spacing-insensitive comparisons
     private function norm(?string $name): ?string
     {
         return $name ? Str::of($name)->lower()->replace(['&',' and '], ' and ')->squish()->toString() : null;
