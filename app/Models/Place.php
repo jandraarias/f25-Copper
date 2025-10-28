@@ -55,23 +55,6 @@ class Place extends Model
     /* -----------------------------------------------------------------
      |  Accessors – expose normalized fields from meta
      |------------------------------------------------------------------*/
-
-    /**
-     * Returns address if present in meta.
-     */
-    protected function address(): Attribute
-    {
-        return Attribute::get(fn () => $this->meta['address'] ?? null);
-    }
-
-    /**
-     * Returns the main category (either column or meta override).
-     */
-    protected function mainCategory(): Attribute
-    {
-        return Attribute::get(fn () => $this->meta['main_category'] ?? $this->category);
-    }
-
     /**
      * Price level extracted from meta (may be numeric or "$$").
      */
@@ -87,51 +70,19 @@ class Place extends Model
         }
         return Attribute::get(fn () => null);
     }
-
-    /**
-     * Keywords/tags parsed from meta.
-     */
-    protected function tags(): Attribute
-    {
-        return Attribute::get(function () {
-            $raw = $this->meta['review_keywords']
-                ?? $this->meta['tags']
-                ?? null;
-
-            if (is_string($raw)) {
-                $tags = preg_split('/\s*,\s*/', $raw);
-            } elseif (is_array($raw)) {
-                $tags = $raw;
-            } else {
-                $tags = [];
-            }
-
-            return collect($tags)
-                ->map(fn ($t) => strtolower(trim($t)))
-                ->filter()
-                ->unique()
-                ->values()
-                ->toArray();
-        });
-    }
-
     /**
      * Distinguish between "food" and "activity" based on category text.
      */
     protected function type(): Attribute
     {
         return Attribute::get(function () {
-            $tags = strtolower((string) ($this->tags ?? '')); // Assuming 'tags' is a property of the current object
-            $isFood = str_contains($tags, 'cuisine');
+            $isFood = str_contains($this->tags, 'Cuisine');
             return $isFood ? 'food' : 'activity';
 });
     }
 
     protected $appends = [
-        'address',
-        'main_category',
         'price_level',
-        'tags',
         'type',
     ];
 
@@ -160,44 +111,6 @@ class Place extends Model
         return $query->where('rating', '>=', $min);
     }
 
-    /**
-     * Filter by type (food or activity) using category hints.
-     */
-    public function scopeOfType($query, string $type)
-    {
-        $type = strtolower($type);
-        if ($type === 'food') {
-            return $query->where(function ($q) {
-                $q->where('category', 'like', '%restaurant%')
-                  ->orWhere('category', 'like', '%food%')
-                  ->orWhere('category', 'like', '%cafe%')
-                  ->orWhere('category', 'like', '%bar%');
-            });
-        }
-
-        // Default: non-food activities
-        return $query->where(function ($q) {
-            $q->whereNull('category')
-              ->orWhere(function ($q2) {
-                  $q2->where('category', 'not like', '%restaurant%')
-                     ->where('category', 'not like', '%food%')
-                     ->where('category', 'not like', '%cafe%')
-                     ->where('category', 'not like', '%bar%');
-              });
-        });
-    }
-
-    /**
-     * Filter by tag keywords (checks inside meta JSON).
-     */
-    public function scopeHasAnyTags($query, array $tags)
-    {
-        return $query->where(function ($q) use ($tags) {
-            foreach ($tags as $tag) {
-                $q->orWhere('meta->review_keywords', 'like', "%{$tag}%");
-            }
-        });
-    }
 
     /**
      * Filter by main category string.
