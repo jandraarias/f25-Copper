@@ -121,11 +121,10 @@ class Place extends Model
     protected function type(): Attribute
     {
         return Attribute::get(function () {
-            $main = strtolower((string) ($this->meta['main_category'] ?? $this->category ?? ''));
-            $hints = ['restaurant', 'food', 'bar', 'cafe', 'brunch', 'bakery', 'pub'];
-            $isFood = collect($hints)->contains(fn ($h) => str_contains($main, $h));
+            $tags = strtolower((string) ($this->tags ?? '')); // Assuming 'tags' is a property of the current object
+            $isFood = str_contains($tags, 'cuisine');
             return $isFood ? 'food' : 'activity';
-        });
+});
     }
 
     protected $appends = [

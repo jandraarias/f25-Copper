@@ -57,11 +57,10 @@ class ItineraryGenerationService
 
         // ------------------------------------------------------------------
         // 2) Query candidate places for city
-        //     We filter by address containing the city string. Your data import
-        //     stores address inside meta JSON.
+        //     We filter by address containing the city string.
         // ------------------------------------------------------------------
         $candidates = Place::query()
-            ->where('meta->address', 'like', '%' . $city . '%')
+            ->where('address', 'like', '%' . $city . '%')
             ->get();
 
         if ($candidates->isEmpty()) {
@@ -78,7 +77,7 @@ class ItineraryGenerationService
         // ------------------------------------------------------------------
         // 3) Score and sort by preference fit
         // ------------------------------------------------------------------
-        $activities = $this->scoreAndSort($activities, $prefs);
+        $activities = $this->scoreAndSort($activities, prefs: $prefs);
         $foods      = $this->scoreAndSort($foods, $prefs);
 
         // ------------------------------------------------------------------
@@ -132,7 +131,7 @@ class ItineraryGenerationService
                     'place_id'     => $place->id,
                     'type'         => $slot['type'],
                     'title'        => $place->name,
-                    'location'      => $place->address,            
+                    'location'      => $place->address,
                     'rating'       => $place->rating,             
                     'google_maps_url' => $place->meta['maps_url'] 
                                         ?? $place->meta['google_maps'] 
@@ -306,4 +305,78 @@ class ItineraryGenerationService
 
         return implode(' • ', $bits);
     }
+
+    /**
+     * Build human-friendly details for an itinerary item.
+     */
+    private function AiSelectandSort(Collection $places, array $prefs, array $days, \OpenAI\Client $client): Collection {
+        $numDays = $days.length();
+        $prefArray = $prefs['interests'] ?? $prefs['tags'];
+        $placeArray = [];
+
+        $prefString = implode(', ', $prefArray);
+
+        foreach($places as $place) {
+            $placeArray[] = $place->name . "; Tags: " . $place->tags . "; " .$place->rating;
+        }
+
+        $placeString = implode(", \n" , $placeArray);
+
+        //Prompt placed to OpenAI
+        $prompt = "Given this selection of user preferences " . $prefString . "\n Select two places per day for this amount of days " . $numDays . "\n Here is the list of places
+        alongside tags that match user preferences and the average rating from reviews between 1-5. Prefer places that have higher ratings and that match user preferences" . "
+        Here is the list of places \n" . $placeString;
+
+        //OpenAI role assignments
+        $messages = [
+            ['role' => 'system', 'content' => 'You are helpful assistant'],
+            ['role' => 'user', 'content' => $prompt],
+        ];
+
+        //The API call is in a try catch block because sometimes the connection fails. It seems related to frequency but it is nowhere near the rate limits so I am not sure why.
+        $attempt = 0;
+        do {
+            try {
+                if($attempt > 1) {
+                print "Retrying API call in 5 seconds. Attempts: " . $attempt;
+                sleep(5);
+                }
+                //OpenAI Chat Completion
+                $result = $client->chat()->create([
+                'messages' => $messages,
+                'model' => 'gpt-5-mini',
+            ]);
+            $reply = $result->choices[0]->message->content;
+            break;
+            }
+            catch(TransporterException $e) {
+                if ($attempt >= 3) {
+                    print "Max Retries reached";
+                    throw $e;
+                }
+                print "Caught TransporterException: " . $e->getMessage() . "\n";
+                $attempt++;
+            }
+            catch(\Exception $e) {
+                if ($attempt >= 3) {
+                    print "Max Retries reached";
+                    throw $e;
+                }
+                print "Caught Exception: " . $e->getMessage() . "\n";
+                $attempt++;
+            }
+        } while ($attempt < 3);
+        
+        //Turn the String reply into an array of place name substrings
+        $reply = explode(',', $reply);
+        $chosenPlaces = new Collection([]);
+
+        foreach($reply as $AiPlace) {
+            $entry = Place::where('name', $AiPlace)->first();
+            $chosenPlaces->push($entry);
+        }
+
+        return $chosenPlaces;
+    }
+
 }
