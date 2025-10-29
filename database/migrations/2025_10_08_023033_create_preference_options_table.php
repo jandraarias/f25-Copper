@@ -9,7 +9,7 @@ return new class extends Migration {
     {
         Schema::create('preference_options', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
+            $table->string('name')->unique();
             $table->enum('type', ['main', 'sub', 'sub-sub']);
             $table->string('category')->nullable();
             $table->unsignedBigInteger('parent_id')->nullable();

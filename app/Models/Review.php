@@ -11,16 +11,22 @@ class Review extends Model
 
     protected $fillable = [
         'place_id',
+        'place_name',
+        'author',
         'source',
         'rating',
         'text',
         'published_at_date',
-        'fetched_at', 
+        'owner_response',
+        'owner_response_publish_date',
+        'fetched_at',
+        'review_photos',
         'meta'
     ];
 
     protected $casts = [
         'published_at_date' => 'datetime',
+        'owner_response_publish_date' => 'datetime',
         'fetched_at' => 'datetime',
         'meta' => 'array',
     ];

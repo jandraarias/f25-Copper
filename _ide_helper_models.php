@@ -130,6 +130,7 @@ namespace App\Models{
  * @property string $type
  * @property string $title
  * @property string $location
+ * @property string|null $rating
  * @property \Illuminate\Support\Carbon|null $start_time
  * @property \Illuminate\Support\Carbon|null $end_time
  * @property string|null $details
@@ -154,6 +155,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ItineraryItem whereItineraryId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ItineraryItem whereLocation($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ItineraryItem wherePlaceId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ItineraryItem whereRating($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ItineraryItem whereStartTime($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ItineraryItem whereTitle($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ItineraryItem whereType($value)

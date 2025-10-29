@@ -17,12 +17,16 @@ return new class extends Migration
             $table->foreignId('place_id')
                   ->constrained('places')
                   ->cascadeOnDelete();
+            $table->string('place_name')->nullable();
             $table->string('source')->default('gmaps_scrape_local');
             $table->string('author')->nullable();
             $table->unsignedTinyInteger('rating')->nullable();
             $table->text('text')->nullable();
             $table->timestamp('published_at')->nullable();
-            $table->date('published_at_date')->nullable(); // consolidated + altered to date
+            $table->datetime('published_at_date')->nullable(); // consolidated + altered to date
+            $table->text('owner_response')->nullable();
+            $table->datetime('owner_response_published_date')->nullable();
+            $table->text('review_photos')->nullable();
             $table->timestamp('fetched_at')->nullable();
             $table->json('meta')->nullable();
             $table->timestamps();

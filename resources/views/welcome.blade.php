@@ -165,8 +165,8 @@
             {{-- Centered layout for first two members --}}
             <div class="flex flex-wrap justify-center gap-12">
                 @foreach ([ 
-                    ['Balemual Ymamu', 'Balemual Headshot.JPG', 'Software & Database Developer', 'Balemual Ymamu is a senior at ODU majoring in Computer Science. He is eager to gain hands-on experience in the tech field and looks forward to working as a Software Developer after graduation.'],
-                    ['Crystal Rivas', 'Crystal Headshot.PNG', 'Software & Database Developer', 'Crystal Rivas is a second-degree-seeking student in Computer Science at ODU with a background in math education. Her expertise in problem-solving drives the transition and aims to develop innovative and impactful solutions.']
+                    ['Balemual Ymamu', 'Balemual Headshot.jpg', 'Software & Database Developer', 'Balemual Ymamu is a senior at ODU majoring in Computer Science. He is eager to gain hands-on experience in the tech field and looks forward to working as a Software Developer after graduation.'],
+                    ['Crystal Rivas', 'Crystal Headshot.png', 'Software & Database Developer', 'Crystal Rivas is a second-degree-seeking student in Computer Science at ODU with a background in math education. Her expertise in problem-solving drives the transition and aims to develop innovative and impactful solutions.']
                 ] as $member)
                     <div class="w-full sm:w-[22rem] bg-white dark:bg-sand-800 border border-sand-200 dark:border-ink-700 
                                 rounded-3xl shadow-soft hover:shadow-glow hover:scale-[1.02] transition-all duration-300 ease-out p-8">
@@ -189,12 +189,12 @@
             <template x-if="open">
                 <div class="grid gap-12 md:grid-cols-2 lg:grid-cols-3 mt-12">
                     @foreach ([
-                        ['Fredrick Terling','Fredrick Headshot.JPG','Software Developer','Fredrick Terling is a senior at ODU majoring in Computer Science. He is currently hoping to get his foot in the door for most tech job opportunities but dreams of being a Game Developer and ultimately a Game Producer.'],
-                        ['Jandra D. Arias Tavarez','Jandra Headshot.JPG','Software & Database Developer','Jandra D. Arias Tavarez is a second degree seeking student at ODU working on her bachelor in Computer Science. She aspires to work as a Software Developer after graduating.'],
-                        ['William Poston','William P. Headshot.JPG','Software Developer & Webmaster','William Poston is a senior at ODU majoring in computer science with a minor in data science. After school, he dreams of being an AI prompt engineer.'],
-                        ['William Mbandi','William M. Headshot.JPG','Software Developer','William Mbandi is a senior at ODU majoring in computer science with a minor in cyber security. Wants to work as a Software Developer after he graduates.'],
-                        ['Stephen Usselman','Stephen Headshot.JPG','Software Developer & Designer','Stephen Usselman is a senior at ODU majoring in computer science. He is looking to pursue a career as a Software Developer after university.'],
-                        ['Jacob Cook','Jacob Headshot.JPG','Mentor','Jacob Cook is an ODU Computer Science alumnus, IT Instructor at the Southern Virginia Higher Education Center, and founder/CEO of Southside Tech Services. He has built a career spanning software development, general IT, and hands-on education, while also guiding students and businesses in adopting technology effectively. Jacob is passionate about mentoring, and he enjoys helping students bridge the gap between classroom learning and the real-world challenges of a career in technology.']
+                        ['Fredrick Terling','Fredrick Headshot.jpg','Software Developer','Fredrick Terling is a senior at ODU majoring in Computer Science. He is currently hoping to get his foot in the door for most tech job opportunities but dreams of being a Game Developer and ultimately a Game Producer.'],
+                        ['Jandra D. Arias Tavarez','Jandra Headshot.jpg','Software & Database Developer','Jandra D. Arias Tavarez is a second degree seeking student at ODU working on her bachelor in Computer Science. She aspires to work as a Software Developer after graduating.'],
+                        ['William Poston','William P. Headshot.jpg','Software Developer & Webmaster','William Poston is a senior at ODU majoring in computer science with a minor in data science. After school, he dreams of being an AI prompt engineer.'],
+                        ['William Mbandi','William M. Headshot.jpg','Software Developer','William Mbandi is a senior at ODU majoring in computer science with a minor in cyber security. Wants to work as a Software Developer after he graduates.'],
+                        ['Stephen Usselman','Stephen Headshot.jpg','Software Developer & Designer','Stephen Usselman is a senior at ODU majoring in computer science. He is looking to pursue a career as a Software Developer after university.'],
+                        ['Jacob Cook','Jacob Headshot.jpg','Mentor','Jacob Cook is an ODU Computer Science alumnus, IT Instructor at the Southern Virginia Higher Education Center, and founder/CEO of Southside Tech Services. He has built a career spanning software development, general IT, and hands-on education, while also guiding students and businesses in adopting technology effectively. Jacob is passionate about mentoring, and he enjoys helping students bridge the gap between classroom learning and the real-world challenges of a career in technology.']
                     ] as $member)
                         <div class="rounded-3xl bg-white dark:bg-sand-800 shadow-soft hover:shadow-glow hover:scale-[1.02] transition-all p-8">
                             <img src="{{ asset('data/images/TeamHeadshots/' . $member[1]) }}" alt="{{ $member[0] }}"
