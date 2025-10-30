@@ -226,7 +226,7 @@
                         </div>
 
                         {{-- AI Generation Notice --}}
-                        <div class="mt-8 p-4 rounded-2xl bg-sand-100 dark:bg-sand-700 text-sm text-ink-700 dark:text-sand-200 border border-sand-300 dark:border-ink-600">
+                        <div class="mt-8 p-4 rounded-2xl bg-sand-100 dark:bg-sand-700 text-sm text-ink-700 dark:text-sand-100 border border-sand-300 dark:border-ink-600">
                             <div class="flex items-start gap-3">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-copper mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"

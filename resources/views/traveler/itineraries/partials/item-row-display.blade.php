@@ -63,7 +63,7 @@
             </h5>
 
             @if (!empty($item->location))
-                <p class="text-sm text-ink-800 dark:text-sand-200 mb-1 break-words">
+                <p class="text-sm text-ink-800 dark:text-sand-100 mb-1 break-words">
                     @linkify($item->location)
                 </p>
             @endif
@@ -88,7 +88,7 @@
             <h5 class="text-xs uppercase tracking-wide font-semibold text-copper-700 dark:text-copper-300 mb-1">
                 Details
             </h5>
-            <p class="text-sm text-ink-700 dark:text-sand-200 leading-relaxed transition-all duration-200 ease-in-out break-words"
+            <p class="text-sm text-ink-700 dark:text-sand-100 leading-relaxed transition-all duration-200 ease-in-out break-words"
                :class="{ 'line-clamp-none': expanded, 'line-clamp-3': !expanded && {{ $isLong ? 'true' : 'false' }} }">
                 @linkify($item->details)
             </p>

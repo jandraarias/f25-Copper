@@ -23,7 +23,7 @@
                 <x-input-label for="email" :value="__('Email')" class="text-ink-800 dark:text-ink-200" />
                 <x-text-input id="email"
                               class="block mt-1 w-full rounded-full border-sand-300 dark:border-ink-600 
-                                     bg-sand-50 dark:bg-ink-800 focus:ring-copper focus:border-copper"
+                                     bg-sand-50 dark:bg-ink-700 focus:ring-copper focus:border-copper"
                               type="email" name="email" :value="old('email')" required autofocus />
                 <x-input-error :messages="$errors->get('email')" class="mt-2" />
             </div>

@@ -22,7 +22,7 @@
                 <x-input-label for="email" :value="__('Email')" class="text-ink-800 dark:text-ink-200" />
                 <x-text-input id="email"
                               class="block mt-1 w-full rounded-full border-sand-300 dark:border-ink-600 
-                                     bg-sand-50 dark:bg-ink-800 focus:ring-copper focus:border-copper"
+                                     bg-sand-50 dark:bg-ink-700 focus:ring-copper focus:border-copper"
                               type="email" name="email" :value="old('email', $request->email)" required autofocus autocomplete="username" />
                 <x-input-error :messages="$errors->get('email')" class="mt-2" />
             </div>
@@ -32,7 +32,7 @@
                 <x-input-label for="password" :value="__('New Password')" class="text-ink-800 dark:text-ink-200" />
                 <x-text-input id="password"
                               class="block mt-1 w-full rounded-full border-sand-300 dark:border-ink-600 
-                                     bg-sand-50 dark:bg-ink-800 focus:ring-copper focus:border-copper"
+                                     bg-sand-50 dark:bg-ink-700 focus:ring-copper focus:border-copper"
                               type="password" name="password" required autocomplete="new-password" />
                 <x-input-error :messages="$errors->get('password')" class="mt-2" />
             </div>
@@ -42,7 +42,7 @@
                 <x-input-label for="password_confirmation" :value="__('Confirm Password')" class="text-ink-800 dark:text-ink-200" />
                 <x-text-input id="password_confirmation"
                               class="block mt-1 w-full rounded-full border-sand-300 dark:border-ink-600 
-                                     bg-sand-50 dark:bg-ink-800 focus:ring-copper focus:border-copper"
+                                     bg-sand-50 dark:bg-ink-700 focus:ring-copper focus:border-copper"
                               type="password" name="password_confirmation" required autocomplete="new-password" />
                 <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
             </div>

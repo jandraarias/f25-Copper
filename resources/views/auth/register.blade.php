@@ -18,7 +18,7 @@
                     <div>
                         <x-input-label for="role" :value="__('Role')" class="text-ink-800 dark:text-ink-200" />
                         <select id="role" name="role" x-model="role"
-                                class="block mt-1 w-full rounded-full border-sand-300 dark:border-ink-600 bg-sand-50 dark:bg-ink-800
+                                class="block mt-1 w-full rounded-full border-sand-300 dark:border-ink-600 bg-sand-50 dark:bg-ink-700
                                        text-ink-900 dark:text-sand-100 focus:ring-copper focus:border-copper" required>
                             <option value="">-- Select Role --</option>
                             <option value="traveler" {{ old('role') === 'traveler' ? 'selected' : '' }}>Traveler</option>
@@ -31,7 +31,7 @@
                     {{-- Full Name --}}
                     <div>
                         <x-input-label for="name" :value="__('Full Name')" class="text-ink-800 dark:text-ink-200" />
-                        <x-text-input id="name" class="block mt-1 w-full rounded-full border-sand-300 dark:border-ink-600 bg-sand-50 dark:bg-ink-800
+                        <x-text-input id="name" class="block mt-1 w-full rounded-full border-sand-300 dark:border-ink-600 bg-sand-50 dark:bg-ink-700
                                                     focus:ring-copper focus:border-copper" 
                                       type="text" name="name" :value="old('name')" required autofocus autocomplete="name" />
                         <x-input-error :messages="$errors->get('name')" class="mt-2" />
@@ -40,7 +40,7 @@
                     {{-- Date of Birth --}}
                     <div x-show="['traveler','expert'].includes(role)" x-cloak>
                         <x-input-label for="date_of_birth" :value="__('Date of Birth')" class="text-ink-800 dark:text-ink-200" />
-                        <x-text-input id="date_of_birth" class="block mt-1 w-full rounded-full border-sand-300 dark:border-ink-600 bg-sand-50 dark:bg-ink-800
+                        <x-text-input id="date_of_birth" class="block mt-1 w-full rounded-full border-sand-300 dark:border-ink-600 bg-sand-50 dark:bg-ink-700
                                                             focus:ring-copper focus:border-copper" 
                                       type="date" name="date_of_birth" :value="old('date_of_birth')" />
                         <x-input-error :messages="$errors->get('date_of_birth')" class="mt-2" />
@@ -49,7 +49,7 @@
                     {{-- Phone Number --}}
                     <div x-show="['traveler','expert','business'].includes(role)" x-cloak>
                         <x-input-label for="phone_number" :value="__('Phone Number')" class="text-ink-800 dark:text-ink-200" />
-                        <x-text-input id="phone_number" class="block mt-1 w-full rounded-full border-sand-300 dark:border-ink-600 bg-sand-50 dark:bg-ink-800
+                        <x-text-input id="phone_number" class="block mt-1 w-full rounded-full border-sand-300 dark:border-ink-600 bg-sand-50 dark:bg-ink-700
                                                             focus:ring-copper focus:border-copper" 
                                       type="text" name="phone_number" :value="old('phone_number')" />
                         <x-input-error :messages="$errors->get('phone_number')" class="mt-2" />
@@ -58,7 +58,7 @@
                     {{-- Email --}}
                     <div>
                         <x-input-label for="email" :value="__('Email')" class="text-ink-800 dark:text-ink-200" />
-                        <x-text-input id="email" class="block mt-1 w-full rounded-full border-sand-300 dark:border-ink-600 bg-sand-50 dark:bg-ink-800
+                        <x-text-input id="email" class="block mt-1 w-full rounded-full border-sand-300 dark:border-ink-600 bg-sand-50 dark:bg-ink-700
                                                     focus:ring-copper focus:border-copper" 
                                       type="email" name="email" :value="old('email')" required autocomplete="username" />
                         <x-input-error :messages="$errors->get('email')" class="mt-2" />
@@ -67,7 +67,7 @@
                     {{-- Password --}}
                     <div>
                         <x-input-label for="password" :value="__('Password')" class="text-ink-800 dark:text-ink-200" />
-                        <x-text-input id="password" class="block mt-1 w-full rounded-full border-sand-300 dark:border-ink-600 bg-sand-50 dark:bg-ink-800
+                        <x-text-input id="password" class="block mt-1 w-full rounded-full border-sand-300 dark:border-ink-600 bg-sand-50 dark:bg-ink-700
                                                         focus:ring-copper focus:border-copper" 
                                       type="password" name="password" required autocomplete="new-password" />
                         <x-input-error :messages="$errors->get('password')" class="mt-2" />
@@ -76,7 +76,7 @@
                     {{-- Confirm Password --}}
                     <div>
                         <x-input-label for="password_confirmation" :value="__('Confirm Password')" class="text-ink-800 dark:text-ink-200" />
-                        <x-text-input id="password_confirmation" class="block mt-1 w-full rounded-full border-sand-300 dark:border-ink-600 bg-sand-50 dark:bg-ink-800
+                        <x-text-input id="password_confirmation" class="block mt-1 w-full rounded-full border-sand-300 dark:border-ink-600 bg-sand-50 dark:bg-ink-700
                                                         focus:ring-copper focus:border-copper" 
                                       type="password" name="password_confirmation" required autocomplete="new-password" />
                         <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />

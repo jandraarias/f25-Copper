@@ -70,7 +70,7 @@
                         document.documentElement.classList.remove('dark');
                         localStorage.setItem('theme', 'light');
                     }"
-                    class="p-2 rounded-full border border-sand-300 dark:border-ink-600 text-ink-700 dark:text-sand-200 hover:bg-sand-100 dark:hover:bg-ink-700 transition-all duration-300"
+                    class="p-2 rounded-full border border-sand-300 dark:border-ink-600 text-ink-700 dark:text-sand-100 hover:bg-sand-100 dark:hover:bg-ink-700 transition-all duration-300"
                     title="Toggle theme">
                     <svg x-show="!darkMode" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-copper" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round"

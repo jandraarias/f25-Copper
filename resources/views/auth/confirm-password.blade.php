@@ -19,7 +19,7 @@
                 <x-input-label for="password" :value="__('Password')" class="text-ink-800 dark:text-ink-200" />
                 <x-text-input id="password"
                               class="block mt-1 w-full rounded-full border-sand-300 dark:border-ink-600 
-                                     bg-sand-50 dark:bg-ink-800 focus:ring-copper focus:border-copper"
+                                     bg-sand-50 dark:bg-ink-700 focus:ring-copper focus:border-copper"
                               type="password" name="password" required autocomplete="current-password" />
                 <x-input-error :messages="$errors->get('password')" class="mt-2" />
             </div>

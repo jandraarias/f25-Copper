@@ -21,7 +21,7 @@
             <div>
                 <x-input-label for="email" :value="__('Email')" class="text-ink-800 dark:text-ink-200" />
                 <x-text-input id="email" class="block mt-1 w-full rounded-full border-sand-300 dark:border-ink-600 
-                                            bg-sand-50 dark:bg-ink-800 focus:ring-copper focus:border-copper"
+                                            bg-sand-50 dark:bg-ink-700 focus:ring-copper focus:border-copper"
                               type="email" name="email" :value="old('email')" required autofocus autocomplete="username" />
                 <x-input-error :messages="$errors->get('email')" class="mt-2" />
             </div>
@@ -30,7 +30,7 @@
             <div>
                 <x-input-label for="password" :value="__('Password')" class="text-ink-800 dark:text-ink-200" />
                 <x-text-input id="password" class="block mt-1 w-full rounded-full border-sand-300 dark:border-ink-600 
-                                                bg-sand-50 dark:bg-ink-800 focus:ring-copper focus:border-copper"
+                                                bg-sand-50 dark:bg-ink-700 focus:ring-copper focus:border-copper"
                               type="password" name="password" required autocomplete="current-password" />
                 <x-input-error :messages="$errors->get('password')" class="mt-2" />
             </div>
@@ -40,8 +40,8 @@
                 <label for="remember_me" class="inline-flex items-center">
                     <input id="remember_me" type="checkbox"
                            class="rounded border-sand-300 dark:border-ink-600 text-copper focus:ring-copper 
-                                  dark:bg-ink-800 dark:focus:ring-offset-ink-800">
-                    <span class="ms-2 text-sm text-ink-700 dark:text-sand-200">{{ __('Remember me') }}</span>
+                                  dark:bg-ink-700 dark:focus:ring-offset-ink-800">
+                    <span class="ms-2 text-sm text-ink-700 dark:text-sand-100">{{ __('Remember me') }}</span>
                 </label>
 
                 @if (Route::has('password.request'))
