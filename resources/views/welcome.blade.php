@@ -7,6 +7,10 @@
 
     <title>{{ config('app.name', 'ItinerEase') }}</title>
 
+    <!-- Favicons (light & dark) -->
+    <link rel="icon" href="{{ asset('data/images/logos/itinerease-icon-light.svg') }}" type="image/svg+xml" media="(prefers-color-scheme: light)">
+    <link rel="icon" href="{{ asset('data/images/logos/itinerease-icon-dark.svg') }}" type="image/svg+xml" media="(prefers-color-scheme: dark)">
+
     <!-- Preload theme before CSS -->
     <script>
         (function() {

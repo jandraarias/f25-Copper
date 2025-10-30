@@ -30,7 +30,11 @@
 
         {{-- Time Badge --}}
         <div class="text-right shrink-0">
-            <div class="px-3 py-1 text-xs font-medium rounded-full bg-sand-100 dark:bg-ink-800 text-ink-800 dark:text-sand-200 shadow-inner">
+            <div
+                class="px-3 py-1 text-xs font-semibold rounded-full
+                    bg-sand-100 text-ink-800 shadow-inner
+                    dark:bg-ink-700 dark:text-sand-100 dark:shadow-[inset_0_0_6px_rgba(255,255,255,0.05)]
+                    transition-colors duration-300 ease-in-out">
                 {{ $st ? $st->format('g:ia') : '—' }} – {{ $et ? $et->format('g:ia') : '—' }}
             </div>
         </div>

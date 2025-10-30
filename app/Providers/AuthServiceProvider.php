@@ -35,6 +35,6 @@ class AuthServiceProvider extends ServiceProvider
     {
         $this->registerPolicies();
 
-        // You can define custom gates here if needed
+        // define custom gates here if needed
     }
 }
