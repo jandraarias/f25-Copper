@@ -38,7 +38,7 @@
                         <p class="text-sm text-ink-800 dark:text-sand-100">
                             This itinerary was generated using your
                             <strong>{{ $itinerary->preferenceProfile->name }}</strong>
-                            for <strong>{{ $itinerary->address ?? 'the selected city' }}</strong>.
+                            for <strong>{{ $itinerary->location ?? 'the selected city' }}</strong>.
                             You can make adjustments manually or regenerate it below.
                         </p>
                     </div>
@@ -58,7 +58,7 @@
                     <div class="grid sm:grid-cols-2 gap-y-4 gap-x-8 text-ink-800 dark:text-ink-200 leading-relaxed">
                         <p><span class="font-semibold">Description:</span> @linkify($itinerary->description ?? '—')</p>
                         <p><span class="font-semibold">Countries:</span> {{ $itinerary->countries->pluck('name')->join(', ') ?: '—' }}</p>
-                        <p><span class="font-semibold">City:</span> {{ $itinerary->address ?? '—' }}</p>
+                        <p><span class="font-semibold">City:</span> {{ $itinerary->location ?? '—' }}</p>
                         <p><span class="font-semibold">Preference Profile:</span> {{ $itinerary->preferenceProfile->name ?? '—' }}</p>
                         <p><span class="font-semibold">Dates:</span>
                             {{ $itinerary->start_date?->format('M j, Y') ?? '—' }}
