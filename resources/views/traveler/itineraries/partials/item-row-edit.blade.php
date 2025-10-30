@@ -51,7 +51,7 @@
             <span class="font-semibold truncate">{{ $item->title }}</span>
             @if ($item->details)
                 <p x-bind:class="expanded ? 'line-clamp-none' : 'line-clamp-2'"
-                   class="text-sm text-ink-600 dark:text-sand-200 mt-1 transition-all duration-200 ease-in-out break-words">
+                   class="text-sm text-ink-600 dark:text-sand-100 mt-1 transition-all duration-200 ease-in-out break-words">
                     {{ $item->details }}
                 </p>
                 @if (Str::length($item->details) > 120)

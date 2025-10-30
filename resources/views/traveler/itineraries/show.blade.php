@@ -35,10 +35,10 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                   d="M13 16h-1v-4h-1m1-4h.01M12 18a9 9 0 100-18 9 9 0 000 18z" />
                         </svg>
-                        <p class="text-sm text-ink-800 dark:text-sand-200">
+                        <p class="text-sm text-ink-800 dark:text-sand-100">
                             This itinerary was generated using your
                             <strong>{{ $itinerary->preferenceProfile->name }}</strong>
-                            for <strong>{{ $itinerary->address ?? 'the selected city' }}</strong>.
+                            for <strong>{{ $itinerary->location ?? 'the selected city' }}</strong>.
                             You can make adjustments manually or regenerate it below.
                         </p>
                     </div>
@@ -58,7 +58,7 @@
                     <div class="grid sm:grid-cols-2 gap-y-4 gap-x-8 text-ink-800 dark:text-ink-200 leading-relaxed">
                         <p><span class="font-semibold">Description:</span> @linkify($itinerary->description ?? '—')</p>
                         <p><span class="font-semibold">Countries:</span> {{ $itinerary->countries->pluck('name')->join(', ') ?: '—' }}</p>
-                        <p><span class="font-semibold">City:</span> {{ $itinerary->address ?? '—' }}</p>
+                        <p><span class="font-semibold">City:</span> {{ $itinerary->location ?? '—' }}</p>
                         <p><span class="font-semibold">Preference Profile:</span> {{ $itinerary->preferenceProfile->name ?? '—' }}</p>
                         <p><span class="font-semibold">Dates:</span>
                             {{ $itinerary->start_date?->format('M j, Y') ?? '—' }}
@@ -164,7 +164,7 @@
             @if ($itinerary->isCollaborative() && ($itinerary->collaborators->isNotEmpty() || $itinerary->invitations->isNotEmpty()))
                 <div class="bg-white dark:bg-sand-800 border border-sand-200 dark:border-ink-700 rounded-3xl shadow-soft p-8">
                     <h3 class="text-xl font-semibold text-ink-900 dark:text-ink-100 mb-4">Collaborators</h3>
-                    <div class="space-y-2 text-ink-800 dark:text-sand-200">
+                    <div class="space-y-2 text-ink-800 dark:text-sand-100">
                         @foreach ($itinerary->collaborators as $collab)
                             <p>👥 {{ $collab->name }} <span class="text-sm text-ink-500">({{ $collab->email }})</span></p>
                         @endforeach

@@ -63,7 +63,7 @@
                         localStorage.setItem('theme', 'light');
                     }"
                     class="flex items-center gap-2 px-3 py-1.5 rounded-full border border-sand-300 dark:border-ink-600 
-                           text-ink-700 dark:text-sand-200 hover:bg-sand-100 dark:hover:bg-ink-700 
+                           text-ink-700 dark:text-sand-100 hover:bg-sand-100 dark:hover:bg-ink-700 
                            transition-all duration-300 ease-out"
                     title="Toggle dark mode">
 
@@ -87,7 +87,7 @@
                     <x-dropdown align="right" width="48">
                         <x-slot name="trigger">
                             <button class="inline-flex items-center px-3 py-2 border border-transparent 
-                                           text-sm leading-4 font-medium rounded-md text-ink-700 dark:text-sand-200 
+                                           text-sm leading-4 font-medium rounded-md text-ink-700 dark:text-sand-100 
                                            bg-transparent hover:text-copper focus:outline-none transition duration-150 ease-in-out">
                                 <div>{{ Auth::user()->name }}</div>
                                 <div class="ms-1">
@@ -119,7 +119,7 @@
             <div class="-me-2 flex items-center sm:hidden">
                 <button @click="open = ! open"
                         class="inline-flex items-center justify-center p-2 rounded-md 
-                               text-ink-700 dark:text-sand-200 hover:text-copper hover:bg-sand-100 dark:hover:bg-ink-700 
+                               text-ink-700 dark:text-sand-100 hover:text-copper hover:bg-sand-100 dark:hover:bg-ink-700 
                                transition duration-150 ease-in-out">
                     <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
                         <path :class="{'hidden': open, 'inline-flex': !open}" class="inline-flex"
