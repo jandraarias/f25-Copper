@@ -11,6 +11,7 @@ use Database\Factories\ItineraryItemFactory;
 use Database\Factories\PreferenceProfileFactory;
 use Database\Factories\PreferenceFactory;
 
+
 class DatabaseSeeder extends Seeder
 {
     public function run(): void
@@ -20,6 +21,9 @@ class DatabaseSeeder extends Seeder
 
         // Seed the countries first
         $this->call(CountrySeeder::class);
+
+        // Seed the Rewards Table
+        $this->call(RewardsTableSeeder::class);
 
         // Admin user
         User::query()->updateOrCreate(
