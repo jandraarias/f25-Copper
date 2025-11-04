@@ -15,7 +15,7 @@ class RewardsTableSeeder extends Seeder
     public function run(): void
     {
         // Optional: clear existing rewards so does not duplicate
-         Reward::truncate();
+        //Reward::truncate();
 
         // Types of Discounts 
         $discountOptions = [

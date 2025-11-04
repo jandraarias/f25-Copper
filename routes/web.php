@@ -146,6 +146,9 @@ Route::middleware(['auth', 'role:traveler'])
         // Regenerate (AI) Itinerary
         Route::post('itineraries/{itinerary}/generate', [ItineraryController::class, 'generate'])
             ->name('itineraries.generate');
+        
+        // Get Rewards 
+        Route::get('/rewards', [RewardsController::class, 'indedx'])->name('traveler.rewards');
     });
 
 /*
