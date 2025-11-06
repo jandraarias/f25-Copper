@@ -51,6 +51,27 @@ namespace App\Models{
 
 namespace App\Models{
 /**
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ExpertReview> $reviews
+ * @property-read int|null $reviews_count
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Expert newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Expert newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Expert query()
+ */
+	class Expert extends \Eloquent {}
+}
+
+namespace App\Models{
+/**
+ * @property-read \App\Models\Expert|null $expert
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ExpertReview newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ExpertReview newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ExpertReview query()
+ */
+	class ExpertReview extends \Eloquent {}
+}
+
+namespace App\Models{
+/**
  * @property int $id
  * @property int $traveler_id
  * @property string|null $public_uuid
@@ -131,6 +152,7 @@ namespace App\Models{
  * @property string $title
  * @property string $location
  * @property string|null $rating
+ * @property string|null $google_maps_url
  * @property \Illuminate\Support\Carbon|null $start_time
  * @property \Illuminate\Support\Carbon|null $end_time
  * @property string|null $details
@@ -151,6 +173,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ItineraryItem whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ItineraryItem whereDetails($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ItineraryItem whereEndTime($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ItineraryItem whereGoogleMapsUrl($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ItineraryItem whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ItineraryItem whereItineraryId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ItineraryItem whereLocation($value)
@@ -168,22 +191,28 @@ namespace App\Models{
 /**
  * @property int $id
  * @property string $name
+ * @property string|null $description
+ * @property int|null $num_reviews
+ * @property string|null $address
+ * @property string|null $phone
  * @property float|null $lat
  * @property float|null $lon
  * @property float|null $rating
- * @property string|null $category
+ * @property string|null $categories
+ * @property string|null $tags
+ * @property string|null $image
  * @property string $source
  * @property array<array-key, mixed>|null $meta
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read mixed $address
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ItineraryItem> $itineraryItems
  * @property-read int|null $itinerary_items_count
  * @property-read mixed $main_category
  * @property-read mixed $price_level
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Review> $reviews
  * @property-read int|null $reviews_count
- * @property-read mixed $tags
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Reward> $rewards
+ * @property-read int|null $rewards_count
  * @property-read mixed $type
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Place hasAnyTags(array $tags)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Place highlyRated(float $min = 4)
@@ -193,15 +222,21 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Place newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Place ofType(string $type)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Place query()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Place whereCategory($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Place whereAddress($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Place whereCategories($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Place whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Place whereDescription($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Place whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Place whereImage($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Place whereLat($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Place whereLon($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Place whereMeta($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Place whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Place whereNumReviews($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Place wherePhone($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Place whereRating($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Place whereSource($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Place whereTags($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Place whereUpdatedAt($value)
  */
 	class Place extends \Eloquent {}
@@ -295,12 +330,16 @@ namespace App\Models{
 /**
  * @property int $id
  * @property int $place_id
+ * @property string|null $place_name
  * @property string $source
  * @property string|null $author
  * @property int|null $rating
  * @property string|null $text
  * @property string|null $published_at
  * @property \Illuminate\Support\Carbon|null $published_at_date
+ * @property string|null $owner_response
+ * @property string|null $owner_response_published_date
+ * @property string|null $review_photos
  * @property \Illuminate\Support\Carbon|null $fetched_at
  * @property array<array-key, mixed>|null $meta
  * @property \Illuminate\Support\Carbon|null $created_at
@@ -314,15 +353,45 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Review whereFetchedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Review whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Review whereMeta($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Review whereOwnerResponse($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Review whereOwnerResponsePublishedDate($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Review wherePlaceId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Review wherePlaceName($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Review wherePublishedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Review wherePublishedAtDate($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Review whereRating($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Review whereReviewPhotos($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Review whereSource($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Review whereText($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Review whereUpdatedAt($value)
  */
 	class Review extends \Eloquent {}
+}
+
+namespace App\Models{
+/**
+ * @property int $id
+ * @property int $place_id
+ * @property string $title
+ * @property string|null $description
+ * @property string|null $discount_code
+ * @property string|null $expires_at
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\Place $place
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Reward newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Reward newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Reward query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Reward whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Reward whereDescription($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Reward whereDiscountCode($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Reward whereExpiresAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Reward whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Reward wherePlaceId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Reward whereTitle($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Reward whereUpdatedAt($value)
+ */
+	class Reward extends \Eloquent {}
 }
 
 namespace App\Models{
