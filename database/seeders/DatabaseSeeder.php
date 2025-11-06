@@ -16,6 +16,10 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
+
+        // Seed the experts
+        $this->call(ExpertSeeder::class);
+
         // Seed the  preference options
         $this->call(PreferencesTableSeeder::class);
 
@@ -27,7 +31,7 @@ class DatabaseSeeder extends Seeder
 
         // Admin user
         User::query()->updateOrCreate(
-            ['email' => 'admin@example.com'],
+            ['email' => 'admin@test.com'],
             [
                 'name' => 'Admin User',
                 'password' => Hash::make('password'),

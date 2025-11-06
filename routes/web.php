@@ -21,6 +21,7 @@ use App\Http\Controllers\Traveler\PreferenceProfileController;
 use App\Http\Controllers\Traveler\PreferenceController;
 use App\Http\Controllers\Traveler\ItineraryInvitationController;
 use App\Http\Controllers\Traveler\RewardsController;
+use App\Http\Controllers\Traveler\ExpertsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -149,6 +150,10 @@ Route::middleware(['auth', 'role:traveler'])
         // Correct Rewards Route
         Route::get('/rewards', [RewardsController::class, 'index'])
             ->name('rewards');
+
+        // Experts Listing Route
+        Route::get('/experts', [ExpertsController::class, 'index'])->name('experts');
+
     });
 
 /*

@@ -32,7 +32,7 @@
                         @if(auth()->user()->isTraveler())
 
                             <!-- Dashboard -->
-                            <x-nav-link :href="route('traveler.dashboard')" 
+                            <x-nav-link :href="route('traveler.dashboard')"
                                         :active="request()->routeIs('traveler.dashboard')">
                                 <div class="flex items-center gap-2">
                                     <svg class="w-4 h-4 text-copper" fill="none" stroke="currentColor" stroke-width="1.5"
@@ -67,6 +67,19 @@
                                               d="M12 3v18m9-9H3" />
                                     </svg>
                                     {{ __('Preferences') }}
+                                </div>
+                            </x-nav-link>
+
+                            <!-- Experts (NEW) -->
+                            <x-nav-link :href="route('traveler.experts')"
+                                        :active="request()->routeIs('traveler.experts')">
+                                <div class="flex items-center gap-2">
+                                    <svg class="w-4 h-4 text-copper" fill="none" stroke="currentColor" stroke-width="1.5"
+                                         viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                              d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14c-4.418 0-8 2-8 4v2h16v-2c0-2-3.582-4-8-4z" />
+                                    </svg>
+                                    {{ __('Experts') }}
                                 </div>
                             </x-nav-link>
 
@@ -129,7 +142,6 @@
                             <button class="inline-flex items-center px-3 py-2 text-sm leading-4 font-medium
                                            rounded-md text-ink-700 dark:text-sand-100 hover:text-copper
                                            transition duration-150 ease-in-out">
-
                                 <div>{{ Auth::user()->name }}</div>
 
                                 <svg class="ms-1 fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" 
@@ -150,7 +162,7 @@
                             <form method="POST" action="{{ route('logout') }}">
                                 @csrf
                                 <x-dropdown-link :href="route('logout')"
-                                    onclick="event.preventDefault(); this.closest('form').submit();">
+                                        onclick="event.preventDefault(); this.closest('form').submit();">
                                     {{ __('Log Out') }}
                                 </x-dropdown-link>
                             </form>
@@ -199,12 +211,16 @@
                     Itineraries
                 </x-responsive-nav-link>
 
+                <x-responsive-nav-link :href="route('traveler.experts')"
+                                       :active="request()->routeIs('traveler.experts')">
+                    Experts
+                </x-responsive-nav-link>
+
                 <x-responsive-nav-link :href="route('traveler.preference-profiles.index')"
                                        :active="request()->routeIs('traveler.preference-profiles.*')">
                     Preferences
                 </x-responsive-nav-link>
 
-                {{-- Rewards --}}
                 <x-responsive-nav-link :href="route('traveler.rewards')"
                                        :active="request()->routeIs('traveler.rewards')">
                     Rewards

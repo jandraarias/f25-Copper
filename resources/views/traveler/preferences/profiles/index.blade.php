@@ -22,6 +22,11 @@
             <div class="bg-white dark:bg-sand-800 text-ink-900 dark:text-ink-200
                         shadow-soft rounded-3xl p-8 border border-sand-200 dark:border-ink-700
                         transition-all duration-200 ease-out hover:shadow-glow hover:scale-[1.01]">
+                <div class="bg-white dark:bg-sand-800 shadow-soft rounded-3xl p-8 border border-sand-200 dark:border-ink-700
+                        transition-all duration-200 ease-out hover:shadow-glow hover:scale-[1.01]">
+                <p class="text-lg font-semibold text-ink-900 dark:text-ink-100">
+                    Preference Profiles
+                </p>
                 <p class="text-ink-700 dark:text-sand-100 leading-relaxed">
                     Manage your travel preference profiles below. Each profile helps us tailor your trips
                     based on your favorite activities, budget, and lifestyle preferences.
