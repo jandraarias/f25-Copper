@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Traveler;
 
 use App\Http\Controllers\Controller;
+use App\Models\Reward;
 use Illuminate\Http\Request;
 
 class RewardsController extends Controller

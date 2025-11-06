@@ -20,6 +20,7 @@ use App\Http\Controllers\Traveler\ItineraryItemController;
 use App\Http\Controllers\Traveler\PreferenceProfileController;
 use App\Http\Controllers\Traveler\PreferenceController;
 use App\Http\Controllers\Traveler\ItineraryInvitationController;
+use App\Http\Controllers\Traveler\RewardsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -27,19 +28,15 @@ use App\Http\Controllers\Traveler\ItineraryInvitationController;
 |--------------------------------------------------------------------------
 */
 
-// Publicly viewable itineraries (short & long URLs)
 Route::middleware(['throttle:20,1'])->get('/i/{uuid}', [PublicItineraryController::class, 'show'])
     ->name('public.itinerary.short');
 
 Route::middleware(['throttle:20,1'])->get('/public/itineraries/{uuid}', [PublicItineraryController::class, 'show'])
     ->name('public.itinerary.show');
 
-// Landing page redirect by role
 Route::get('/', function () {
     if (Auth::check()) {
-        $user = Auth::user();
-
-        return match ($user->role) {
+        return match (Auth::user()->role) {
             'admin'     => redirect()->route('admin.dashboard'),
             'expert'    => redirect()->route('expert.dashboard'),
             'business'  => redirect()->route('business.dashboard'),
@@ -56,6 +53,7 @@ Route::get('/', function () {
 | Profile (Authenticated)
 |--------------------------------------------------------------------------
 */
+
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -67,10 +65,12 @@ Route::middleware('auth')->group(function () {
 | Admin
 |--------------------------------------------------------------------------
 */
+
 Route::middleware(['auth', 'role:admin'])
     ->prefix('admin')
     ->name('admin.')
     ->group(function () {
+
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
         // User Management
@@ -89,6 +89,7 @@ Route::middleware(['auth', 'role:admin'])
 | Expert
 |--------------------------------------------------------------------------
 */
+
 Route::middleware(['auth', 'role:expert'])->group(function () {
     Route::get('/expert/dashboard', [ExpertController::class, 'index'])->name('expert.dashboard');
 });
@@ -98,6 +99,7 @@ Route::middleware(['auth', 'role:expert'])->group(function () {
 | Business
 |--------------------------------------------------------------------------
 */
+
 Route::middleware(['auth', 'role:business'])->group(function () {
     Route::get('/business/dashboard', [BusinessController::class, 'index'])->name('business.dashboard');
 });
@@ -107,59 +109,54 @@ Route::middleware(['auth', 'role:business'])->group(function () {
 | Traveler
 |--------------------------------------------------------------------------
 */
+
 Route::middleware(['auth', 'role:traveler'])
     ->prefix('traveler')
     ->name('traveler.')
     ->group(function () {
+
         // Traveler Dashboard
         Route::get('/dashboard', [TravelerDashboardController::class, 'index'])->name('dashboard');
 
-        // Itineraries CRUD (owners + collaborators via policy)
+        // Itineraries CRUD
         Route::resource('itineraries', ItineraryController::class);
 
-        // 🆕 AI Itinerary Generation / Regeneration
-        // This route allows a traveler to manually trigger (re)generation of itinerary items.
+        // AI Itinerary Generation / Regeneration
         Route::post('itineraries/{itinerary}/generate', [ItineraryController::class, 'generate'])
             ->name('itineraries.generate');
 
-        // Collaboration: Invite route (authenticated travelers)
+        // Collaboration: Invite route
         Route::post('itineraries/{itinerary}/invite', [ItineraryController::class, 'invite'])
             ->name('itineraries.invite');
 
-        // Itinerary Items (nested, shallow)
+        // Itinerary Items
         Route::resource('itineraries.items', ItineraryItemController::class)
             ->shallow()
             ->only(['store', 'update', 'destroy']);
 
-        // Preference Profiles CRUD
+        // Preference Profiles
         Route::resource('preference-profiles', PreferenceProfileController::class);
 
-        // Preferences nested under profiles
+        // Preferences under profiles
         Route::resource('preference-profiles.preferences', PreferenceController::class)
             ->shallow()
             ->only(['create', 'store', 'edit', 'update', 'destroy']);
 
-        // Explicit create route for preferences
+        // Explicit preferences create
         Route::get('preference-profiles/{preferenceProfile}/preferences/create', [PreferenceController::class, 'create'])
             ->name('preferences.create');
 
-        // Regenerate (AI) Itinerary
-        Route::post('itineraries/{itinerary}/generate', [ItineraryController::class, 'generate'])
-            ->name('itineraries.generate');
-        
-        // Get Rewards 
-        Route::get('/rewards', [RewardsController::class, 'indedx'])->name('traveler.rewards');
+        // Correct Rewards Route
+        Route::get('/rewards', [RewardsController::class, 'index'])
+            ->name('rewards');
     });
 
 /*
 |--------------------------------------------------------------------------
 | Itinerary Invitations (Public)
 |--------------------------------------------------------------------------
-|
-| These routes are used by recipients (who may or may not be logged in)
-| to accept or decline an invitation via token links in their email.
-|
 */
+
 Route::prefix('itinerary-invitations')->name('itinerary-invitations.')->group(function () {
     Route::get('{token}', [ItineraryInvitationController::class, 'show'])->name('show');
     Route::post('{token}/accept', [ItineraryInvitationController::class, 'accept'])->name('accept');
@@ -168,16 +165,18 @@ Route::prefix('itinerary-invitations')->name('itinerary-invitations.')->group(fu
 
 /*
 |--------------------------------------------------------------------------
-| Itinerary PDF (Authenticated)
+| Itinerary PDF
 |--------------------------------------------------------------------------
 */
+
 Route::get('/itineraries/{itinerary}/pdf', ItineraryPdfController::class)
     ->middleware(['web', 'auth'])
     ->name('itineraries.pdf');
 
 /*
 |--------------------------------------------------------------------------
-| Auth Scaffolding
+| Auth
 |--------------------------------------------------------------------------
 */
+
 require __DIR__ . '/auth.php';
