@@ -11,19 +11,27 @@ use Database\Factories\ItineraryItemFactory;
 use Database\Factories\PreferenceProfileFactory;
 use Database\Factories\PreferenceFactory;
 
+
 class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
+
+        // Seed the experts
+        $this->call(ExpertSeeder::class);
+
         // Seed the  preference options
         $this->call(PreferencesTableSeeder::class);
 
         // Seed the countries first
         $this->call(CountrySeeder::class);
 
+        // Seed the Rewards Table
+        $this->call(RewardsTableSeeder::class);
+
         // Admin user
         User::query()->updateOrCreate(
-            ['email' => 'admin@example.com'],
+            ['email' => 'admin@test.com'],
             [
                 'name' => 'Admin User',
                 'password' => Hash::make('password'),

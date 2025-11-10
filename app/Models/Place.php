@@ -51,12 +51,13 @@ class Place extends Model
     {
         return $this->hasMany(ItineraryItem::class);
     }
+    public function rewards(){
+        return $this->hasMany(Reward::class);
+    }
 
     /* -----------------------------------------------------------------
      |  Accessors – expose normalized fields from meta
-     |------------------------------------------------------------------*/
-
-    /**
+     |------------------------------------------------------------
      * Returns address if present in meta.
      */
     protected function address(): Attribute
