@@ -9,7 +9,7 @@ use Carbon\Carbon;
 use App\Models\Place;
 use App\Models\Review;
 
-/**
+/*
  * Artisan command: imports Places & Reviews from two CSVs.
  *
  * Key behaviors:
@@ -28,18 +28,19 @@ class ImportPlacesReviews extends Command
         {--truncate : Truncate places & reviews before import}
         {--dry-run  : Parse and validate, but do not write to DB}';
 
-    protected $description = 'Import places & reviews from CSV (strictly keyed by place_id).';
+    //protected $description = 'Import places & reviews from CSV (strictly keyed by place_id).';
+    protected $description = 'Scan folders of CSVs, pair place/review files, and import them efficiently.';
 
     public function handle(): int
     {
         // Increases memory limit for large CSVs
         ini_set('memory_limit', '1G');
 
-        $placesPath  = $this->resolvePath($this->option('places')  ?: 'seed/places.csv');
-        $reviewsPath = $this->resolvePath($this->option('reviews') ?: 'seed/reviews.csv');
+        $placesPath  = storage_path('app/private/places');
+        $reviewsPath = storage_path('app/private/reviews');
 
-        $this->info("Places CSV  : {$placesPath}");
-        $this->info("Reviews CSV : {$reviewsPath}");
+        // Whether to simulate only (no DB writes)
+        $dry = (bool) $this->option('dry-run');
 
         // Optionally wipe both tables before importing.
         if ($this->option('truncate')) {
@@ -52,273 +53,332 @@ class ImportPlacesReviews extends Command
             $this->comment('Truncated places and reviews.');
         }
 
-        // Read both CSVs fully into arrays 
-        $places  = $this->readCsv($placesPath);
-        $reviews = $this->readCsv($reviewsPath);
-
+        // Get full paths of all .csv files in each folder
+        $placeFiles  = $this->listCsv($placesPath);
+        $reviewFiles = $this->listCsv($reviewsPath);
+        
         // If both are empty/missing, exit cleanly.
-        if (!count($places) && !count($reviews)) {
-            $this->warn('No rows found in either CSV. Nothing to do.');
+        if (empty($placeFiles)) {
+            $this->warn('No place records found. Aborting import.');
             return self::SUCCESS;
         }
-        
-        // Whether to simulate only (no DB writes)
-        $dry = (bool) $this->option('dry-run');
 
-        // Maps for linking reviews → places
-        $extMap  = [];   // place_id (string) -> places.id
-        $nameMap = [];   // normalized name -> places.id (fallback only)
+        // Loop over each places CSV file
+        foreach ($placeFiles as $placeFile) {
+            // For the current places file find a matching reviews file 
+            $match = $this->findMatchingReviewFile(basename($placeFile), $reviewFiles);
 
-        $created = 0; $updated = 0;
-        foreach ($places as $r) {
-            // Extract key fields from a place row
-            $placeId = $this->str($r['place_id'] ?? null);
-            $name    = $this->str($r['name'] ?? $r['place_name'] ?? null);
-            if (!$name) continue; // must have a name
+            // blank line for readability
+            $this->line('');
 
-            $lat = $this->num($r['lat'] ?? $r['latitude'] ?? null);
-            $lon = $this->num($r['lon'] ?? $r['lng'] ?? $r['longitude'] ?? null);
-
-            if (!$dry) {
-                // Try to find an existing place by (name, lat, lon) if coordinates exist; else by name only.
-                $query = $lat !== null && $lon !== null
-                    ? ['name'=>$name,'lat'=>$lat,'lon'=>$lon]
-                    : ['name'=>$name];
-                
-                // Prepare persisted columns. `meta` stores raw CSV row for traceability.
-                $payload = [
-                    'name'     => $name,
-                    'lat'      => $lat,
-                    'lon'      => $lon,
-                    'category' => $this->flattenCategory($r['main_category'] ?? $r['category'] ?? $r['categories'] ?? null),
-                    'rating'   => $this->num($r['rating'] ?? null),
-                    'source'   => 'gmaps_scrape_local',
-                    'meta'     => $r, // array; Review::$casts will JSON it
-                ];
-
-                // Upsert behavior
-                $place = Place::where($query)->first();
-                if ($place) { $place->fill($payload)->save(); $updated++; }
-                else        { $place = Place::create($payload); $created++; }
-
-                // mapping for quick review linkage
-                if ($placeId) $extMap[$placeId] = $place->id;
-                if ($name)    $nameMap[$this->norm($name)] = $place->id;
+            // Log which files are being processed
+            $this->info("Importing: " . basename($placeFile));
+            if ($match) {
+                $this->info("   Matched reviews: " . basename($match));
             } else {
-                // In dry-run, just count and build fake positive IDs so we can still test flows
-                $created++;
-                if ($placeId) $extMap[$placeId] = -1;
-                if ($name)    $nameMap[$this->norm($name)] = -1;
+                $this->warn("   No matching reviews found for this places file.");
+            }
+
+            // If we have a matching reviews file, build the external-id allowlist
+            $allowIds = [];
+            if ($match) {
+                $allowIds = $this->collectReviewPlaceIds($match);
+            }
+
+            // Choose your threshold for minimum reviews a place must have to be imported
+            $minReviews = 15;
+
+            // 1) Import places, build ext map & name map (for this file only)
+            [$extMap, $nameMap, $created, $updated, $placeCount] = $this->importPlacesCsv($placeFile, $dry, $allowIds, $minReviews);
+            $this->info("   Places → created {$created}, updated {$updated} (rows seen: {$placeCount})");
+
+            // 2) Import reviews (only if match exists)
+            if ($match) {
+                [$inserted, $skipped, $noExt, $noName, $rowsSeen] = $this->importReviewsCsv($match, $extMap, $nameMap, $dry);
+                $this->info("   Reviews → inserted {$inserted}, skipped {$skipped} (no ext match: {$noExt}, no name match: {$noName}; rows seen: {$rowsSeen})");
             }
         }
-        $this->info("Places → created {$created}, updated {$updated}");
-        $this->line('Place map (place_id) count: '.count($extMap));
-
-        // Quick visibility: how many distinct review place_ids actually match?
-        $reviewIds = [];
-        foreach ($reviews as $r) {
-            $pid = $this->str($r['place_id'] ?? null);
-            if ($pid) $reviewIds[$pid] = true;
-        }
-        $distinctReviewIds = array_keys($reviewIds);
-        $hits = 0;
-        foreach ($distinctReviewIds as $pid) if (isset($extMap[$pid])) $hits++;
-        $this->line('Distinct review place_id: '.count($distinctReviewIds)."; match in places: {$hits}");
-
-        // Now import reviews
-        $inserted = 0; $skipped = 0; $noId = 0; $noName = 0;
-        foreach ($reviews as $r) {
-            // Preferred linkage: by external place_id
-            $pid = $this->str($r['place_id'] ?? null);
-            $placeId = null;
-
-            $dry = (bool) $this->option('dry-run');
-
-            if ($pid && isset($extMap[$pid])) {
-                $placeId = $dry ? 1 : $extMap[$pid]; // positive dummy id in dry-run
-            } else {
-                // Fallback: link by normalized name.
-                $nm = $this->norm($this->str($r['place_name'] ?? $r['name'] ?? null));
-                if ($nm && isset($nameMap[$nm]) && $nameMap[$nm] > 0) {
-                    $placeId = $nameMap[$nm];
-                }
-            }
-
-            // If still not found, optionally create a stub Place from the review (only if not dry-run).
-            if (!$placeId) {
-                // Try to create a place on the fly (only if you’re OK with this behavior)
-                $placeName = $this->str($r['place_name'] ?? $r['name'] ?? null);
-                if ($placeName && !$dry) {
-                    $new = Place::create([
-                        'name'   => $placeName,
-                        'source' => 'gmaps_scrape_local',
-                        'meta'   => ['created_from_review' => true],
-                    ]);
-                    $placeId = $new->id;
-
-                    // Optionally remember it so later reviews to the same name resolve fast
-                    $nameKey = $this->norm($placeName);
-                    if ($nameKey) $nameMap[$nameKey] = $placeId;
-                }
-                // If still missing, count which kind failed (missing pid vs missing name).
-                if (!$placeId) { $pid ? $noId++ : $noName++; $skipped++; continue; }
-            }
-            
-            // Extract review fields.
-            $author = $this->str($r['author'] ?? $r['author_name'] ?? $r['username'] ?? $r['name'] ?? 'Anonymous');
-            $text   = $this->str($r['review_text'] ?? $r['text'] ?? $r['comment'] ?? $r['content'] ?? '');
-            $rating = $this->intOrNull($r['rating'] ?? $r['stars'] ?? $r['score'] ?? null);
-
-            // skips unrated reviews
-            if ($rating === null) { $skipped++; continue; }
-
-            // Parse published date from various possible columns
-            $published = $this->parseDate($this->str($r['published_at_date'] ?? $r['published_at'] ?? $r['time'] ?? $r['timestamp'] ?? $r['date'] ?? null));
-            $fetchedAt = now();
-
-            if (!$dry) {
-                // basic de-dupe
-                // Consider duplicates same if same place_id + author + text + published_at_date (NULLs handled explicitly).
-                $q = Review::where('place_id', $placeId);
-                $author !== '' ? $q->where('author', $author) : $q->whereNull('author');
-                $text   !== '' ? $q->where('text', $text)     : $q->whereNull('text');
-                $published ? $q->where('published_at_date', $published) : $q->whereNull('published_at_date');
-
-                if ($q->exists()) { $skipped++; continue; }
-
-                // Create the review.
-                Review::create([
-                    'place_id'          => $placeId,
-                    'source'            => 'gmaps_scrape_local',
-                    'rating'            => $rating,
-                    'text'              => $text,
-                    'author'            => $author,
-                    'published_at_date' => $published,
-                    'fetched_at'        => $fetchedAt,
-                    'meta'              => $r,
-                ]);
-            }
-
-            $inserted++;
-        }
-
-        // Summary log (with breakdown on why reviews were skipped)
-        $this->info("Reviews → inserted {$inserted}, skipped {$skipped} (no ext match: {$noId}, no name match: {$noName})");
-        $this->info('Import complete');
-        return self::SUCCESS;
+    $this->info("\nAll done.");
+    return self::SUCCESS;
     }
 
-    /* ---------------- helpers ---------------- */
-
-    /**
-     * Convert a path option into a real path.
-     * - If absolute file exists → return as-is
-     * - Else resolve relative to storage/app
-     */
-    private function resolvePath(string $input): string
+    private function listCsv(string $dir): array
     {
-        return is_file($input) ? $input : Storage::disk('local')->path($input);
+        // Initialize an empty array that will hold the full paths of any .csv files that are found
+        $out = [];
+        foreach (scandir($dir) ?: [] as $f) {
+            if ($f === '.' || $f === '..') continue;
+            $p = $dir . DIRECTORY_SEPARATOR . $f;
+            if (is_file($p) && preg_match('/\.csv$/i', $f)) $out[] = $p;
+        }
+        return $out;
     }
 
-    /**
-     * Read a small/medium CSV fully into memory.
-     * - First row = header (lowercased & trimmed)
-     */
-    private function readCsv(string $absPath): array
-    {
-        if (!is_file($absPath)) { $this->warn("Missing file: {$absPath}"); return []; }
-        if (($fp = fopen($absPath, 'r')) === false) { $this->error("Cannot open: {$absPath}"); return []; }
+    // “Compare by first two underscore-separated tokens”, like your original
+    private function compareFileNames(string $placeFile, string $reviewFile): bool
+    {   
+        // slipts the file name into an array and takes the first two elements (ex:['williamsburg','food'])
+        $place = array_slice(explode('_', $placeFile), 0, 2);       // explode('_', $placeFile) splits a string into an array based on the delimiter '_' ("williamsburg_food_places.csv" -> ['williamsburg','food','places.csv'])
+        $review = array_slice(explode('_', $reviewFile), 0, 2);     // array_slice(..., 0, 2) extracts a portion of an array (the first two elements in this case)
 
-        $rows = []; $header = null;
-        while (($row = fgetcsv($fp)) !== false) {
-            if ($header === null) { 
-                // Use the first line as the header
-                $header = array_map(fn($h)=>Str::of($h)->lower()->trim()->toString(), $row); 
-                continue; 
-            }
-            
-            // Skip fully empty rows.
-            if (!array_filter($row, fn($v)=>$v!==null && $v!=='')) continue;
-
-            $assoc=[];
-            foreach ($row as $i=>$val) {
-                $key = $header[$i] ?? ("col_{$i}");
-                $assoc[$key] = is_string($val) ? trim($val) : $val;
-            }
-            $rows[]=$assoc;
-        }
-        fclose($fp);
-        $this->comment("Read ".count($rows)." rows from ".basename($absPath));
-        return $rows;
+        // Returns true only if both arrays are identical in content and order
+        return $place === $review;
     }
 
-    /**
-     * Stream a CSV generator (alternative for very large files).
-     * Not used in main flow right now, but available to avoid loading the entire file into memory.
-     */
-    private function streamCsv(string $absPath): \Generator
+    private function findMatchingReviewFile(string $placeBase, array $reviewFiles): ?string
     {
-        if (!is_file($absPath)) {
-            $this->warn("Missing file: {$absPath}");
-            if (false) yield []; // generator signature
-            return;
+        foreach ($reviewFiles as $full) {
+            if ($this->compareFileNames($placeBase, basename($full))) return $full;
         }
+        return null;
+    }
 
-        $fh = fopen($absPath, 'r');
-        if (!$fh) {
-            $this->error("Unable to open: {$absPath}");
-            if (false) yield [];
-            return;
-        }
+    /* ==================== CSV streaming ==================== */
 
-        // Detect header
+    // Memory-friendly streaming reader. Returns a Generator of assoc rows.
+    private function streamCsv(string $path): \Generator
+    {
+        // if the path isn’t a real file, log a warning and return no generator values.
+        if (!is_file($path)) { $this->warn("Missing file: {$path}"); return; }
+
+        // Open the file for reading. If it fails, log an error and stop.
+        $fh = fopen($path, 'r');
+        if (!$fh) { $this->error("Cannot open: {$path}"); return; }
+
         $header = null;
-        $lineno = 0;
+
+        // fgetcsv reads one CSV line at a time and parses it into an array of fields.
         while (($row = fgetcsv($fh)) !== false) {
-            $lineno++;
             if ($header === null) {
-                // lower-case + trim headers
-                $header = array_map(static fn($h) => strtolower(trim((string)$h)), $row);
+                $header = array_map(fn($h) => Str::of($h)->lower()->trim()->toString(), $row);
                 continue;
             }
-            // skip fully-empty lines
+
+            // Skip empty lines
             if (!array_filter($row, fn($v) => $v !== null && $v !== '')) continue;
 
-            // build assoc
             $assoc = [];
+            // If a row has more columns than the header (messy CSV), we name the extra ones col_0, col_1, etc.
             foreach ($row as $i => $val) {
                 $key = $header[$i] ?? ("col_{$i}");
                 $assoc[$key] = is_string($val) ? trim($val) : $val;
             }
             yield $assoc;
         }
+        // closes file when done
         fclose($fh);
     }
 
-    // Normalize any value to a trimmed string
-    private function str($v): ?string
+    /* ==================== Import: Places ==================== */
+
+    private function importPlacesCsv(string $csvPath, bool $dry, array $allowedExtIds = [], int $minReviews = 0): array
+    {
+        $extMap = [];   // place_id -> places.id
+        $nameMap = [];  // normalized name -> places.id
+
+        $created = 0; $updated = 0; $seen = 0;
+
+        foreach ($this->streamCsv($csvPath) as $r) {
+            $seen++;
+
+            // external id names
+            $ext   = $this->s($r['place_id'] ?? null);
+            $name  = $this->s($r['name'] ?? $r['place_name'] ?? null);
+            if (!$name) continue;
+
+            // 1) Must be present in reviews (if a reviews set is provided)
+            if (!empty($allowedExtIds)) {
+                // If no external id in the row OR not present in the reviews set -> skip
+                if (!$ext || !isset($allowedExtIds[$ext])) continue;
+            }
+            // 2) Must meet minimum reviews count (if set)
+            $reviewsCount = $this->i($r['reviews'] ?? $r['num_reviews'] ?? null);
+            if ($minReviews > 0 && ($reviewsCount === null || $reviewsCount < $minReviews)) {
+                continue;
+            }
+
+            // optional numeric
+            $lat = $this->f($r['lat'] ?? $r['latitude'] ?? null);
+            $lon = $this->f($r['lon'] ?? $r['lng'] ?? $r['longitude'] ?? null);
+
+            // Map the CSV to the Database columns
+            $payload = [ 
+                'name'        => $name,
+                'description' => $this->s($r['description'] ?? null),
+                'num_reviews' => $this->i($r['reviews'] ?? $r['num_reviews'] ?? null),
+                'address'     => $this->s($r['address'] ?? null),
+                'phone'       => $this->s($r['phone'] ?? null),
+                'lat'         => $lat,
+                'lon'         => $lon,
+                'category'    => $this->flattenCategory($r['main_category'] ?? $r['category'] ?? $r['categories'] ?? null),
+                'rating'      => $this->f($r['rating'] ?? null),  // place avg rating if provided
+                'tags'        => $this->normalizeTags($this->s($r['review_keywords'] ?? null)),
+                'image'       => $this->s($r['featured_image'] ?? $r['image'] ?? null),
+                'source'      => 'google_maps_scraper',
+                'meta'        => $r,
+            ];
+
+            // Dry run, doesnt write to Database
+            if ($dry) {
+                $created++;
+                if ($ext) $extMap[$ext] = -1;
+                $nameMap[$this->norm($name)] = -1;
+                continue;
+            }
+
+            // upsert by (name, lat, lon) if both coords present, if not fall back to matching by name.
+            $place = null;
+            if ($lat !== null && $lon !== null) {
+                $place = Place::where(['name' => $name, 'lat' => $lat, 'lon' => $lon])->first();
+            }
+            if (!$place) $place = Place::where('name', $name)->first();
+
+            // Update existing or create a new place; update counters.
+            if ($place) { $place->fill($payload)->save(); $updated++; }
+            else        { $place = Place::create($payload);            $created++; }
+
+            if ($ext) $extMap[$ext] = $place->id;
+            $nameMap[$this->norm($name)] = $place->id;
+        }
+        // Give the caller everything needed for review linking and reporting
+        return [$extMap, $nameMap, $created, $updated, $seen];
+    }
+
+    /* ==================== Import: Reviews ==================== */
+
+    private function importReviewsCsv(string $csvPath, array $extMap, array $nameMap, bool $dry): array
+    {
+        $inserted = 0; $skipped = 0; $noExt = 0; $noName = 0; $seen = 0;
+
+        // Reads one review row at a time
+        foreach ($this->streamCsv($csvPath) as $r) {
+            $seen++;
+
+            $pid = $this->s($r['place_id'] ?? null);
+            $placeId = null;
+
+            // First try to link via external place_id from the CSV
+            if ($pid && isset($extMap[$pid])) {
+                $placeId = $dry ? 1 : $extMap[$pid]; // positive dummy id for dry-run
+            }
+
+            // If external id didn’t resolve, try name fallback
+            if (!$placeId) {
+                $nm = $this->norm($this->s($r['place_name'] ?? $r['name'] ?? null));
+                if ($nm && isset($nameMap[$nm]) && $nameMap[$nm] > 0) {
+                    $placeId = $nameMap[$nm];
+                }
+            }
+
+            // If still no place_id match, skip this review
+            if (!$placeId) { $pid ? $noExt++ : $noName++; $skipped++; continue; }
+
+            $author = $this->s($r['author'] ?? $r['author_name'] ?? $r['username'] ?? $r['name'] ?? 'Anonymous');
+            $text   = $this->s($r['review_text'] ?? $r['text'] ?? $r['comment'] ?? $r['content'] ?? '');
+            $rating = $this->i($r['rating'] ?? $r['stars'] ?? $r['score'] ?? null);
+
+            // Convert to DATE ONLY (Y-m-d) to match published_at_date (DATE) column
+            $published = $this->toDateOnly($r['published_at_date'] ?? $r['published_at'] ?? $r['time'] ?? $r['timestamp'] ?? $r['date'] ?? null);
+
+            if ($dry) { $inserted++; continue; }
+
+            // Checks if a review already exists for the same place_id and same (author, text, published_at_date). If found, skip
+            $q = Review::where('place_id', $placeId);
+            ($author !== '') ? $q->where('author', $author) : $q->whereNull('author');
+            ($text   !== '') ? $q->where('text', $text)     : $q->whereNull('text');
+            ($published)     ? $q->where('published_at_date', $published)
+                                : $q->whereNull('published_at_date');
+
+            if ($q->exists()) { $skipped++; continue; }
+
+            // Writes the review, then increments inserted
+            Review::create([
+                'place_id'          => $placeId,
+                'place_name'        => $this->s($r['place_name'] ?? null), // if you have this column
+                'source'            => 'google_maps_scraper',
+                'rating'            => $rating,        // null ok if column is nullable
+                'text'              => $text,
+                'author'            => $author,        // requires `author` column
+                'published_at_date' => $published,     // DATE (Y-m-d)
+                'fetched_at'        => now(),
+                'owner_response'                 => $this->s($r['response_from_owner_text'] ?? null),
+                'owner_response_published_date'  => $this->toDateOnly($r['response_from_owner_date'] ?? null),
+                'review_photos'                  => $this->s($r['review_photos'] ?? null),
+                'meta'              => $r,             // stored as JSON by Eloquent
+            ]);
+
+            $inserted++;
+        }
+
+        return [$inserted, $skipped, $noExt, $noName, $seen];
+    }
+
+    /* ---------------- helpers ---------------- */
+
+    // Return a set (assoc array) of external place_ids present in the reviews CSV
+    private function collectReviewPlaceIds(string $reviewsCsv): array
+    {
+        $ids = [];
+        foreach ($this->streamCsv($reviewsCsv) as $r) {
+            $pid = $this->s($r['place_id'] ?? null);
+            if ($pid) $ids[$pid] = true;
+        }
+        return $ids;
+    }
+
+    private function normalizeTags(?string $raw): ?string
+    {
+        if ($raw === null) return null;
+
+        // If it looks like a paragraph (no commas and very long), drop it.
+        if (mb_strpos($raw, ',') === false && mb_strlen($raw) > 120) {
+            return null;
+        }
+
+        // Split on commas, clean each token
+        $parts = array_filter(array_map(function ($p) {
+            $p = trim($p);
+            $p = preg_replace('/[^[:alnum:]\s\-\&]/u', '', $p); // keep letters/numbers/space/&/-
+            $p = preg_replace('/\s+/u', ' ', $p);
+            return $p;
+        }, explode(',', $raw)));
+
+        // Cap to a reasonable number of tags (e.g., 5)
+        $parts = array_slice($parts, 0, 5);
+        if (empty($parts)) return null;
+
+        $out = implode(', ', $parts);
+
+        // Hard cap to 255 to fit VARCHAR(255)
+        if (mb_strlen($out) > 255) {
+            $out = mb_substr($out, 0, 255);
+        }
+        return $out;
+    }
+
+    private function s($v): ?string
     {
         if ($v === null) return null;
         if (is_array($v) || is_object($v)) return trim(json_encode($v, JSON_UNESCAPED_UNICODE));
         return trim((string)$v);
     }
 
-    // Parse a number (float) from common string formats like "4.6" or "1,234.5"
-    private function num($v): ?float
+    // “Safe float.” Converts messy numeric-looking CSV values into a float (or null).
+    private function f($v): ?float
     {
         if ($v === null || $v === '') return null;
         $s = str_replace([','], [''], (string)$v);
         return is_numeric($s) ? (float)$s : null;
     }
 
-    // Int or null helper (used for ratings)
-    private function intOrNull($v): ?int
+    // Safe int
+    private function i($v): ?int
     {
         if ($v === null || $v === '') return null;
         return is_numeric($v) ? (int)$v : null;
     }
-
-    // Normalize a name for case-insensitive & spacing-insensitive comparisons
+    
+    // Normalize name (for nameMap)
     private function norm(?string $name): ?string
     {
         return $name ? Str::of($name)->lower()->replace(['&',' and '], ' and ')->squish()->toString() : null;
@@ -334,10 +394,23 @@ class ImportPlacesReviews extends Command
         return $raw;
     }
 
-    private function parseDate(?string $v): ?Carbon
+    // Return DATE string (Y-m-d) or null
+    private function toDateOnly($raw): ?string
     {
-        if ($v === null || $v === '') return null;
-        if (ctype_digit((string)$v)) return Carbon::createFromTimestamp((int)$v);
-        try { return Carbon::parse($v, 'UTC'); } catch (\Throwable) { return null; }
+        $s = $this->s($raw);
+        if ($s === null || $s === '') return null;
+
+        // Epoch?
+        if (ctype_digit($s)) {
+            try { return Carbon::createFromTimestamp((int)$s)->toDateString(); } catch (\Throwable) { return null; }
+        }
+
+        // Strings like "6 months ago" won’t parse reliably; ignore those gracefully
+        try {
+            $dt = Carbon::parse($s, 'UTC');
+            return $dt->toDateString();
+        } catch (\Throwable) {
+            return null;
+        }
     }
 }
