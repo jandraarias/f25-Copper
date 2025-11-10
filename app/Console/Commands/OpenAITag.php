@@ -5,7 +5,6 @@ namespace App\Console\Commands;
 use League\Csv\Reader;
 use League\Csv\Writer;
 use OpenAI\Exceptions\TransporterException;
-use OpenAI\Exceptions;
 use Illuminate\Console\Command;
 use App\Models\Review;
 use App\Models\PreferenceOption;
@@ -64,7 +63,7 @@ class OpenAITag extends Command
            }
 
            //Write the updated records to a new csv
-           $writer = Writer::createFromPath(storage_path('app\private\places\Williamsburg_food_overview.csv'), 'w+');
+           $writer = Writer::createFromPath(($csvPath), 'w+');
            $header = $reader->getHeader();
            $writer->insertOne($header);
            $writer->insertAll($updatedRecords);
@@ -110,7 +109,7 @@ class OpenAITag extends Command
 
         //Prompt placed to OpenAI
         $prompt = 'Use the information in these 25 user reviews ' . $reviewsString . "\n To select between 1-5 of these tags " . $tagsString . "\n for this location " 
-        . $place . ".\n Only select a cusine if food is the primary reason to go to the place. Never select more than 5 tags. Give me just the tags as a comma seperated list";
+        . $place . ".\n Only select a cuisine if food is the primary reason to go to the place. Never select more than 5 tags. Give me just the tags as a comma seperated list";
 
         //OpenAI role assignments
         $messages = [
