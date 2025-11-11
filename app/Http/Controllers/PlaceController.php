@@ -24,14 +24,33 @@ class PlaceController extends Controller
                 ->get(['id', 'name']);
         }
 
-        // Pagination: per_page = 10 by default, allowed values: 5–100
+        // Pagination allowed: 5, 10, 25, 50, 100
         $perPage = (int) $request->query('per_page', 10);
         $perPage = in_array($perPage, [5, 10, 25, 50, 100]) ? $perPage : 10;
 
-        $reviews = $place->reviews()
+        /**
+         * Fetch ALL reviews (small dataset)
+         * Deduplicate BEFORE pagination
+         * Then manually paginate the unique collection
+         */
+        $allReviews = $place->reviews()
             ->orderByDesc('published_at_date')
-            ->paginate($perPage)
-            ->withQueryString(); // Keeps per_page on page links
+            ->get()
+            ->unique(fn($r) => $r->author . '|' . $r->content)
+            ->values();
+
+        // Manual pagination on the unique reviews
+        $currentPage = $request->query('page', 1);
+        $pagedReviews = $allReviews->slice(($currentPage - 1) * $perPage, $perPage);
+
+        // Convert sliced results into a LengthAwarePaginator
+        $reviews = new \Illuminate\Pagination\LengthAwarePaginator(
+            $pagedReviews,
+            $allReviews->count(),       // Total unique reviews
+            $perPage,
+            $currentPage,
+            ['path' => $request->url(), 'query' => $request->query()]
+        );
 
         return view('places.show', [
             'place'       => $place,
