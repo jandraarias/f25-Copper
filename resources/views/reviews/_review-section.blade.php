@@ -16,6 +16,7 @@
 
             {{-- Per-page --}}
             <form method="GET" class="flex items-center gap-2">
+
                 <label for="per_page" class="text-sm text-ink-700 dark:text-sand-200 whitespace-nowrap">
                     Per page:
                 </label>
@@ -33,15 +34,17 @@
                     @endforeach
                 </select>
 
-                {{-- preserve existing filters --}}
+                {{-- Preserve existing filters --}}
                 @foreach(request()->except('per_page') as $key => $val)
-                    <input type="hidden" name="{{ $key }}" value="{{ $val }}">
+                    @if(!is_array($val))
+                        <input type="hidden" name="{{ $key }}" value="{{ $val }}">
+                    @endif
                 @endforeach
             </form>
 
-
             {{-- Sort --}}
             <form method="GET" class="flex items-center gap-2">
+
                 <label for="sort" class="text-sm text-ink-700 dark:text-sand-200 whitespace-nowrap">
                     Sort:
                 </label>
@@ -52,41 +55,58 @@
                         class="rounded-lg border border-sand-300 dark:border-ink-600
                                bg-white dark:bg-ink-700 text-sm px-3 py-2
                                text-ink-800 dark:text-sand-100 shadow-sm">
-                    <option value="newest"  {{ request('sort', 'newest') === 'newest' ? 'selected' : '' }}>Newest</option>
-                    <option value="oldest"  {{ request('sort') === 'oldest' ? 'selected' : '' }}>Oldest</option>
-                    <option value="highest" {{ request('sort') === 'highest' ? 'selected' : '' }}>Highest Rated</option>
-                    <option value="lowest"  {{ request('sort') === 'lowest' ? 'selected' : '' }}>Lowest Rated</option>
+
+                    <option value="newest"  {{ request('sort', 'newest') === 'newest' ? 'selected' : '' }}>
+                        Newest
+                    </option>
+
+                    <option value="oldest"  {{ request('sort') === 'oldest' ? 'selected' : '' }}>
+                        Oldest
+                    </option>
+
+                    <option value="highest" {{ request('sort') === 'highest' ? 'selected' : '' }}>
+                        Highest Rated
+                    </option>
+
+                    <option value="lowest"  {{ request('sort') === 'lowest' ? 'selected' : '' }}>
+                        Lowest Rated
+                    </option>
+
                 </select>
 
-                {{-- preserve filters --}}
+                {{-- Preserve filters --}}
                 @foreach(request()->except('sort') as $key => $val)
-                    <input type="hidden" name="{{ $key }}" value="{{ $val }}">
+                    @if(!is_array($val))
+                        <input type="hidden" name="{{ $key }}" value="{{ $val }}">
+                    @endif
                 @endforeach
             </form>
-
         </div>
-
 
         {{-- Row 2: Filter Chips --}}
         <div class="flex flex-wrap gap-2">
 
             @php
-                $chip = function($label, $value) {
+                // Helper to build a toggle-style chip
+                function chip_data($label, $value) {
                     $active = request('rating') == $value;
+
                     return [
-                        'label'  => $label,
+                        'label' => $label,
                         'active' => $active,
-                        'url'    => request()->fullUrlWithQuery(['rating' => $value]),
-                        'class'  => $active
+                        'url' => $active
+                            ? request()->fullUrlWithQuery(['rating' => null]) // clicking again removes filter
+                            : request()->fullUrlWithQuery(['rating' => $value]),
+                        'class' => $active
                             ? 'bg-copper-700 text-white dark:bg-copper-500'
                             : 'bg-copper-100 text-copper-800 dark:bg-copper-800 dark:text-copper-100'
                     ];
-                };
+                }
 
                 $chips = [
-                    $chip('5★ Only', 5),
-                    $chip('4★+',   4),
-                    $chip('3★+',   3),
+                    chip_data('5★ Only', 5),
+                    chip_data('4★+',  4),
+                    chip_data('3★+',  3),
                 ];
             @endphp
 
@@ -94,7 +114,8 @@
             @foreach ($chips as $c)
                 <a href="{{ $c['url'] }}"
                    class="px-3 py-1 rounded-full text-xs font-semibold shadow-sm
-                          hover:opacity-80 transition {{ $c['class'] }}">
+                          hover:opacity-80 transition
+                          {{ $c['class'] }}">
                     {{ $c['label'] }}
                 </a>
             @endforeach
@@ -102,9 +123,9 @@
             {{-- Photos Only Chip --}}
             @php
                 $withPhotos = request('photos') == '1';
-                $photosUrl = request()->fullUrlWithQuery([
-                    'photos' => $withPhotos ? null : 1
-                ]);
+                $photosUrl = $withPhotos
+                    ? request()->fullUrlWithQuery(['photos' => null])
+                    : request()->fullUrlWithQuery(['photos' => 1]);
             @endphp
 
             <a href="{{ $photosUrl }}"
@@ -114,13 +135,10 @@
                           : 'bg-copper-100 text-copper-800 dark:bg-copper-800 dark:text-copper-100' }}">
                 With Photos
             </a>
-
         </div>
-
     </div>
 
-
-    {{-- REVIEW LIST (includes summary + pagination) --}}
+    {{-- REVIEW LIST --}}
     <div class="pt-6 border-t border-sand-200 dark:border-ink-700">
         @include('reviews._review-list', ['reviews' => $reviews])
     </div>
