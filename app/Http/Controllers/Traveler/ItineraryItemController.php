@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Traveler;
 use App\Http\Controllers\Controller;
 use App\Models\Itinerary;
 use App\Models\ItineraryItem;
+use App\Models\Place;
 use Illuminate\Http\Request;
 
 class ItineraryItemController extends Controller
@@ -64,5 +65,27 @@ class ItineraryItemController extends Controller
         return redirect()
             ->route('traveler.itineraries.show', $itineraryId)
             ->with('success', 'Itinerary item deleted successfully!');
+    }
+
+    public function addPlace(Request $request, Place $place)
+    {
+        $request->validate([
+            'itinerary_id' => 'required|exists:itineraries,id',
+        ]);
+
+        $itinerary = $request->user()->traveler->itineraries()->findOrFail($request->itinerary_id);
+
+        $itinerary->items()->create([
+            'place_id'   => $place->id,
+            'title'      => $place->name,
+            'details'    => $place->description ?? null,
+            'location'   => $place->address ?? null,
+            'rating'     => $place->rating ?? null,
+            'google_maps_url' => $place->meta['google_maps_url'] ?? null,
+            'start_time' => null,
+            'end_time'   => null,
+        ]);
+
+        return back()->with('success', "{$place->name} was added to your itinerary.");
     }
 }
