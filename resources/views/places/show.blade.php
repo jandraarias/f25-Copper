@@ -35,10 +35,10 @@
     <div class="pb-24 bg-sand dark:bg-sand-900 min-h-screen">
         <div class="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 space-y-14">
 
-            {{-- HERO IMAGE WITH CLICK-TO-ENLARGE --}}
-            <div x-data="{ open: false }" class="rounded-3xl overflow-hidden shadow-soft hover:shadow-glow transition-all duration-300">
+            {{-- HERO IMAGE WITH CLICK-TO-ENLARGE + LIGHTBOX --}}
+            <div x-data="{ open: false }" class="relative rounded-3xl overflow-hidden shadow-soft hover:shadow-glow transition-all duration-300">
 
-                {{-- Constrained image --}}
+                {{-- Constrained preview image --}}
                 <img 
                     src="{{ $place->photo_url ?? asset('img/placeholder.jpg') }}"
                     alt="{{ $place->name }} photo"
@@ -46,17 +46,28 @@
                     @click="open = true"
                 >
 
-                {{-- Fullscreen modal --}}
+                {{-- Fullscreen overlay modal --}}
                 <div 
                     x-show="open"
                     x-cloak
-                    class="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-6"
-                    @click.self="open = false"
+                    x-transition.opacity
+                    class="fixed inset-0 z-50 bg-black/90 flex items-center justify-center"
+                    style="backdrop-filter: blur(2px);"
                 >
+                    {{-- Close button --}}
+                    <button 
+                        @click="open = false"
+                        class="absolute top-6 right-6 text-white hover:text-copper-400 text-3xl font-bold focus:outline-none"
+                        aria-label="Close image"
+                    >
+                        &times;
+                    </button>
+
+                    {{-- Full image (click does NOT close modal) --}}
                     <img 
                         src="{{ $place->photo_url ?? asset('img/placeholder.jpg') }}"
-                        alt="{{ $place->name }}"
-                        class="max-w-[95vw] max-h-[90vh] rounded-xl shadow-xl object-contain"
+                        alt="{{ $place->name }} full image"
+                        class="max-w-[95vw] max-h-[90vh] rounded-xl shadow-2xl object-contain"
                     >
                 </div>
             </div>
