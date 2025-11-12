@@ -43,6 +43,10 @@ class PreferencesTableSeeder extends Seeder
                 'Vietnamese',
                 'Greek',
             ],
+            'Meal Type' => [
+                'Breakfast', 'Brunch', 'Lunch',
+                'Dinner',
+            ],
             'Nature & Adventure' => [
                 'Outdoor Activities',
                 'Beaches',
@@ -53,13 +57,25 @@ class PreferencesTableSeeder extends Seeder
                 'Aquariums',
                 'Interactive Museums',
             ],
-            'Entertainment & Nightlife' => [
+            'Entertainmnet & Performing Arts' => [
                 'Live Music & Concerts',
-                'Nightclubs',
                 'Comedy',
-                'Theatre & Shows',
+                'Theater & Shows',
                 'Local Performances',
+            ],
+            'Nightlife' => [
+                'Nightclubs',
                 'Casino',
+                'Bars & Pubs',
+            ],
+            'Indoor Fun' => [
+                'Arcades',
+                'Game Center',
+                'Laser Tag',
+                'Trampoline Parks',
+                'Escape Rooms',
+                'Bowling Alleys',
+                'Mini Golf',
             ],
             'Shopping & Lifestyle' => [
                 'Local Markets',
@@ -72,12 +88,17 @@ class PreferencesTableSeeder extends Seeder
                 'Fitness Events',
                 'Local Sporting Events',
             ],
-            'Other' => [
-                'Family-Friendly',
-                'Senior Friendly',
-                'Pet Friendly',
+            'Accessibility' => [
                 'Wheelchair Accessible',
                 'Visual/Hearing Impaired',
+            ],
+            'Visitor Type' => [
+                'Family-Friendly',
+                'Child-Friendly',
+                'Senior Friendly',
+                'Pet Friendly',
+                'All-Ages',
+                'Couple-Friendly',
             ],
             'Dietary Restrictions' => [
                 'Gluten Free',
@@ -90,6 +111,18 @@ class PreferencesTableSeeder extends Seeder
                 'Soy-Free',
                 'Fish-Free',
                 'Sesame-Free',
+            ],
+            'Food & Dining Price Range' => [
+                '$ Inexpensive',
+                '$$ Moderate',
+                '$$$ Expensive',
+                '$$$$ Fine Dining',
+            ],
+            'Budget & Price Level' => [
+                'Free or Low Cost ',
+                'Budget-Friendly',
+                'Moderate',
+                'Luxury',
             ],
         ];
 
