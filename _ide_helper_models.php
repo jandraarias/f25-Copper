@@ -51,21 +51,48 @@ namespace App\Models{
 
 namespace App\Models{
 /**
+ * @property int $id
+ * @property string $name
+ * @property string $city
+ * @property string|null $photo_url
+ * @property string|null $bio
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ExpertReview> $reviews
  * @property-read int|null $reviews_count
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Expert newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Expert newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Expert query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Expert whereBio($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Expert whereCity($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Expert whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Expert whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Expert whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Expert wherePhotoUrl($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Expert whereUpdatedAt($value)
  */
 	class Expert extends \Eloquent {}
 }
 
 namespace App\Models{
 /**
- * @property-read \App\Models\Expert|null $expert
+ * @property int $id
+ * @property int $expert_id
+ * @property int $rating
+ * @property string|null $comment
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\Expert $expert
+ * @method static \Database\Factories\ExpertReviewFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ExpertReview newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ExpertReview newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ExpertReview query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ExpertReview whereComment($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ExpertReview whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ExpertReview whereExpertId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ExpertReview whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ExpertReview whereRating($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ExpertReview whereUpdatedAt($value)
  */
 	class ExpertReview extends \Eloquent {}
 }
@@ -191,6 +218,7 @@ namespace App\Models{
 /**
  * @property int $id
  * @property string $name
+ * @property string|null $category
  * @property string|null $description
  * @property int|null $num_reviews
  * @property string|null $address
@@ -208,6 +236,7 @@ namespace App\Models{
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ItineraryItem> $itineraryItems
  * @property-read int|null $itinerary_items_count
  * @property-read mixed $main_category
+ * @property-read mixed $photo_url
  * @property-read mixed $price_level
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Review> $reviews
  * @property-read int|null $reviews_count
@@ -224,6 +253,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Place query()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Place whereAddress($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Place whereCategories($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Place whereCategory($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Place whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Place whereDescription($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Place whereId($value)
@@ -333,17 +363,22 @@ namespace App\Models{
  * @property string|null $place_name
  * @property string $source
  * @property string|null $author
- * @property int|null $rating
+ * @property float|null $rating
  * @property string|null $text
- * @property string|null $published_at
+ * @property \Illuminate\Support\Carbon|null $published_at
  * @property \Illuminate\Support\Carbon|null $published_at_date
  * @property string|null $owner_response
  * @property string|null $owner_response_published_date
- * @property string|null $review_photos
+ * @property array<array-key, mixed>|null $review_photos
  * @property \Illuminate\Support\Carbon|null $fetched_at
  * @property array<array-key, mixed>|null $meta
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read mixed $avatar
+ * @property-read mixed $excerpt
+ * @property-read mixed $experience_list
+ * @property-read mixed $photo_urls
+ * @property-read mixed $reviewer_name
  * @property-read \App\Models\Place $place
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Review newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Review newQuery()

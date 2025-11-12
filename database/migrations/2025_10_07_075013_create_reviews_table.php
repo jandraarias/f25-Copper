@@ -25,7 +25,7 @@ return new class extends Migration
             $table->timestamp('published_at')->nullable();
             $table->datetime('published_at_date')->nullable(); // consolidated + altered to date
             $table->text('owner_response')->nullable();
-            $table->datetime('owner_response_published_date')->nullable();
+            $table->datetime('owner_response_publish_date')->nullable();
             $table->text('review_photos')->nullable();
             $table->timestamp('fetched_at')->nullable();
             $table->json('meta')->nullable();

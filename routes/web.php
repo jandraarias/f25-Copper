@@ -13,6 +13,8 @@ use App\Http\Controllers\Admin\DashboardController;
 
 use App\Http\Controllers\PublicItineraryController;
 use App\Http\Controllers\ItineraryPdfController;
+use App\Http\Controllers\PlaceController;
+use App\Http\Controllers\PlaceReviewController;
 
 use App\Http\Controllers\Traveler\DashboardController as TravelerDashboardController;
 use App\Http\Controllers\Traveler\ItineraryController;
@@ -34,6 +36,15 @@ Route::middleware(['throttle:20,1'])->get('/i/{uuid}', [PublicItineraryControlle
 
 Route::middleware(['throttle:20,1'])->get('/public/itineraries/{uuid}', [PublicItineraryController::class, 'show'])
     ->name('public.itinerary.show');
+
+Route::get('/places/{place}', [PlaceController::class, 'show'])
+    ->name('places.show');
+
+Route::get('/places/{place}/reviews/page/{page}', [PlaceController::class, 'reviewsPage'])
+    ->name('places.reviews.page');
+
+Route::get('/places/{place}/reviews', [PlaceReviewController::class, 'index'])
+    ->name('places.reviews.index');
 
 Route::get('/', function () {
     if (Auth::check()) {
@@ -150,6 +161,11 @@ Route::middleware(['auth', 'role:traveler'])
         // Correct Rewards Route
         Route::get('/rewards', [RewardsController::class, 'index'])
             ->name('rewards');
+
+        // Add Place to Itinerary Route
+        Route::post('/places/{place}/add-to-itinerary', [ItineraryItemController::class, 'addPlace'])
+            ->name('places.add-to-itinerary')
+            ->middleware('role:traveler');
 
         // Experts Listing Route
         Route::get('/experts', [ExpertsController::class, 'index'])->name('experts');
