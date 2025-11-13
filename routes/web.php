@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Request;
 
 use App\Http\Controllers\ProfileController;
 
@@ -201,3 +202,36 @@ Route::get('/itineraries/{itinerary}/pdf', ItineraryPdfController::class)
 */
 
 require __DIR__ . '/auth.php';
+
+Route::get('/places/historic/test', function () {
+    $path = storage_path('app/private/places/Williamsburg_historic_attractions_more_data.csv');
+    if (!file_exists($path)) {
+        return response()->json(['error' => "CSV not found at $path"], 404);
+    }
+
+    // load CSV safely (no PHP 8.4 warnings)
+    $rows   = array_map(fn($line) => str_getcsv($line, ',', '"', '\\'), file($path));
+    $header = array_shift($rows);
+    $data   = array_map(fn($r) => array_combine($header, $r), $rows);
+
+    // return a small preview so we can confirm it works
+    return response()->json([
+        'total_rows' => count($data),
+        'sample'     => array_slice($data, 0, 3), // first 3 rows
+    ]);
+});
+Route::get('/places/historic', function (Request $req) {
+    $path = storage_path('app/private/places/Williamsburg_historic_attractions_more_data.csv');
+    $rows   = array_map(fn($line) => str_getcsv($line, ',', '"', '\\'), file($path));
+    $header = array_shift($rows);
+    $data   = array_map(fn($r) => array_combine($header, $r), $rows);
+    return view('historic', ['items' => $data]);
+});
+
+Route::get('/places/food', function () {
+    $path = storage_path('app/private/places/Williamsburg_food_overview_more_data.csv');
+    $rows = array_map(fn($line) => str_getcsv($line, ',', '"', '\\'), file($path));
+    $header = array_shift($rows);
+    $data = array_map(fn($r) => array_combine($header, $r), $rows);
+    return view('food.index', ['places' => $data]);
+});
