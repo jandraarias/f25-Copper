@@ -142,6 +142,18 @@ Route::middleware(['auth', 'role:traveler'])
         Route::post('itineraries/{itinerary}/invite', [ItineraryController::class, 'invite'])
             ->name('itineraries.invite');
 
+        // Turn ON collaboration
+        Route::post('itineraries/{itinerary}/enable-collaboration', [ItineraryController::class, 'enableCollaboration'])
+            ->name('itineraries.enable-collaboration');
+
+        // Turn OFF collaboration
+        Route::post('itineraries/{itinerary}/disable-collaboration', [ItineraryController::class, 'disableCollaboration'])
+            ->name('itineraries.disable-collaboration');
+
+        // Collaboration: Invite route
+        Route::post('itineraries/{itinerary}/invite', [ItineraryController::class, 'invite'])
+            ->name('itineraries.invite');
+
         // Itinerary Items
         Route::resource('itineraries.items', ItineraryItemController::class)
             ->shallow()
@@ -159,7 +171,7 @@ Route::middleware(['auth', 'role:traveler'])
         Route::get('preference-profiles/{preferenceProfile}/preferences/create', [PreferenceController::class, 'create'])
             ->name('preferences.create');
 
-        // Correct Rewards Route
+        // Rewards
         Route::get('/rewards', [RewardsController::class, 'index'])
             ->name('rewards');
 
@@ -168,10 +180,10 @@ Route::middleware(['auth', 'role:traveler'])
             ->name('places.add-to-itinerary')
             ->middleware('role:traveler');
 
-        // Experts Listing Route
+        // Experts Listing
         Route::get('/experts', [ExpertsController::class, 'index'])->name('experts');
-
     });
+
 
 /*
 |--------------------------------------------------------------------------

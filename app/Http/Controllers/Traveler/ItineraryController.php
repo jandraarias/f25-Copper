@@ -19,103 +19,58 @@ class ItineraryController extends Controller
         protected ItineraryGenerationService $generationService
     ) {}
 
-    /** Display a list of itineraries (owned + collaborative) */
+    /*
+    |--------------------------------------------------------------------------
+    | INDEX
+    |--------------------------------------------------------------------------
+    */
     public function index(Request $request)
     {
         $traveler = Auth::user()->traveler;
 
-        // Base query: owned OR collaborative itineraries
         $query = Itinerary::query()
             ->where('traveler_id', $traveler->id)
             ->orWhereHas('collaborators', fn($q) => $q->where('user_id', Auth::id()))
             ->with(['collaborators', 'countries'])
-            ->orderBy('start_date', 'asc'); // better sorting for "upcoming"
+            ->orderBy('start_date', 'asc');
 
-        /*
-        |--------------------------------------------------------------------------
-        | SEARCH FILTER
-        |--------------------------------------------------------------------------
-        */
+        // search
         if ($search = $request->get('search')) {
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                ->orWhere('destination', 'like', "%{$search}%")
-                ->orWhere('location', 'like', "%{$search}%");
+                  ->orWhere('destination', 'like', "%{$search}%")
+                  ->orWhere('location', 'like', "%{$search}%");
             });
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | DATE FILTER (upcoming/past/all)
-        |--------------------------------------------------------------------------
-        */
+        // filter (upcoming/past/all)
         if ($filter = $request->get('filter')) {
-
             if ($filter === 'upcoming') {
                 $query->whereDate('start_date', '>=', today());
             }
-
             if ($filter === 'past') {
                 $query->whereDate('end_date', '<', today());
             }
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | PAGINATE
-        |--------------------------------------------------------------------------
-        */
         $itineraries = $query->paginate(10)->withQueryString();
 
         return view('traveler.itineraries.index', compact('itineraries'));
     }
 
-    /** Show create form */
+    /*
+    |--------------------------------------------------------------------------
+    | CREATE / STORE
+    |--------------------------------------------------------------------------
+    */
     public function create()
     {
         return view('traveler.itineraries.create');
     }
 
-    /** Show edit form */
-    public function edit(Itinerary $itinerary)
-    {
-        $this->authorize('update', $itinerary);
-
-        $itinerary->load(['countries', 'collaborators', 'invitations']);
-
-        $existingCollaborators = $itinerary->collaborators->pluck('email')->toArray();
-        $pendingInvites = $itinerary->invitations->pluck('email')->toArray();
-
-        $preferenceProfiles = Auth::user()->traveler
-            ->preferenceProfiles()
-            ->select('id', 'name')
-            ->get();
-
-        return view('traveler.itineraries.edit', compact(
-            'itinerary',
-            'existingCollaborators',
-            'pendingInvites',
-            'preferenceProfiles'
-        ));
-    }
-
-    /** Store a new itinerary and trigger AI generation */
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'name'             => ['required', 'string', 'max:255'],
-            'countries'        => ['required', 'array', 'min:1'],
-            'countries.*'      => ['integer', 'exists:countries,id'],
-            'destination'      => ['nullable', 'string', 'max:255'],
-            'location'         => ['nullable', 'string', 'max:255'],
-            'preference_profile_id' => ['nullable', 'integer', 'exists:preference_profiles,id'],
-            'start_date'       => ['nullable', 'date'],
-            'end_date'         => ['nullable', 'date', 'after_or_equal:start_date'],
-            'description'      => ['nullable', 'string'],
-            'is_collaborative' => ['nullable', 'boolean'],
-            'invite_emails'    => ['nullable', 'array'],
-            'invite_emails.*'  => ['email', 'distinct'],
-        ]);
+        $validated = $this->validateItinerary($request);
 
         $traveler = Auth::user()->traveler;
 
@@ -149,59 +104,47 @@ class ItineraryController extends Controller
             ->with('success', "Itinerary created and {$result['created_count']} items generated successfully!");
     }
 
-    /** Show a specific itinerary (public/non-edit view) */
+    /*
+    |--------------------------------------------------------------------------
+    | SHOW
+    |--------------------------------------------------------------------------
+    */
     public function show(Itinerary $itinerary)
     {
         $this->authorize('view', $itinerary);
 
-        // Load related data for display
         $itinerary->load(['items.place', 'countries', 'collaborators', 'invitations']);
 
-        // Mark this as the public display view for Blade routing
-        $isPublicView = true;
-
-        // Pass both variables to the view
-        return view('traveler.itineraries.show', compact('itinerary', 'isPublicView'));
+        return view('traveler.itineraries.show', [
+            'itinerary' => $itinerary,
+            'isPublicView' => true
+        ]);
     }
 
-    /** Regenerate itinerary items manually */
-    public function generate(Itinerary $itinerary)
+    /*
+    |--------------------------------------------------------------------------
+    | EDIT / UPDATE
+    |--------------------------------------------------------------------------
+    */
+    public function edit(Itinerary $itinerary)
     {
         $this->authorize('update', $itinerary);
-        $itinerary->items()->delete();
 
-        if (!$itinerary->preference_profile_id || !$itinerary->location) {
-            return back()->with('error', 'Cannot generate itinerary: missing city or preference profile.');
-        }
+        $itinerary->load(['countries', 'collaborators', 'invitations']);
 
-        try {
-            $this->generationService->generateForItinerary($itinerary);
-            return back()->with('success', 'Your itinerary has been regenerated successfully!');
-        } catch (\Throwable $e) {
-            report($e);
-            return back()->with('error', 'Failed to generate itinerary. Please try again later.');
-        }
+        return view('traveler.itineraries.edit', [
+            'itinerary'             => $itinerary,
+            'existingCollaborators' => $itinerary->collaborators->pluck('email')->toArray(),
+            'pendingInvites'        => $itinerary->invitations->pluck('email')->toArray(),
+            'preferenceProfiles'    => Auth::user()->traveler->preferenceProfiles()->get(['id', 'name']),
+        ]);
     }
 
-    /** Update itinerary */
     public function update(Request $request, Itinerary $itinerary)
     {
         $this->authorize('update', $itinerary);
 
-        $validated = $request->validate([
-            'name'             => ['required', 'string', 'max:255'],
-            'countries'        => ['required', 'array', 'min:1'],
-            'countries.*'      => ['integer', 'exists:countries,id'],
-            'destination'      => ['nullable', 'string', 'max:255'],
-            'location'         => ['nullable', 'string', 'max:255'],
-            'preference_profile_id' => ['nullable', 'integer', 'exists:preference_profiles,id'],
-            'start_date'       => ['nullable', 'date'],
-            'end_date'         => ['nullable', 'date', 'after_or_equal:start_date'],
-            'description'      => ['nullable', 'string'],
-            'is_collaborative' => ['nullable', 'boolean'],
-            'invite_emails'    => ['nullable', 'array'],
-            'invite_emails.*'  => ['email', 'distinct'],
-        ]);
+        $validated = $this->validateItinerary($request);
 
         $itinerary->update($validated);
         $itinerary->countries()->sync($validated['countries']);
@@ -218,7 +161,11 @@ class ItineraryController extends Controller
             ->with('success', 'Itinerary updated successfully!');
     }
 
-    /** Delete itinerary */
+    /*
+    |--------------------------------------------------------------------------
+    | DELETE
+    |--------------------------------------------------------------------------
+    */
     public function destroy(Itinerary $itinerary)
     {
         $this->authorize('delete', $itinerary);
@@ -234,7 +181,69 @@ class ItineraryController extends Controller
             ->with('success', 'Itinerary deleted successfully!');
     }
 
-    /** Send invitation */
+    /*
+    |--------------------------------------------------------------------------
+    | REGENERATE
+    |--------------------------------------------------------------------------
+    */
+    public function generate(Itinerary $itinerary)
+    {
+        $this->authorize('update', $itinerary);
+
+        $itinerary->items()->delete();
+
+        if (!$itinerary->preference_profile_id || !$itinerary->location) {
+            return back()->with('error', 'Cannot generate itinerary: missing city or preference profile.');
+        }
+
+        try {
+            $this->generationService->generateForItinerary($itinerary);
+            return back()->with('success', 'Your itinerary has been regenerated successfully!');
+        } catch (\Throwable $e) {
+            report($e);
+            return back()->with('error', 'Failed to generate itinerary. Please try again later.');
+        }
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | ENABLE COLLABORATION (NEW)
+    |--------------------------------------------------------------------------
+    */
+    public function enableCollaboration(Itinerary $itinerary)
+    {
+        $this->authorize('update', $itinerary);
+
+        if ($itinerary->is_collaborative) {
+            return back()->with('info', 'Collaboration is already enabled.');
+        }
+
+        $itinerary->update(['is_collaborative' => true]);
+
+        return back()->with('success', 'Collaboration turned on! You can now invite collaborators.');
+    }
+
+    public function disableCollaboration(Itinerary $itinerary)
+    {
+        $this->authorize('update', $itinerary);
+
+        if (!$itinerary->is_collaborative) {
+            return back()->with('info', 'Collaboration is already disabled.');
+        }
+
+        // Turn off collaboration and remove all collaborators + invites
+        $itinerary->update(['is_collaborative' => false]);
+        $itinerary->collaborators()->detach();
+        $itinerary->invitations()->delete();
+
+        return back()->with('success', 'Collaboration disabled. This itinerary is now private.');
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | INVITE
+    |--------------------------------------------------------------------------
+    */
     public function invite(Request $request, Itinerary $itinerary)
     {
         $this->authorize('update', $itinerary);
@@ -250,6 +259,29 @@ class ItineraryController extends Controller
         Mail::to($email)->send(new ItineraryInvitationMail($invitation));
 
         return back()->with('success', 'Invitation sent successfully!');
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | HELPERS
+    |--------------------------------------------------------------------------
+    */
+    protected function validateItinerary(Request $request): array
+    {
+        return $request->validate([
+            'name'             => ['required', 'string', 'max:255'],
+            'countries'        => ['required', 'array', 'min:1'],
+            'countries.*'      => ['integer', 'exists:countries,id'],
+            'destination'      => ['nullable', 'string', 'max:255'],
+            'location'         => ['nullable', 'string', 'max:255'],
+            'preference_profile_id' => ['nullable', 'integer', 'exists:preference_profiles,id'],
+            'start_date'       => ['nullable', 'date'],
+            'end_date'         => ['nullable', 'date', 'after_or_equal:start_date'],
+            'description'      => ['nullable', 'string'],
+            'is_collaborative' => ['nullable', 'boolean'],
+            'invite_emails'    => ['nullable', 'array'],
+            'invite_emails.*'  => ['email', 'distinct'],
+        ]);
     }
 
     protected function processInvitations(Itinerary $itinerary, array $emails)
@@ -271,7 +303,6 @@ class ItineraryController extends Controller
                     ['itinerary_id' => $itinerary->id, 'email' => $email],
                     ['status' => 'pending', 'token' => Str::uuid()->toString()]
                 );
-
                 Mail::to($email)->send(new ItineraryInvitationMail($invitation));
             }
         }
