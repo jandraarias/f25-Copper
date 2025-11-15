@@ -78,70 +78,61 @@ class OpenAITag extends Command
      */
     private function tag(\OpenAI\Client $client, $entry): mixed
     {
-        //Get the place given by the $entry
         $place = $entry['name'];
-        //Grab the first x listed reviews
-        $reviews = Review::where('place_name', $place)->take(25)->get();
-        //Grab all the preferences that are not preference catagories
-        $tags = PreferenceOption::where('type', 'sub')->get();
 
-        $reviewArray = [];
+        // Get up to 25 reviews
+        $reviews = Review::where('place_name', $place)->take(25)->get();
+
+        // If no reviews, return empty tag list
+        if ($reviews->isEmpty()) {
+            return 'No reviews available';
+        }
+
+        // Build strings
+        $reviewArray = $reviews->pluck('text')->toArray();
+        $reviewsString = implode(', ', $reviewArray);
+
+        $tags = PreferenceOption::where('type', 'sub')->get();
         $tagArray = [];
 
-        //Grab the review text from the review table entries into a list
-        foreach($reviews as $review) {
-            $reviewArray[] = $review->text;
+        foreach ($tags as $tag) {
+            $tagArray[] = $tag->parent_id == 17
+                ? $tag->name . ' Cuisine'
+                : $tag->name;
         }
 
-        //Grab the preference names from the preference table entries into a list
-        foreach($tags as $tag) {
-            //Add Cuisine to the end of the Cuisine preferences so the AI uses them correctly
-            if($tag->parent_id == 17) {
-                $tagArray[] = $tag->name . " Cuisine";
-                continue;
-            }
-            $tagArray[] = $tag->name;
-        }
-
-        //Change the arrays into Strings seperating each entry with a comma
-        $reviewsString = implode(', ', $reviewArray);
         $tagsString = implode(', ', $tagArray);
 
-        //Prompt placed to OpenAI
-        $prompt = 'Use the information in these 25 user reviews ' . $reviewsString . "\n To select between 1-5 of these tags " . $tagsString . "\n for this location " 
-        . $place . ".\n Only select a cuisine if food is the primary reason to go to the place. Never select more than 5 tags. Give me just the tags as a comma seperated list";
+        // Handle case where there are fewer than 25 reviews
+        $reviewCount = $reviews->count();
+        $prompt = "Use the information in these $reviewCount user reviews: $reviewsString\n"
+            . "Select between 1–5 of these tags: $tagsString\n"
+            . "for this location: $place.\n"
+            . "Only select a cuisine if food is the primary reason to go. "
+            . "Never select more than 5 tags. Give me just the tags as a comma-separated list.";
 
-        //OpenAI role assignments
         $messages = [
-            ['role' => 'system', 'content' => 'You are helpful assistant'],
+            ['role' => 'system', 'content' => 'You are a concise tag generator that responds with only a list of tags.'],
             ['role' => 'user', 'content' => $prompt],
         ];
 
-        //The API call is in a try catch block because sometimes the connection fails. It seems related to frequency but it is nowhere near the rate limits so I am not sure why.
+        // --- API Call with retry logic (unchanged) ---
         $attempt = 0;
         do {
             try {
-                if($attempt > 1) {
-                print "Retrying API call in 60 seconds. Attempts: " . $attempt;
-                sleep(60);
+                if ($attempt > 1) {
+                    print "Retrying API call in 60 seconds. Attempts: " . $attempt;
+                    sleep(60);
                 }
-                //OpenAI Chat Completion
+
                 $result = $client->chat()->create([
-                'messages' => $messages,
-                'model' => 'gpt-5-nano',
-            ]);
-            $reply = $result->choices[0]->message->content;
-            break;
-            }
-            catch(TransporterException $e) {
-                if ($attempt >= 3) {
-                    print "Max Retries reached";
-                    throw $e;
-                }
-                print "Caught TransporterException: " . $e->getMessage() . "\n";
-                $attempt++;
-            }
-            catch(\Exception $e) {
+                    'messages' => $messages,
+                    'model' => 'gpt-5-nano',
+                ]);
+
+                $reply = trim($result->choices[0]->message->content);
+                break;
+            } catch (\Exception $e) {
                 if ($attempt >= 3) {
                     print "Max Retries reached";
                     throw $e;
@@ -150,8 +141,7 @@ class OpenAITag extends Command
                 $attempt++;
             }
         } while ($attempt < 3);
-        
-        //$reply = $result->choices[0]->message->content;
-        return $reply;
+
+        return $reply ?: 'No tags generated';
     }
 }
