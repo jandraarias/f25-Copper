@@ -10,48 +10,45 @@ use Illuminate\Support\Facades\Auth;
 class ItineraryInvitationController extends Controller
 {
     /**
-     * Display the invitation acceptance page (email-based flow).
+     * Display the invitation landing page.
      * 
-     * In your current setup, this is optional —
-     * invitations are mainly accepted through the dashboard.
+     * In this app, the page is rarely needed because most acceptances
+     * happen while already logged in—but this still supports email flows.
      */
     public function show(string $token)
     {
         $invitation = ItineraryInvitation::where('token', $token)->firstOrFail();
 
-        // If already handled, redirect to dashboard with info
+        // Redirect if the invitation is no longer pending
         if ($invitation->status !== 'pending') {
             return redirect()
                 ->route('traveler.dashboard')
                 ->with('info', "This invitation has already been {$invitation->status}.");
         }
 
-        // If user logged in and email matches, skip to dashboard
+        // If the logged-in user matches the email, skip the landing page
         if (Auth::check() && strtolower(Auth::user()->email) === strtolower($invitation->email)) {
             return redirect()->route('traveler.dashboard');
         }
 
-        // Otherwise, show invitation info (useful if emails are enabled later)
         return view('traveler.itineraries.invite', compact('invitation'));
     }
 
     /**
      * Accept an itinerary invitation.
-     * 
-     * Works for both in-app and email-based acceptance.
      */
     public function accept(Request $request, string $token)
     {
         $invitation = ItineraryInvitation::where('token', $token)->firstOrFail();
 
-        // Must be pending
+        // Invitation must still be pending
         if ($invitation->status !== 'pending') {
             return redirect()
                 ->route('traveler.dashboard')
                 ->with('warning', 'This invitation is no longer active.');
         }
 
-        // Require login
+        // User must be logged in
         if (!Auth::check()) {
             return redirect()
                 ->route('login')
@@ -60,39 +57,43 @@ class ItineraryInvitationController extends Controller
 
         $user = Auth::user();
 
-        // Prevent mismatched email acceptance
+        // Ensure the invitation email matches the logged-in user
         if (strtolower($user->email) !== strtolower($invitation->email)) {
             return redirect()
                 ->route('traveler.dashboard')
                 ->with('error', 'You are not authorized to accept this invitation.');
         }
 
-        // Accept and attach collaborator
-        $invitation->accept($user);
+        $itinerary = $invitation->itinerary;
+
+        // Attach the user as a collaborator (idempotent)
+        $itinerary->collaborators()->syncWithoutDetaching($user->id);
+
+        // DELETE the invitation after successful acceptance (fix for duplicate pending rows)
+        $invitation->delete();
 
         return redirect()
-            ->route('traveler.dashboard')
+            ->route('traveler.itineraries.show', $itinerary)
             ->with('success', 'You have successfully joined this itinerary!');
     }
 
     /**
      * Decline an itinerary invitation.
-     * 
-     * Works for both dashboard and email links.
      */
     public function decline(string $token)
     {
         $invitation = ItineraryInvitation::where('token', $token)->firstOrFail();
 
-        // Must be pending
+        // Invitation must still be pending
         if ($invitation->status !== 'pending') {
             return redirect()
                 ->route('traveler.dashboard')
                 ->with('warning', 'This invitation is no longer active.');
         }
 
-        // Mark as declined
-        $invitation->decline();
+        // Declining an invite does NOT add the user as a collaborator
+        // If the invitation model handles status setting, use that:
+        $invitation->update(['status' => 'declined']);
 
         return redirect()
             ->route('traveler.dashboard')
