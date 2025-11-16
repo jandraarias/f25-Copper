@@ -64,11 +64,6 @@ class Place extends Model
      * Price level extracted from meta (may be numeric or "$$").
      */
 
-    protected function address(): Attribute
-    {
-        return Attribute::get(fn () => $this->meta['address'] ?? null);
-    }
-
     protected function mainCategory(): Attribute
     {
         return Attribute::get(fn () => $this->meta['main_category'] ?? $this->category);
@@ -91,31 +86,6 @@ class Place extends Model
     /**
      * Distinguish between "food" and "activity" based on category text.
      */
-
-    protected function tags(): Attribute
-    {
-        return Attribute::get(function () {
-            $raw = $this->meta['review_keywords']
-                ?? $this->meta['tags']
-                ?? null;
-
-            if (is_string($raw)) {
-                $tags = preg_split('/\s*,\s*/', $raw);
-            } elseif (is_array($raw)) {
-                $tags = $raw;
-            } else {
-                $tags = [];
-            }
-
-            return collect($tags)
-                ->map(fn ($t) => strtolower(trim($t)))
-                ->filter()
-                ->unique()
-                ->values()
-                ->toArray();
-        });
-    }
-
     protected function type(): Attribute
     {
         return Attribute::get(function () {
