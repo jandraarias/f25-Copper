@@ -68,4 +68,15 @@ class PreferenceProfile extends Model
             ->mapWithKeys(fn ($pref) => [$pref->key => $pref->value])
             ->toArray();
     }
+
+    /**
+     * Helper: convert preferences values into array.
+     */
+
+    public function toPreferenceValueArray(): array
+    {
+        return $this->preferences
+            ->pluck('value')
+            ->toArray();
+    }
 }
