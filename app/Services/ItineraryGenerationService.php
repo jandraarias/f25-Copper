@@ -54,7 +54,7 @@ class ItineraryGenerationService
         // 1) Pull preferences
         // ------------------------------------------------------------------
         $profile = $itinerary->preferenceProfile()->with('preferences')->first();
-        $prefs = $profile->toPreferenceArray();
+        $prefs = $profile->toPreferenceValueArray();
 
         // ------------------------------------------------------------------
         // 2) Query candidate places for city
@@ -80,12 +80,19 @@ class ItineraryGenerationService
         // ------------------------------------------------------------------
         $days = $this->eachDate(Carbon::parse($itinerary->start_date), Carbon::parse($itinerary->end_date));
 
-        //OpenAI Sorting
-        $activities = $this->AiSelectandSort($activities, $prefs, $days);
-        $foods = $this->AiSelectandSort($foods, $prefs, $days);
+        //Check if OPENAI_API_KEY exists to determine which function to use
+        $openAiKey = env('OPENAI_API_KEY');
+        $useFallback = empty($openAiKey);
 
-        //$activities = Place::orderBy('id', 'asc')->take(10)->get();
-        //$foods = Place::orderBy('id', 'desc')->take(10)->get();
+
+        $activities = $useFallback
+            ? $this->chooseAndScorePlaces($activities, array_values($prefs), $days)
+            : $this->AiSelectandSort($activities, $prefs, $days);
+
+        $foods = $useFallback
+            ? $this->chooseAndScorePlaces($foods, array_values($prefs), $days)
+            : $this->AiSelectandSort($foods, $prefs, $days);
+
 
         $activitiesIterator = $activities->getIterator();
         $foodsIterator = $foods->getIterator();
@@ -94,7 +101,6 @@ class ItineraryGenerationService
         if ($force) {
             $itinerary->items()->delete();
         }
-
         $created = 0;
 
         foreach ($days as $day) {
@@ -180,13 +186,9 @@ class ItineraryGenerationService
         //If App is running locally we disable SSL verification
         $client = $this->getOpenAIClient();
         $numDays = count($days) + 1;
-        $prefArray = [];
-        foreach($prefs as $value) {
-            $prefArray[] = $value;
-        }
         $placeArray = [];
 
-        $prefString = implode(', ', $prefArray);
+        $prefString = implode(', ', $prefs);
 
         foreach($places as $place) {
             $placeArray[] = $place->name . "; Tags: " . $place->tags . "; " .$place->rating;
@@ -196,7 +198,7 @@ class ItineraryGenerationService
 
         //Prompt placed to OpenAI
         $prompt = "Given this selection of user preferences " . $prefString . "\n Select two places per day for this amount of days " . $numDays . "\n Here is the list of places
-        alongside tags that match user preferences and the average rating from reviews between 1-5. Prefer places that have higher ratings and that match user preferences" . "
+        alongside tags that match user preferences and the average rating from reviews between 1-5. Prefer places that have higher ratings, match user preferences, and try to spread the choices between as many preferences as possible" . "
         Here is the list of places \n" . $placeString . "\n Give me just the names of the places as a comma seperated list";
 
         //OpenAI role assignments
@@ -251,7 +253,7 @@ class ItineraryGenerationService
     }
 
     /**
-     * 
+     * This function checks if the App is running locally and if it is we create our OpenAI client with SSL disabled
      */
     private function getOpenAIClient() {
         $apikey = getenv('OPENAI_API_KEY');
@@ -272,4 +274,123 @@ class ItineraryGenerationService
         
     }
 
+    /**
+     * This is our function that individually scores a place
+     */
+    private function scorePlace(Collection $chosenPlaces, array $prefs, Place $place) {
+
+        //Score starts negative so that we can ignore places that have no positive reason to be chosen
+        $score = -1.0;
+        $tagsArray = explode(",", $place->tags);
+        //Check if place contains matching interests
+        if (!empty($prefs)) {
+                $overlap = count(array_intersect($tagsArray, $prefs));
+                $score += 5 * $overlap;
+            }
+
+
+        // Exponential penalty for tag repetition
+        $tagFreq = [];
+        foreach ($chosenPlaces as $chosen) {
+            $chosenTagsArray = explode(",", $chosen->tags);
+            foreach ($chosenTagsArray as $tag) {
+                $tagFreq[$tag] = ($tagFreq[$tag] ?? 0) + 1;
+            }
+        }
+
+        // Exponential penalty parameters
+        $basePenalty = 1.0;   // starting penalty for a repeated tag
+        $decay       = 2;   // exponential growth rate
+
+        $penalty = 0.0;
+
+        foreach ($tagsArray as $tag) {
+            $freq = $tagFreq[$tag] ?? 0;
+            if ($freq > 0) {
+                $penalty += $basePenalty * pow($decay, $freq);
+            }
+        }
+
+        $score -= $penalty;
+
+        //Multiplies score by 1.Rating
+        $score *= 1 + (float)($place->rating ?? 0) / 10;
+        return $score;
+
+    } 
+
+    /**
+     * This is our backup scoring function for if the OpenAI API is unavailable
+     */
+
+    private function chooseAndScorePlaces(Collection $places, array $prefs, array $days) {
+        $numNeeded = (count($days) + 1) * 2;
+        $chosenPlaces = collect([]);
+
+        //A lever for making the selection more deterministic vs more random
+        $temperature = 1.15;
+
+         $remaining = $places->values();
+
+         while ($chosenPlaces->count() < $numNeeded && $remaining->count() > 0) {
+
+            //Create a map of scored places
+            $scored = $remaining->map(function ($place) use ($chosenPlaces, $prefs) {
+                return [
+                    'place' => $place,
+                    'score' => $this->scorePlace($chosenPlaces, $prefs, $place),
+                ];
+            })->values();
+
+            //Remove negative scores(Places with no matching tags or heavily overrepresented tags)
+            $scored = $scored->filter(fn($x) => $x['score'] >= 0)->values();
+
+            //Sanity check in case $scored becomes empty
+            if ($scored->isEmpty()) {
+            break;
+            }
+
+            //Temperature-adjustment
+            $scored = $scored->map(function ($entry) use ($temperature) {
+                // Prevent issues with pow(0, negative)
+                $adjusted = pow(max($entry['score'], 0.00001), 1 / $temperature);
+
+                return [
+                    'place' => $entry['place'],
+                    'score' => $entry['score'],
+                    'adjusted' => $adjusted
+                ];
+            })->values();
+
+            $totalAdjusted = $scored->sum('adjusted');
+
+            //Convert scores into weighted probabilities
+            $rand = mt_rand() / mt_getrandmax(); // 0.0 - 1.0
+            $accum = 0;
+
+            $selected = null;
+
+            foreach ($scored as $entry) {
+                $accum += $entry['adjusted'] / $totalAdjusted;
+
+                if ($rand <= $accum) {
+                    $selected = $entry['place'];
+                    break;
+                }
+            }
+
+            if (!$selected) {
+                $selected = $scored->last()['place'];
+            }
+
+             $chosenPlaces->push($selected);
+
+            // Remove from pool
+            $remaining = $remaining
+                ->reject(fn($p) => $p->id === $selected->id)
+                ->values();
+
+        }
+        return $chosenPlaces;
+    }
 }
