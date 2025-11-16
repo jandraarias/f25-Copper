@@ -85,6 +85,7 @@ class ItineraryGenerationService
         $useFallback = empty($openAiKey);
 
 
+
         $activities = $useFallback
             ? $this->chooseAndScorePlaces($activities, array_values($prefs), $days)
             : $this->AiSelectandSort($activities, $prefs, $days);
@@ -281,7 +282,7 @@ class ItineraryGenerationService
 
         //Score starts negative so that we can ignore places that have no positive reason to be chosen
         $score = -1.0;
-        $tagsArray = explode(",", $place->tags);
+        $tagsArray = explode(", ", $place->tags);
         //Check if place contains matching interests
         if (!empty($prefs)) {
                 $overlap = count(array_intersect($tagsArray, $prefs));
@@ -313,8 +314,11 @@ class ItineraryGenerationService
 
         $score -= $penalty;
 
-        //Multiplies score by 1.Rating
-        $score *= 1 + (float)($place->rating ?? 0) / 10;
+        //Multiplies score by an exponential review rating multiplier
+        $rating = (float)($place->rating ?? 0);
+        $multiplier = pow(1.11, $rating);
+
+        $score *= $multiplier;
         return $score;
 
     } 
@@ -327,10 +331,12 @@ class ItineraryGenerationService
         $numNeeded = (count($days) + 1) * 2;
         $chosenPlaces = collect([]);
 
+
         //A lever for making the selection more deterministic vs more random
         $temperature = 1.15;
 
          $remaining = $places->values();
+
 
          while ($chosenPlaces->count() < $numNeeded && $remaining->count() > 0) {
 
@@ -389,7 +395,6 @@ class ItineraryGenerationService
             $remaining = $remaining
                 ->reject(fn($p) => $p->id === $selected->id)
                 ->values();
-
         }
         return $chosenPlaces;
     }
