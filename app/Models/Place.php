@@ -60,11 +60,9 @@ class Place extends Model
     /* -----------------------------------------------------------------
      |  Accessors – expose normalized fields from meta
      |------------------------------------------------------------------*/
-
-    protected function address(): Attribute
-    {
-        return Attribute::get(fn () => $this->meta['address'] ?? null);
-    }
+    /**
+     * Price level extracted from meta (may be numeric or "$$").
+     */
 
     protected function mainCategory(): Attribute
     {
@@ -85,39 +83,15 @@ class Place extends Model
 
         return Attribute::get(fn () => null);
     }
-
-    protected function tags(): Attribute
-    {
-        return Attribute::get(function () {
-            $raw = $this->meta['review_keywords']
-                ?? $this->meta['tags']
-                ?? null;
-
-            if (is_string($raw)) {
-                $tags = preg_split('/\s*,\s*/', $raw);
-            } elseif (is_array($raw)) {
-                $tags = $raw;
-            } else {
-                $tags = [];
-            }
-
-            return collect($tags)
-                ->map(fn ($t) => strtolower(trim($t)))
-                ->filter()
-                ->unique()
-                ->values()
-                ->toArray();
-        });
-    }
-
+    /**
+     * Distinguish between "food" and "activity" based on category text.
+     */
     protected function type(): Attribute
     {
         return Attribute::get(function () {
-            $main = strtolower((string) ($this->meta['main_category'] ?? $this->category ?? ''));
-            $hints = ['restaurant', 'food', 'bar', 'cafe', 'brunch', 'bakery', 'pub'];
-            $isFood = collect($hints)->contains(fn ($h) => str_contains($main, $h));
+            $isFood = str_contains($this->tags, 'Cuisine');
             return $isFood ? 'food' : 'activity';
-        });
+});
     }
 
     /**
@@ -145,10 +119,7 @@ class Place extends Model
     }
 
     protected $appends = [
-        'address',
-        'main_category',
         'price_level',
-        'tags',
         'type',
 
         // Append resolved photo URL to API & Blade output

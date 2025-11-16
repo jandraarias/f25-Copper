@@ -6,9 +6,11 @@ use App\Models\Itinerary;
 use App\Models\ItineraryItem;
 use App\Models\Place;
 use Carbon\Carbon;
-use Illuminate\Support\Arr;
+use OpenAI;
+use GuzzleHttp\Client;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Str;
+use Illuminate\Support\Facades\App;
+
 
 class ItineraryGenerationService
 {
@@ -52,16 +54,14 @@ class ItineraryGenerationService
         // 1) Pull preferences
         // ------------------------------------------------------------------
         $profile = $itinerary->preferenceProfile()->with('preferences')->first();
-        $prefs = $this->flattenPreferences($profile?->preferences ?? collect());
-        // $prefs example: ['budget' => 'low', 'dietary' => 'vegetarian', 'interests' => ['history','museums']]
+        $prefs = $profile->toPreferenceValueArray();
 
         // ------------------------------------------------------------------
         // 2) Query candidate places for city
-        //     We filter by address containing the city string. Your data import
-        //     stores address inside meta JSON.
+        //     We filter by address containing the city string.
         // ------------------------------------------------------------------
         $candidates = Place::query()
-            ->where('meta->address', 'like', '%' . $city . '%')
+            ->where('address', 'like', '%' . $city . '%')
             ->get();
 
         if ($candidates->isEmpty()) {
@@ -76,31 +76,35 @@ class ItineraryGenerationService
         }
 
         // ------------------------------------------------------------------
-        // 3) Score and sort by preference fit
-        // ------------------------------------------------------------------
-        $activities = $this->scoreAndSort($activities, $prefs);
-        $foods      = $this->scoreAndSort($foods, $prefs);
-
-        // ------------------------------------------------------------------
         // 4) Build days and create 2 activities + 2 food per day
         // ------------------------------------------------------------------
         $days = $this->eachDate(Carbon::parse($itinerary->start_date), Carbon::parse($itinerary->end_date));
 
+        //Check if OPENAI_API_KEY exists to determine which function to use
+        $openAiKey = env('OPENAI_API_KEY');
+        $useFallback = empty($openAiKey);
+
+
+        $activities = $useFallback
+            ? $this->chooseAndScorePlaces($activities, array_values($prefs), $days)
+            : $this->AiSelectandSort($activities, $prefs, $days);
+
+        $foods = $useFallback
+            ? $this->chooseAndScorePlaces($foods, array_values($prefs), $days)
+            : $this->AiSelectandSort($foods, $prefs, $days);
+
+
+        $activitiesIterator = $activities->getIterator();
+        $foodsIterator = $foods->getIterator();
+        
         // If forcing, clear existing items first
         if ($force) {
             $itinerary->items()->delete();
         }
-
-        $usedNames = ['activity' => [], 'food' => []];
         $created = 0;
 
         foreach ($days as $day) {
-            // Pick unique places per category
-            $pickedActivities = $this->pickUnique($activities, $usedNames['activity'], 2);
-            $usedNames['activity'] = array_merge($usedNames['activity'], $pickedActivities->pluck('name')->all());
-
-            $pickedFoods = $this->pickUnique($foods, $usedNames['food'], 2);
-            $usedNames['food'] = array_merge($usedNames['food'], $pickedFoods->pluck('name')->all());
+           
 
             // Time slots: simple, tweak as needed
             $slots = [
@@ -110,144 +114,45 @@ class ItineraryGenerationService
                 ['type' => 'food',     'time' => '18:30:00', 'dur_min' => 90],
             ];
 
-            // Interleave A, F, A, F
-            $pairs = collect()
-                ->push($pickedActivities->get(0))
-                ->push($pickedFoods->get(0))
-                ->push($pickedActivities->get(1))
-                ->push($pickedFoods->get(1));
+           // Interleave activities and food for the day.
+            foreach ($slots as $slot) {
+                 $place = null;
+                if ($slot['type'] === 'activity' && $activitiesIterator->valid()) {
+                    $place = $activitiesIterator->current();
+                    $activitiesIterator->next();
+                } elseif ($slot['type'] === 'food' && $foodsIterator->valid()) {
+                    $place = $foodsIterator->current();
+                    $foodsIterator->next();
+            }
+                if($place) {
+                    echo $place->name;
+                    $start = Carbon::parse($day->toDateString() . ' ' . $slot['time']);
+                    $end   = (clone $start)->addMinutes($slot['dur_min']);
 
-            foreach ($slots as $i => $slot) {
-                /** @var Place|null $place */
-                $place = $pairs->get($i);
-                if (!$place) {
-                    continue;
+                    ItineraryItem::create([
+                        'itinerary_id' => $itinerary->id,
+                        'place_id'     => $place->id,
+                        'type'         => $slot['type'],
+                        'title'        => $place->name,
+                        'location'      => $place->address,
+                        'rating'       => $place->rating,             
+                        'google_maps_url' => $place->meta['maps_url'] 
+                                            ?? $place->meta['google_maps'] 
+                                            ?? null,                 
+                        'start_time'   => $start,
+                        'end_time'     => $end,
+                        'details'      => $place->description 
+                    ]);
+                    $created++;
                 }
-
-                $start = Carbon::parse($day->toDateString() . ' ' . $slot['time']);
-                $end   = (clone $start)->addMinutes($slot['dur_min']);
-
-                ItineraryItem::create([
-                    'itinerary_id' => $itinerary->id,
-                    'place_id'     => $place->id,
-                    'type'         => $slot['type'],
-                    'title'        => $place->name,
-                    'location'      => $place->address,            
-                    'rating'       => $place->rating,             
-                    'google_maps_url' => $place->meta['maps_url'] 
-                                        ?? $place->meta['google_maps'] 
-                                        ?? null,                 
-                    'start_time'   => $start,
-                    'end_time'     => $end,
-                    'details'      => $place->description 
-                                        ?? $this->buildDetails($place, $prefs), // still keep details text
-                ]);
-
-                $created++;
             }
         }
-
         return ['ok' => true, 'created_count' => $created];
     }
 
     // ----------------------------------------------------------------------
     // Helpers
     // ----------------------------------------------------------------------
-
-    /**
-     * Turn Preference rows into a simple associative array.
-     * Handles values that are comma-separated by normalizing to arrays where needed.
-     */
-    private function flattenPreferences(Collection $collection): array
-    {
-        $out = [];
-
-        foreach ($collection as $pref) {
-            $key = Str::slug((string)$pref->key, '_');   // e.g., "Food Type" -> "food_type"
-            $val = $pref->value;
-
-            // Normalize comma lists into arrays for keys that look like sets
-            if (is_string($val) && preg_match('/,/', $val)) {
-                $val = collect(preg_split('/\s*,\s*/', $val))
-                    ->filter()
-                    ->map(fn ($v) => strtolower(trim($v)))
-                    ->values()
-                    ->all();
-            }
-
-            $out[$key] = $val;
-        }
-
-        // Optional alias: interests might be stored as json in profile too — merge if present
-        if (isset($collection[0]?->profile?->interests) && is_array($collection[0]->profile->interests)) {
-            $out['interests'] = array_values(array_unique(array_merge(
-                $out['interests'] ?? [],
-                array_map(fn ($v) => strtolower(trim((string)$v)), $collection[0]->profile->interests)
-            )));
-        }
-
-        return $out;
-    }
-
-    /**
-     * Partition places into [activities, foods] using Place::type accessor.
-     *
-     * @return array{0:Collection,1:Collection}
-     */
-    private function partitionByType(Collection $places): array
-    {
-        $foods = $places->filter(fn (Place $p) => $p->type === 'food')->values();
-        $activities = $places->filter(fn (Place $p) => $p->type === 'activity')->values();
-        return [$activities, $foods];
-    }
-
-    /**
-     * Score and sort a collection of Place models by preference fit.
-     */
-    private function scoreAndSort(Collection $places, array $prefs): Collection
-    {
-        $scored = $places->map(function (Place $p) use ($prefs) {
-            $score = 0.0;
-
-            // Tag overlap (interests)
-            $prefTags = (array)($prefs['interests'] ?? $prefs['tags'] ?? []);
-            if (!empty($prefTags)) {
-                $overlap = count(array_intersect($p->tags, $prefTags));
-                $score += 3 * $overlap;
-            }
-
-            // Budget alignment (map low/medium/high -> 1/2/3; place price_level may be null)
-            if (isset($prefs['budget'])) {
-                $map = ['low' => 1, 'medium' => 2, 'high' => 3];
-                $target = $map[strtolower((string)$prefs['budget'])] ?? null;
-                $placeLevel = $p->price_level ?? null;
-                if ($target && $placeLevel) {
-                    $score -= abs($placeLevel - $target);
-                }
-            }
-
-            // Dietary constraints (only applied to food)
-            if (($prefs['dietary'] ?? null) && $p->type === 'food') {
-                $diet = strtolower((string)$prefs['dietary']);
-                // If the diet tag is missing, penalize. If present, reward.
-                $score += in_array($diet, $p->tags, true) ? 2 : -3;
-            }
-
-            // Rating preference
-            $score += (float)($p->rating ?? 0) * 0.5;
-
-            // Slight boost to variety by random tiebreaker
-            $score += mt_rand(0, 10) / 1000;
-
-            return [$p, $score];
-        });
-
-        return $scored
-            ->sortByDesc(fn ($pair) => $pair[1])
-            ->map(fn ($pair) => $pair[0])
-            ->values();
-    }
-
     /**
      * Inclusive date range.
      *
@@ -263,47 +168,229 @@ class ItineraryGenerationService
     }
 
     /**
-     * Pick N places not already used by name.
+     * Partition places into [activities, foods] using Place::type accessor.
+     *
+     * @return array{0:Collection,1:Collection}
      */
-    private function pickUnique(Collection $sorted, array $usedNames, int $count): Collection
+    private function partitionByType(Collection $places): array
     {
-        $picked = collect();
-        foreach ($sorted as $place) {
-            if (!in_array($place->name, $usedNames, true)) {
-                $picked->push($place);
-                if ($picked->count() >= $count) break;
-            }
-        }
-        return $picked;
+        $foods = $places->filter(fn (Place $p) => $p->type === 'food')->values();
+        $activities = $places->filter(fn (Place $p) => $p->type === 'activity')->values();
+        return [$activities, $foods];
     }
 
     /**
-     * Build human-friendly details for an itinerary item.
+     * 
      */
-    private function buildDetails(Place $place, array $prefs): string
-    {
-        $bits = [];
+    private function AiSelectandSort(Collection $places, array $prefs, array $days): Collection {
+        //If App is running locally we disable SSL verification
+        $client = $this->getOpenAIClient();
+        $numDays = count($days) + 1;
+        $placeArray = [];
 
-        // Price Level
-        if ($place->price_level) {
-            $bits[] = 'Price level ' . $place->price_level;
+        $prefString = implode(', ', $prefs);
+
+        foreach($places as $place) {
+            $placeArray[] = $place->name . "; Tags: " . $place->tags . "; " .$place->rating;
         }
 
-        // Add link if present in meta
-        $link = $place->meta['link'] ?? $place->meta['url'] ?? null;
-        if ($link) {
-            $bits[] = $link;
-        }
+        $placeString = implode(", \n" , $placeArray);
 
-        // Include matched tags if we have interests
-        $prefTags = (array)($prefs['interests'] ?? $prefs['tags'] ?? []);
-        if (!empty($prefTags)) {
-            $matched = array_intersect($place->tags, $prefTags);
-            if (!empty($matched)) {
-                $bits[] = 'Matches: ' . implode(', ', $matched);
+        //Prompt placed to OpenAI
+        $prompt = "Given this selection of user preferences " . $prefString . "\n Select two places per day for this amount of days " . $numDays . "\n Here is the list of places
+        alongside tags that match user preferences and the average rating from reviews between 1-5. Prefer places that have higher ratings, match user preferences, and try to spread the choices between as many preferences as possible" . "
+        Here is the list of places \n" . $placeString . "\n Give me just the names of the places as a comma seperated list";
+
+        //OpenAI role assignments
+        $messages = [
+            ['role' => 'system', 'content' => 'You are helpful assistant'],
+            ['role' => 'user', 'content' => $prompt],
+        ];
+
+        //The API call is in a try catch block because sometimes the connection fails. It seems related to frequency but it is nowhere near the rate limits so I am not sure why.
+        $attempt = 0;
+        do {
+            try {
+                if($attempt > 1) {
+                print "Retrying API call in 5 seconds. Attempts: " . $attempt;
+                sleep(5);
+                }
+                //OpenAI Chat Completion
+                $result = $client->chat()->create([
+                'messages' => $messages,
+                'model' => 'gpt-5-mini',
+            ]);
+            $reply = $result->choices[0]->message->content;
+            break;
+            }
+            catch(TransporterException $e) {
+                if ($attempt >= 3) {
+                    print "Max Retries reached";
+                    throw $e;
+                }
+                print "Caught TransporterException: " . $e->getMessage() . "\n";
+                $attempt++;
+            }
+            catch(\Exception $e) {
+                if ($attempt >= 3) {
+                    print "Max Retries reached";
+                    throw $e;
+                }
+                print "Caught Exception: " . $e->getMessage() . "\n";
+                $attempt++;
+            }
+        } while ($attempt < 3);
+
+        //Turn the String reply into an array of place name substrings
+        $reply = explode(',', $reply);
+        $chosenPlaces = new Collection([]);
+
+        foreach($reply as $AiPlace) {
+            $entry = Place::where('name', trim($AiPlace))->first();
+            $chosenPlaces->push($entry);
+        }
+        return $chosenPlaces;
+    }
+
+    /**
+     * This function checks if the App is running locally and if it is we create our OpenAI client with SSL disabled
+     */
+    private function getOpenAIClient() {
+        $apikey = getenv('OPENAI_API_KEY');
+        if (App::isLocal()) {
+            $httpClient = new Client([
+                'verify' => false, // This is the option to disable SSL verification
+            ]);
+            $clientLocal = OpenAI::factory()
+                ->withAPIKey($apikey)
+                ->withHttpClient($httpClient)
+                ->make();
+            return $clientLocal;
+        }
+        else {
+            $clientLive = OpenAI::client($apikey);
+            return $clientLive;
+        }
+        
+    }
+
+    /**
+     * This is our function that individually scores a place
+     */
+    private function scorePlace(Collection $chosenPlaces, array $prefs, Place $place) {
+
+        //Score starts negative so that we can ignore places that have no positive reason to be chosen
+        $score = -1.0;
+        $tagsArray = explode(",", $place->tags);
+        //Check if place contains matching interests
+        if (!empty($prefs)) {
+                $overlap = count(array_intersect($tagsArray, $prefs));
+                $score += 5 * $overlap;
+            }
+
+
+        // Exponential penalty for tag repetition
+        $tagFreq = [];
+        foreach ($chosenPlaces as $chosen) {
+            $chosenTagsArray = explode(",", $chosen->tags);
+            foreach ($chosenTagsArray as $tag) {
+                $tagFreq[$tag] = ($tagFreq[$tag] ?? 0) + 1;
             }
         }
 
-        return implode(' • ', $bits);
+        // Exponential penalty parameters
+        $basePenalty = 1.0;   // starting penalty for a repeated tag
+        $decay       = 2;   // exponential growth rate
+
+        $penalty = 0.0;
+
+        foreach ($tagsArray as $tag) {
+            $freq = $tagFreq[$tag] ?? 0;
+            if ($freq > 0) {
+                $penalty += $basePenalty * pow($decay, $freq);
+            }
+        }
+
+        $score -= $penalty;
+
+        //Multiplies score by 1.Rating
+        $score *= 1 + (float)($place->rating ?? 0) / 10;
+        return $score;
+
+    } 
+
+    /**
+     * This is our backup scoring function for if the OpenAI API is unavailable
+     */
+
+    private function chooseAndScorePlaces(Collection $places, array $prefs, array $days) {
+        $numNeeded = (count($days) + 1) * 2;
+        $chosenPlaces = collect([]);
+
+        //A lever for making the selection more deterministic vs more random
+        $temperature = 1.15;
+
+         $remaining = $places->values();
+
+         while ($chosenPlaces->count() < $numNeeded && $remaining->count() > 0) {
+
+            //Create a map of scored places
+            $scored = $remaining->map(function ($place) use ($chosenPlaces, $prefs) {
+                return [
+                    'place' => $place,
+                    'score' => $this->scorePlace($chosenPlaces, $prefs, $place),
+                ];
+            })->values();
+
+            //Remove negative scores(Places with no matching tags or heavily overrepresented tags)
+            $scored = $scored->filter(fn($x) => $x['score'] >= 0)->values();
+
+            //Sanity check in case $scored becomes empty
+            if ($scored->isEmpty()) {
+            break;
+            }
+
+            //Temperature-adjustment
+            $scored = $scored->map(function ($entry) use ($temperature) {
+                // Prevent issues with pow(0, negative)
+                $adjusted = pow(max($entry['score'], 0.00001), 1 / $temperature);
+
+                return [
+                    'place' => $entry['place'],
+                    'score' => $entry['score'],
+                    'adjusted' => $adjusted
+                ];
+            })->values();
+
+            $totalAdjusted = $scored->sum('adjusted');
+
+            //Convert scores into weighted probabilities
+            $rand = mt_rand() / mt_getrandmax(); // 0.0 - 1.0
+            $accum = 0;
+
+            $selected = null;
+
+            foreach ($scored as $entry) {
+                $accum += $entry['adjusted'] / $totalAdjusted;
+
+                if ($rand <= $accum) {
+                    $selected = $entry['place'];
+                    break;
+                }
+            }
+
+            if (!$selected) {
+                $selected = $scored->last()['place'];
+            }
+
+             $chosenPlaces->push($selected);
+
+            // Remove from pool
+            $remaining = $remaining
+                ->reject(fn($p) => $p->id === $selected->id)
+                ->values();
+
+        }
+        return $chosenPlaces;
     }
 }
