@@ -15,29 +15,37 @@
     </x-slot>
 
     <div class="py-12 bg-sand dark:bg-sand-900 min-h-screen transition-colors duration-300">
-        <div class="max-w-6xl mx-auto sm:px-6 lg:px-8 space-y-8">
+        <div class="max-w-6xl mx-auto sm:px-6 lg:px-8 space-y-10">
+
             <x-flash-messages />
 
             {{-- Info Card --}}
             <div class="bg-white dark:bg-sand-800 text-ink-900 dark:text-ink-200
                         shadow-soft rounded-3xl p-8 border border-sand-200 dark:border-ink-700
                         transition-all duration-200 ease-out hover:shadow-glow hover:scale-[1.01]">
-                <p class="text-ink-700 dark:text-sand-100 leading-relaxed">
-                    Manage your travel preference profiles below. Each profile helps us tailor your trips
-                    based on your favorite activities, budget, and lifestyle preferences.
+
+                <p class="text-lg font-semibold text-ink-900 dark:text-ink-100">
+                    Preference Profiles
+                </p>
+
+                <p class="text-ink-700 dark:text-sand-100 leading-relaxed mt-1">
+                    Manage your travel preference profiles below. Each profile helps us tailor 
+                    your trips based on your favorite activities, budget, and lifestyle preferences.
                 </p>
             </div>
 
-            {{-- Profile List --}}
+            {{-- Profiles List --}}
             <div class="bg-white dark:bg-sand-800 text-ink-900 dark:text-ink-200
                         shadow-soft rounded-3xl border border-sand-200 dark:border-ink-700 p-8
                         transition-all duration-200 ease-out hover:shadow-glow hover:scale-[1.01]">
+
                 <h3 class="text-lg font-semibold text-copper mb-6">Your Profiles</h3>
 
                 @forelse ($profiles as $profile)
                     <div class="flex flex-col sm:flex-row sm:items-center justify-between
                                 border-b border-sand-200 dark:border-ink-700
                                 py-5 last:border-0 transition-colors duration-200">
+
                         {{-- Profile Info --}}
                         <div>
                             <h4 class="text-xl font-semibold text-ink-900 dark:text-ink-100">
@@ -51,6 +59,7 @@
 
                         {{-- Actions --}}
                         <div class="flex flex-wrap gap-2 mt-3 sm:mt-0">
+
                             {{-- View --}}
                             <a href="{{ route('traveler.preference-profiles.show', $profile) }}"
                                class="group flex items-center gap-2 px-4 py-1.5 rounded-full
@@ -106,6 +115,7 @@
                                     <span>Delete</span>
                                 </button>
                             </form>
+
                         </div>
                     </div>
                 @empty
@@ -135,6 +145,7 @@
                         {{ $profiles->links() }}
                     </div>
                 @endif
+
             </div>
         </div>
     </div>

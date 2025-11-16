@@ -135,7 +135,7 @@
                                     <div x-show="!editing" class="flex justify-between items-start flex-wrap gap-3">
                                         <div class="min-w-0 flex-1">
                                             <h4 class="font-semibold text-ink-900 dark:text-ink-100 break-words">{{ $item->title }}</h4>
-                                            <p class="text-sm text-ink-700 dark:text-sand-200 break-words">
+                                            <p class="text-sm text-ink-700 dark:text-sand-100 break-words">
                                                 {{ ucfirst($item->type) }} —
                                                 {{ \Illuminate\Support\Carbon::parse($item->start_time)->format('g:ia') }}
                                                 -
@@ -197,7 +197,7 @@
                         </div>
                     </div>
                 @empty
-                    <div class="text-center text-ink-600 dark:text-sand-200 py-12">
+                    <div class="text-center text-ink-600 dark:text-sand-100 py-12">
                         No itinerary items yet. Try generating or adding items manually.
                     </div>
                 @endforelse

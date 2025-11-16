@@ -20,16 +20,52 @@ class ItineraryController extends Controller
     ) {}
 
     /** Display a list of itineraries (owned + collaborative) */
-    public function index()
+    public function index(Request $request)
     {
         $traveler = Auth::user()->traveler;
 
-        $itineraries = Itinerary::query()
+        // Base query: owned OR collaborative itineraries
+        $query = Itinerary::query()
             ->where('traveler_id', $traveler->id)
             ->orWhereHas('collaborators', fn($q) => $q->where('user_id', Auth::id()))
             ->with(['collaborators', 'countries'])
-            ->latest()
-            ->paginate(10);
+            ->orderBy('start_date', 'asc'); // better sorting for "upcoming"
+
+        /*
+        |--------------------------------------------------------------------------
+        | SEARCH FILTER
+        |--------------------------------------------------------------------------
+        */
+        if ($search = $request->get('search')) {
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                ->orWhere('destination', 'like', "%{$search}%")
+                ->orWhere('location', 'like', "%{$search}%");
+            });
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | DATE FILTER (upcoming/past/all)
+        |--------------------------------------------------------------------------
+        */
+        if ($filter = $request->get('filter')) {
+
+            if ($filter === 'upcoming') {
+                $query->whereDate('start_date', '>=', today());
+            }
+
+            if ($filter === 'past') {
+                $query->whereDate('end_date', '<', today());
+            }
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | PAGINATE
+        |--------------------------------------------------------------------------
+        */
+        $itineraries = $query->paginate(10)->withQueryString();
 
         return view('traveler.itineraries.index', compact('itineraries'));
     }
@@ -40,7 +76,7 @@ class ItineraryController extends Controller
         return view('traveler.itineraries.create');
     }
 
-    /** 🆕 Show edit form */
+    /** Show edit form */
     public function edit(Itinerary $itinerary)
     {
         $this->authorize('update', $itinerary);

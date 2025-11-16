@@ -29,6 +29,7 @@ class Place extends Model
         'image',
         'source',
         'meta',
+        'photo_url',
     ];
 
     protected $casts = [
@@ -52,27 +53,69 @@ class Place extends Model
         return $this->hasMany(ItineraryItem::class);
     }
 
+    public function rewards(){
+        return $this->hasMany(Reward::class);
+    }
+
     /* -----------------------------------------------------------------
      |  Accessors – expose normalized fields from meta
      |------------------------------------------------------------------*/
     /**
      * Price level extracted from meta (may be numeric or "$$").
      */
+
+    protected function address(): Attribute
+    {
+        return Attribute::get(fn () => $this->meta['address'] ?? null);
+    }
+
+    protected function mainCategory(): Attribute
+    {
+        return Attribute::get(fn () => $this->meta['main_category'] ?? $this->category);
+    }
+
     protected function priceLevel(): Attribute
     {
         $value = $this->meta['price_level'] ?? null;
+
         if (is_numeric($value)) {
             return Attribute::get(fn () => (int) $value);
         }
+
         if (is_string($value)) {
-            // Map "$" → 1, "$$" → 2, "$$$" → 3, "$$$$" → 4
             return Attribute::get(fn () => strlen(Str::of($value)->replaceMatches('/[^$]/', '')));
         }
+
         return Attribute::get(fn () => null);
     }
     /**
      * Distinguish between "food" and "activity" based on category text.
      */
+
+    protected function tags(): Attribute
+    {
+        return Attribute::get(function () {
+            $raw = $this->meta['review_keywords']
+                ?? $this->meta['tags']
+                ?? null;
+
+            if (is_string($raw)) {
+                $tags = preg_split('/\s*,\s*/', $raw);
+            } elseif (is_array($raw)) {
+                $tags = $raw;
+            } else {
+                $tags = [];
+            }
+
+            return collect($tags)
+                ->map(fn ($t) => strtolower(trim($t)))
+                ->filter()
+                ->unique()
+                ->values()
+                ->toArray();
+        });
+    }
+
     protected function type(): Attribute
     {
         return Attribute::get(function () {
@@ -81,18 +124,42 @@ class Place extends Model
 });
     }
 
+    /**
+     * Returns a valid photo URL OR a clean fallback Unsplash image.
+     */
+    protected function photoUrl(): Attribute
+    {
+        return Attribute::get(function () {
+
+            // Use explicit photo_url if provided
+            if (!empty($this->attributes['photo_url'])) {
+                return $this->attributes['photo_url'];
+            }
+
+            // Fallback to "image" column if photo_url not provided
+            if (!empty($this->attributes['image'])) {
+                return $this->attributes['image'];
+            }
+
+            // Elegant unsplash fallback based on type
+            $keyword = $this->type === 'food' ? 'restaurant' : 'travel';
+
+            return "https://source.unsplash.com/800x600/?{$keyword}";
+        });
+    }
+
     protected $appends = [
         'price_level',
         'type',
+
+        // Append resolved photo URL to API & Blade output
+        'photo_url',
     ];
 
     /* -----------------------------------------------------------------
-     |  Scopes – helpers for querying and filtering
+     |  Scopes
      |------------------------------------------------------------------*/
 
-    /**
-     * Filter by approximate location coordinates.
-     */
     public function scopeNearby($query, float $lat, float $lon, float $radiusKm = 10)
     {
         $latRange = $radiusKm / 111;
@@ -103,18 +170,44 @@ class Place extends Model
             ->whereBetween('lon', [$lon - $lonRange, $lon + $lonRange]);
     }
 
-    /**
-     * Get only places rated >= min.
-     */
     public function scopeHighlyRated($query, float $min = 4.0)
     {
         return $query->where('rating', '>=', $min);
     }
 
+    public function scopeOfType($query, string $type)
+    {
+        $type = strtolower($type);
 
-    /**
-     * Filter by main category string.
-     */
+        if ($type === 'food') {
+            return $query->where(function ($q) {
+                $q->where('category', 'like', '%restaurant%')
+                  ->orWhere('category', 'like', '%food%')
+                  ->orWhere('category', 'like', '%cafe%')
+                  ->orWhere('category', 'like', '%bar%');
+            });
+        }
+
+        return $query->where(function ($q) {
+            $q->whereNull('category')
+              ->orWhere(function ($q2) {
+                  $q2->where('category', 'not like', '%restaurant%')
+                      ->where('category', 'not like', '%food%')
+                      ->where('category', 'not like', '%cafe%')
+                      ->where('category', 'not like', '%bar%');
+              });
+        });
+    }
+
+    public function scopeHasAnyTags($query, array $tags)
+    {
+        return $query->where(function ($q) use ($tags) {
+            foreach ($tags as $tag) {
+                $q->orWhere('meta->review_keywords', 'like', "%{$tag}%");
+            }
+        });
+    }
+
     public function scopeInCategory($query, string $category)
     {
         return $query->where('category', 'like', "%{$category}%");

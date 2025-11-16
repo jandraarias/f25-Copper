@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Request;
 
 use App\Http\Controllers\ProfileController;
 
@@ -13,6 +14,8 @@ use App\Http\Controllers\Admin\DashboardController;
 
 use App\Http\Controllers\PublicItineraryController;
 use App\Http\Controllers\ItineraryPdfController;
+use App\Http\Controllers\PlaceController;
+use App\Http\Controllers\PlaceReviewController;
 
 use App\Http\Controllers\Traveler\DashboardController as TravelerDashboardController;
 use App\Http\Controllers\Traveler\ItineraryController;
@@ -20,6 +23,8 @@ use App\Http\Controllers\Traveler\ItineraryItemController;
 use App\Http\Controllers\Traveler\PreferenceProfileController;
 use App\Http\Controllers\Traveler\PreferenceController;
 use App\Http\Controllers\Traveler\ItineraryInvitationController;
+use App\Http\Controllers\Traveler\RewardsController;
+use App\Http\Controllers\Traveler\ExpertsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -27,19 +32,24 @@ use App\Http\Controllers\Traveler\ItineraryInvitationController;
 |--------------------------------------------------------------------------
 */
 
-// Publicly viewable itineraries (short & long URLs)
 Route::middleware(['throttle:20,1'])->get('/i/{uuid}', [PublicItineraryController::class, 'show'])
     ->name('public.itinerary.short');
 
 Route::middleware(['throttle:20,1'])->get('/public/itineraries/{uuid}', [PublicItineraryController::class, 'show'])
     ->name('public.itinerary.show');
 
-// Landing page redirect by role
+Route::get('/places/{place}', [PlaceController::class, 'show'])
+    ->name('places.show');
+
+Route::get('/places/{place}/reviews/page/{page}', [PlaceController::class, 'reviewsPage'])
+    ->name('places.reviews.page');
+
+Route::get('/places/{place}/reviews', [PlaceReviewController::class, 'index'])
+    ->name('places.reviews.index');
+
 Route::get('/', function () {
     if (Auth::check()) {
-        $user = Auth::user();
-
-        return match ($user->role) {
+        return match (Auth::user()->role) {
             'admin'     => redirect()->route('admin.dashboard'),
             'expert'    => redirect()->route('expert.dashboard'),
             'business'  => redirect()->route('business.dashboard'),
@@ -56,6 +66,7 @@ Route::get('/', function () {
 | Profile (Authenticated)
 |--------------------------------------------------------------------------
 */
+
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -67,10 +78,12 @@ Route::middleware('auth')->group(function () {
 | Admin
 |--------------------------------------------------------------------------
 */
+
 Route::middleware(['auth', 'role:admin'])
     ->prefix('admin')
     ->name('admin.')
     ->group(function () {
+
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
         // User Management
@@ -89,6 +102,7 @@ Route::middleware(['auth', 'role:admin'])
 | Expert
 |--------------------------------------------------------------------------
 */
+
 Route::middleware(['auth', 'role:expert'])->group(function () {
     Route::get('/expert/dashboard', [ExpertController::class, 'index'])->name('expert.dashboard');
 });
@@ -98,6 +112,7 @@ Route::middleware(['auth', 'role:expert'])->group(function () {
 | Business
 |--------------------------------------------------------------------------
 */
+
 Route::middleware(['auth', 'role:business'])->group(function () {
     Route::get('/business/dashboard', [BusinessController::class, 'index'])->name('business.dashboard');
 });
@@ -107,56 +122,63 @@ Route::middleware(['auth', 'role:business'])->group(function () {
 | Traveler
 |--------------------------------------------------------------------------
 */
+
 Route::middleware(['auth', 'role:traveler'])
     ->prefix('traveler')
     ->name('traveler.')
     ->group(function () {
+
         // Traveler Dashboard
         Route::get('/dashboard', [TravelerDashboardController::class, 'index'])->name('dashboard');
 
-        // Itineraries CRUD (owners + collaborators via policy)
+        // Itineraries CRUD
         Route::resource('itineraries', ItineraryController::class);
 
-        // 🆕 AI Itinerary Generation / Regeneration
-        // This route allows a traveler to manually trigger (re)generation of itinerary items.
+        // AI Itinerary Generation / Regeneration
         Route::post('itineraries/{itinerary}/generate', [ItineraryController::class, 'generate'])
             ->name('itineraries.generate');
 
-        // Collaboration: Invite route (authenticated travelers)
+        // Collaboration: Invite route
         Route::post('itineraries/{itinerary}/invite', [ItineraryController::class, 'invite'])
             ->name('itineraries.invite');
 
-        // Itinerary Items (nested, shallow)
+        // Itinerary Items
         Route::resource('itineraries.items', ItineraryItemController::class)
             ->shallow()
             ->only(['store', 'update', 'destroy']);
 
-        // Preference Profiles CRUD
+        // Preference Profiles
         Route::resource('preference-profiles', PreferenceProfileController::class);
 
-        // Preferences nested under profiles
+        // Preferences under profiles
         Route::resource('preference-profiles.preferences', PreferenceController::class)
             ->shallow()
             ->only(['create', 'store', 'edit', 'update', 'destroy']);
 
-        // Explicit create route for preferences
+        // Explicit preferences create
         Route::get('preference-profiles/{preferenceProfile}/preferences/create', [PreferenceController::class, 'create'])
             ->name('preferences.create');
 
-        // Regenerate (AI) Itinerary
-        Route::post('itineraries/{itinerary}/generate', [ItineraryController::class, 'generate'])
-            ->name('itineraries.generate');
+        // Correct Rewards Route
+        Route::get('/rewards', [RewardsController::class, 'index'])
+            ->name('rewards');
+
+        // Add Place to Itinerary Route
+        Route::post('/places/{place}/add-to-itinerary', [ItineraryItemController::class, 'addPlace'])
+            ->name('places.add-to-itinerary')
+            ->middleware('role:traveler');
+
+        // Experts Listing Route
+        Route::get('/experts', [ExpertsController::class, 'index'])->name('experts');
+
     });
 
 /*
 |--------------------------------------------------------------------------
 | Itinerary Invitations (Public)
 |--------------------------------------------------------------------------
-|
-| These routes are used by recipients (who may or may not be logged in)
-| to accept or decline an invitation via token links in their email.
-|
 */
+
 Route::prefix('itinerary-invitations')->name('itinerary-invitations.')->group(function () {
     Route::get('{token}', [ItineraryInvitationController::class, 'show'])->name('show');
     Route::post('{token}/accept', [ItineraryInvitationController::class, 'accept'])->name('accept');
@@ -165,16 +187,51 @@ Route::prefix('itinerary-invitations')->name('itinerary-invitations.')->group(fu
 
 /*
 |--------------------------------------------------------------------------
-| Itinerary PDF (Authenticated)
+| Itinerary PDF
 |--------------------------------------------------------------------------
 */
+
 Route::get('/itineraries/{itinerary}/pdf', ItineraryPdfController::class)
     ->middleware(['web', 'auth'])
     ->name('itineraries.pdf');
 
 /*
 |--------------------------------------------------------------------------
-| Auth Scaffolding
+| Auth
 |--------------------------------------------------------------------------
 */
+
 require __DIR__ . '/auth.php';
+
+Route::get('/places/historic/test', function () {
+    $path = storage_path('app/private/places/Williamsburg_historic_attractions_more_data.csv');
+    if (!file_exists($path)) {
+        return response()->json(['error' => "CSV not found at $path"], 404);
+    }
+
+    // load CSV safely (no PHP 8.4 warnings)
+    $rows   = array_map(fn($line) => str_getcsv($line, ',', '"', '\\'), file($path));
+    $header = array_shift($rows);
+    $data   = array_map(fn($r) => array_combine($header, $r), $rows);
+
+    // return a small preview so we can confirm it works
+    return response()->json([
+        'total_rows' => count($data),
+        'sample'     => array_slice($data, 0, 3), // first 3 rows
+    ]);
+});
+Route::get('/places/historic', function (Request $req) {
+    $path = storage_path('app/private/places/Williamsburg_historic_attractions_more_data.csv');
+    $rows   = array_map(fn($line) => str_getcsv($line, ',', '"', '\\'), file($path));
+    $header = array_shift($rows);
+    $data   = array_map(fn($r) => array_combine($header, $r), $rows);
+    return view('historic', ['items' => $data]);
+});
+
+Route::get('/places/food', function () {
+    $path = storage_path('app/private/places/Williamsburg_food_overview_more_data.csv');
+    $rows = array_map(fn($line) => str_getcsv($line, ',', '"', '\\'), file($path));
+    $header = array_shift($rows);
+    $data = array_map(fn($r) => array_combine($header, $r), $rows);
+    return view('food.index', ['places' => $data]);
+});

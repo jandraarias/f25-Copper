@@ -25,23 +25,41 @@ class AuthenticatedSessionController extends Controller
      */
     public function store(LoginRequest $request): RedirectResponse
     {
+        // Authenticate and start new session
         $request->authenticate();
-
         $request->session()->regenerate();
 
-        // Redirect to role-based dashboard
-        return redirect()->intended(RouteServiceProvider::redirectTo());
+        // Get the authenticated user safely
+        $user = Auth::user();
+
+        // Get the correct redirect path based on role
+        $redirectPath = RouteServiceProvider::redirectTo();
+
+        // Get any previously intended URL
+        $intendedUrl = session('url.intended');
+
+        /**
+         * If the stored intended URL doesn't match the user’s role,
+         * forget it to prevent cross-role redirects
+         */
+        if ($intendedUrl && $user && ! str_contains($intendedUrl, $user->role)) {
+            session()->forget('url.intended');
+        }
+
+        // Redirect to intended URL if valid, otherwise go to dashboard
+        return redirect()->intended($redirectPath);
     }
 
     /**
-     * Destroy an authenticated session.
+     * Log out the user and destroy the session.
      */
     public function destroy(Request $request): RedirectResponse
     {
         Auth::guard('web')->logout();
 
+        // Clear intended URL and session data
+        $request->session()->forget('url.intended');
         $request->session()->invalidate();
-
         $request->session()->regenerateToken();
 
         return redirect('/');
