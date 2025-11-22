@@ -6,29 +6,34 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    /**
+     * Run the migrations.
+     */
     public function up(): void
     {
         Schema::create('country_itinerary', function (Blueprint $table) {
             $table->id();
 
-            // Parent itinerary
+            // Relationship to itineraries
             $table->foreignId('itinerary_id')
                 ->constrained()
                 ->cascadeOnDelete();
 
-            // Store a country per row. Keep it flexible so you can pass either "FR" or "France".
-            $table->string('country', 64);
+            // New normalized country reference (NOT NULL)
+            $table->foreignId('country_id')
+                ->constrained('countries')
+                ->cascadeOnDelete();
 
-            // Prevent duplicates like (itinerary_id=1, country="FR") twice
-            $table->unique(['itinerary_id', 'country']);
-
-            // Helpful for queries like "all itineraries that include France"
-            $table->index('country');
+            // Prevent duplicates
+            $table->unique(['itinerary_id', 'country_id']);
 
             $table->timestamps();
         });
     }
 
+    /**
+     * Reverse the migrations.
+     */
     public function down(): void
     {
         Schema::dropIfExists('country_itinerary');

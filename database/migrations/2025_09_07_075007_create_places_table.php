@@ -11,26 +11,29 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // Creates the places table and uses $table (a Blueprint) to define its columns
         Schema::create('places', function (Blueprint $table) {
             $table->id();
+
             $table->string('name');
+            $table->string('photo_url')->nullable(); // merged from modifier
+
             $table->text('description')->nullable();
             $table->unsignedInteger('num_reviews')->nullable();
             $table->string('address')->nullable();
             $table->string('phone')->nullable();
             $table->decimal('lat', 10, 7)->nullable();
             $table->decimal('lon', 10, 7)->nullable();
-            $table->decimal('rating', 3, 2)->nullable(); // ← Consolidated here
+            $table->decimal('rating', 3, 2)->nullable();
             $table->string('categories')->nullable();
             $table->string('tags')->nullable();
             $table->string('image')->nullable();
-            $table->string('source')->default('gmaps_scrape_local'); //typo fixed defualt to default 
+            $table->string('source')->default('gmaps_scrape_local');
             $table->json('meta')->nullable();
+
             $table->timestamps();
 
-            // A datbase index to make queries faster
-            $table->index(['name', 'lat', 'lon']); 
+            // indexing for faster proximity/name search
+            $table->index(['name', 'lat', 'lon']);
         });
     }
 
