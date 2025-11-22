@@ -13,11 +13,15 @@ return new class extends Migration
     {
         Schema::create('travelers', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->date('date_of_birth');
-            $table->string('phone_number');
-            $table->string('email');
+
+            // Travelers always belong to a user
+            $table->foreignId('user_id')
+                ->constrained()
+                ->onDelete('cascade');
+
+            // PII has been moved to users table, so only keep profile fields
             $table->text('bio')->nullable();
+
             $table->timestamps();
         });
     }
