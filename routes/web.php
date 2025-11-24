@@ -247,3 +247,5 @@ Route::get('/places/food', function () {
     $data = array_map(fn($r) => array_combine($header, $r), $rows);
     return view('food.index', ['places' => $data]);
 });
+// Nearby Places 
+Route::get('/places/nearby', [PlaceController::class, 'nearbyPlaces']) ->name('places.nearby');
