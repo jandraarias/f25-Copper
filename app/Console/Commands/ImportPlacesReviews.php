@@ -36,8 +36,8 @@ class ImportPlacesReviews extends Command
         // Increases memory limit for large CSVs
         ini_set('memory_limit', '1G');
 
-        $placesPath  = storage_path('app/private/places');
-        $reviewsPath = storage_path('app/private/reviews');
+        $placesPath  = base_path('resources/data/places');
+        $reviewsPath = base_path('resources/data/reviews');
 
         // Whether to simulate only (no DB writes)
         $dry = (bool) $this->option('dry-run');
