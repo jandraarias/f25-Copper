@@ -45,7 +45,7 @@
                             {{-- Description --}}
                             <div class="md:col-span-2">
                                 <label class="block text-sm font-semibold text-ink-700 dark:text-sand-100 mb-2">Description</label>
-                                <textarea name="description" rows="4" required
+                                <textarea name="description" rows="4"
                                           class="w-full border border-sand-200 dark:border-ink-700 rounded-xl shadow-sm
                                                  focus:ring-copper focus:border-copper focus:shadow-glow
                                                  transition-all duration-200 px-4 py-2.5 dark:bg-sand-900">{{ old('description') }}</textarea>
