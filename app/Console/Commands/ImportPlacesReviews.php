@@ -3,7 +3,6 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
 use App\Models\Place;
@@ -36,8 +35,8 @@ class ImportPlacesReviews extends Command
         // Increases memory limit for large CSVs
         ini_set('memory_limit', '1G');
 
-        $placesPath  = storage_path('app/private/places');
-        $reviewsPath = storage_path('app/private/reviews');
+        $placesPath  = base_path('resources/data/places');
+        $reviewsPath = base_path('resources/data/reviews');
 
         // Whether to simulate only (no DB writes)
         $dry = (bool) $this->option('dry-run');
@@ -197,7 +196,19 @@ class ImportPlacesReviews extends Command
                 continue;
             }
 
-            // optional numeric
+            // Split coordinates column into latitude and longitude
+            if (!empty($r['coordinates']) && is_string($r['coordinates'])) {
+                $raw = trim($r['coordinates']);
+                if ($raw !== '' && str_starts_with($raw, '{')) {
+                    $decoded = json_decode($raw, true);
+                    if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+                        if (isset($decoded['latitude']))  $r['latitude']  = $decoded['latitude'];
+                        if (isset($decoded['longitude'])) $r['longitude'] = $decoded['longitude'];
+                    }
+                }
+            }
+
+            //Assign latitude and longitude to variables so we can use it to match table entries
             $lat = $this->f($r['lat'] ?? $r['latitude'] ?? null);
             $lon = $this->f($r['lon'] ?? $r['lng'] ?? $r['longitude'] ?? null);
 
