@@ -33,12 +33,12 @@ class OpenAITag extends Command
     public function handle(\OpenAI\Client $client)
     {
            //Creating a reader to read CSV records and then a list to hold our updated records
-           $csvPath = storage_path('app\private\places\Williamsburg_food_overview.csv');
+
+           //Currently using a hard-coded location to limit OpenAI token usage and a lack of preventing repeat tagging
+           $csvPath = base_path('resources/data/places/Williamsburg_attractions_overview.csv');
            $reader = Reader::createFromPath($csvPath, 'r');
            $reader->setHeaderOffset(0);
            $records = $reader->getRecords();
-           $numLocations = iterator_count($records);
-           //$numLocations = 3;
            $updatedRecords = [];
            $tagArraysforCSV = [];
 
@@ -106,10 +106,10 @@ class OpenAITag extends Command
         // Handle case where there are fewer than 25 reviews
         $reviewCount = $reviews->count();
         $prompt = "Use the information in these $reviewCount user reviews: $reviewsString\n"
-            . "Select between 1–5 of these tags: $tagsString\n"
+            . "Select between 2–7 of these tags: $tagsString\n"
             . "for this location: $place.\n"
-            . "Only select a cuisine if food is the primary reason to go. "
-            . "Never select more than 5 tags. Give me just the tags as a comma-separated list.";
+            . "Avoid selecting food-related tags unless food is the primary reason to go to the place. Always select a budget-level, which are 'Free or Low Cost, Budget-Friendly, Moderate, or Luxury'."
+            . "Dietary restrictions, accessibility, and budget tags do not count in the 2-7 tag limit. Give me just the tags as a comma-separated list.";
 
         $messages = [
             ['role' => 'system', 'content' => 'You are a concise tag generator that responds with only a list of tags.'],
