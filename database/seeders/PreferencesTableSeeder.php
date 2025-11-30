@@ -112,12 +112,6 @@ class PreferencesTableSeeder extends Seeder
                 'Fish-Free',
                 'Sesame-Free',
             ],
-            'Food & Dining Price Range' => [
-                '$ Inexpensive',
-                '$$ Moderate',
-                '$$$ Expensive',
-                '$$$$ Fine Dining',
-            ],
             'Budget & Price Level' => [
                 'Free or Low Cost ',
                 'Budget-Friendly',
