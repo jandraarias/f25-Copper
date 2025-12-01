@@ -29,7 +29,7 @@ class RewardsTableSeeder extends Seeder
         ];
 
         // Get random food-type places
-        $places = Place::where('tags', 'LIKE', '%Cuisine%')->inRandomOrder()->take(20)->get();
+        $places = Place::inRandomOrder()->get()->filter(fn($place) => $place->type === 'food')->take(20);
 
         foreach($places as $place){
             $discountText = $discountOptions[array_rand($discountOptions)];

@@ -57,6 +57,12 @@ class Place extends Model
         return $this->hasMany(Reward::class);
     }
 
+    public function preferenceOptions()
+{
+    //Need to explicitly specific columns so that it doesn't get place.id and preference_options.id confused
+    return $this->belongsToMany(PreferenceOption::class, 'place_preference_option')->select('preference_options.id', 'name', 'type', 'parent_id');
+}
+
     /* -----------------------------------------------------------------
      |  Accessors – expose normalized fields from meta
      |------------------------------------------------------------------*/
@@ -84,14 +90,24 @@ class Place extends Model
         return Attribute::get(fn () => null);
     }
     /**
-     * Distinguish between "food" and "activity" based on category text.
+     * Distinguish between "food" and "activity" based on prference_options parent_ids text.
      */
     protected function type(): Attribute
     {
         return Attribute::get(function () {
-            $isFood = str_contains($this->tags, 'Cuisine');
+            //These ids correspond to "food" categories in the preference_option table
+            $foodParentIds = [12, 17, 30];
+            
+            $options = $this->relationLoaded('preferenceOptions')
+            ? $this->preferenceOptions
+            : $this->preferenceOptions()->get(['id', 'parent_id']);
+
+            // Check if any related preference option has a food parent
+            $isFood = $options->contains(fn($opt) =>
+            in_array($opt->parent_id, $foodParentIds)
+            );
             return $isFood ? 'food' : 'activity';
-});
+        });
     }
 
     /**
@@ -171,10 +187,8 @@ class Place extends Model
 
     public function scopeHasAnyTags($query, array $tags)
     {
-        return $query->where(function ($q) use ($tags) {
-            foreach ($tags as $tag) {
-                $q->orWhere('meta->review_keywords', 'like', "%{$tag}%");
-            }
+        return $query->whereHas('preferenceOptions', function ($q) use ($tags) {
+        $q->whereIn('name', $tags);
         });
     }
 

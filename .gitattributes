@@ -6,6 +6,8 @@
 *.md diff=markdown
 *.php diff=php
 
+resources/data/places/*.csv text eol=lf
+
 /.github export-ignore
 CHANGELOG.md export-ignore
 .styleci.yml export-ignore
