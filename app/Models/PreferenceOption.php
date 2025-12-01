@@ -22,5 +22,10 @@ class PreferenceOption extends Model
     {
         return $this->hasMany(PreferenceOption::class, 'parent_id');
     }
+
+    public function places()
+    {
+        return $this->belongsToMany(Place::class, 'place_preference_option');
+    }
 }
 
