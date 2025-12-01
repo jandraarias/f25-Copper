@@ -177,6 +177,9 @@ class ImportPlacesReviews extends Command
 
         $created = 0; $updated = 0; $seen = 0;
 
+        // Cache all preference options once for matching 
+        $preferenceOptions = \App\Models\PreferenceOption::all()->keyBy(fn($opt) => strtolower($opt->name));
+
         foreach ($this->streamCsv($csvPath) as $r) {
             $seen++;
 
@@ -250,6 +253,30 @@ class ImportPlacesReviews extends Command
 
             if ($ext) $extMap[$ext] = $place->id;
             $nameMap[$this->norm($name)] = $place->id;
+            
+            //Populate pivot table
+            $keywordsRaw = $r['review_keywords'] ?? null;
+            if($keywordsRaw) {
+                $keywords = array_map('trim', explode(',', $keywordsRaw));
+
+                foreach ($keywords as $word) {
+                    $lower = strtolower($word);
+
+                    //Check if a matching preference exists
+                    $opt = $preferenceOptions->get($lower);
+
+                    //Handling for matching cuisines(i.e American Cuisine -> American)
+                    if (!$opt && str_ends_with($lower, ' cuisine')) {
+                        $base = trim(str_replace(' cuisine', '', $lower));
+                        $opt = $preferenceOptions->get($base);
+                    }
+
+                    //Add to pivot table
+                    if ($opt) {
+                        $place->PreferenceOptions()->syncWithoutDetaching([$opt->id]);
+                    }
+                }
+            }
         }
         // Give the caller everything needed for review linking and reporting
         return [$extMap, $nameMap, $created, $updated, $seen];
