@@ -172,10 +172,10 @@
                         <h3 class="text-sm uppercase font-semibold text-copper-700 dark:text-copper-300 mb-2">Tags</h3>
 
                         <div class="flex flex-wrap gap-2">
-                            @foreach ($place->tags as $tag)
+                            @foreach ($place->preferenceOptions as $option)
                                 <span class="px-2 py-1 bg-sand-100 dark:bg-ink-700 rounded-full
                                              text-xs text-ink-700 dark:text-sand-200">
-                                    {{ $tag }}
+                                    {{ $option->name }}
                                 </span>
                             @endforeach
                         </div>
