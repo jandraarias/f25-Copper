@@ -16,7 +16,7 @@ class ImportPlaces extends Command
      *
      * @var string
      */
-    protected $signature = 'app:import';
+    protected $signature = 'depreciated:import';
 
     /**
      * The console command description.
