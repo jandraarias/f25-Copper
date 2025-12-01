@@ -59,7 +59,8 @@ class Place extends Model
 
     public function preferenceOptions()
 {
-    return $this->belongsToMany(PreferenceOption::class, 'place_preference_option');
+    //Need to explicitly specific columns so that it doesn't get place.id and preference_options.id confused
+    return $this->belongsToMany(PreferenceOption::class, 'place_preference_option')->select('preference_options.id', 'name', 'type', 'parent_id');
 }
 
     /* -----------------------------------------------------------------
