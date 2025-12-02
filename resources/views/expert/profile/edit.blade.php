@@ -146,6 +146,16 @@
                     </div>
                 </form>
 
+                @if ($errors->any())
+                    <div class="p-4 rounded-xl bg-red-100 text-red-700">
+                        <ul class="list-disc ml-5">
+                            @foreach ($errors->all() as $err)
+                                <li>{{ $err }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+
             </div>
 
         </div>

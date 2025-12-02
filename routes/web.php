@@ -128,6 +128,8 @@ Route::middleware(['auth', 'role:expert'])
         // Travelers
         Route::get('/travelers', [ExpertTravelerController::class, 'index'])
             ->name('travelers.index');
+        Route::get('/travelers/{traveler}', [ExpertTravelerController::class, 'show'])
+            ->name('travelers.show');
 
         // Profile (SHOW)
         Route::get('/profile', [ExpertProfileController::class, 'show'])

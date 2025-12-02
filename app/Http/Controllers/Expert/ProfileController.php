@@ -20,7 +20,8 @@ class ProfileController extends Controller
             'expertise'        => 'nullable|string|max:255',
             'languages'        => 'nullable|string|max:255',
             'experience_years' => 'nullable|integer|min:0|max:60',
-            'city'             => ['required', 'string', 'in:' . implode(',', $validCities)],
+            //'city'             => ['required', 'string', 'in:' . implode(',', $validCities)],
+            'city'             => ['required', 'string'], // <-- or keep strict validation if desired
             'photo'            => 'nullable|image|max:2048',
         ]);
 
@@ -34,36 +35,38 @@ class ProfileController extends Controller
 
         $expert->update($data);
 
-        return back()->with('success', 'Profile updated successfully.');
+        return redirect()
+            ->route('expert.profile.show')
+            ->with('success', 'Profile updated successfully.');
     }
 
     public function edit()
     {
-        /** @var \App\Models\User $user */
         $user = Auth::user();
+        $cities = CityHelper::all();
 
         if (!$user->expert) {
             $user->expert()->create([
                 'name' => $user->name,
-                'city' => '',
+                'city' => $cities->first(),
                 'bio' => '',
             ]);
         }
 
         $expert = $user->expert;
-        $cities = CityHelper::all();
 
         return view('expert.profile.edit', compact('expert', 'cities'));
     }
 
     public function show()
     {
-        /** @var \App\Models\User $user */
         $user = Auth::user();
+        $cities = CityHelper::all();
 
         if (!$user->expert) {
             $user->expert()->create([
-                'city' => '',
+                'name' => $user->name,
+                'city' => $cities->first(),
                 'bio' => '',
             ]);
         }
@@ -72,4 +75,5 @@ class ProfileController extends Controller
 
         return view('expert.profile.show', compact('expert'));
     }
+
 }
