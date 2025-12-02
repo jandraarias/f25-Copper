@@ -9,14 +9,18 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up()
+    public function up(): void
     {
         Schema::create('experts', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
+
+            // Correct - links each expert to exactly one user
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+
             $table->string('city')->index();
             $table->string('photo_url')->nullable();
             $table->text('bio')->nullable();
+
             $table->timestamps();
         });
     }

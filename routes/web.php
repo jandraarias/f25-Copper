@@ -109,21 +109,37 @@ Route::middleware(['auth', 'role:admin'])
 |--------------------------------------------------------------------------
 */
 
-Route::prefix('expert')
-    ->middleware(['auth', 'role:expert'])
+Route::middleware(['auth', 'role:expert'])
+    ->prefix('expert')
     ->name('expert.')
     ->group(function () {
 
-        Route::get('/dashboard', [ExpertDashboardController::class, 'index'])->name('dashboard');
+        // Dashboard
+        Route::get('/dashboard', [ExpertDashboardController::class, 'index'])
+            ->name('dashboard');
 
+        // Itineraries
         Route::get('/itineraries', [ExpertItineraryController::class, 'index'])
             ->name('itineraries.index');
 
+        Route::get('/itineraries/{itinerary}', [ExpertItineraryController::class, 'show'])
+            ->name('itineraries.show');
+
+        // Travelers
         Route::get('/travelers', [ExpertTravelerController::class, 'index'])
             ->name('travelers.index');
 
-        Route::get('/profile', [ExpertProfileController::class, 'edit'])
+        // Profile (SHOW)
+        Route::get('/profile', [ExpertProfileController::class, 'show'])
+            ->name('profile.show');
+
+        // Profile (EDIT FORM)
+        Route::get('/profile/edit', [ExpertProfileController::class, 'edit'])
             ->name('profile.edit');
+
+        // Profile update
+        Route::patch('/profile', [ExpertProfileController::class, 'update'])
+            ->name('profile.update');
     });
 
 /*

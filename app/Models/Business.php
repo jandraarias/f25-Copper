@@ -5,26 +5,21 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Expert extends Model
+class Business extends Model
 {
     use HasFactory;
 
     protected $fillable = [
         'user_id',
+        'name',
         'city',
-        'photo_url',
-        'bio',
+        'website',
+        'description',
+        'logo_url',
     ];
 
-    // Each expert belongs to a user
     public function user()
     {
         return $this->belongsTo(User::class);
-    }
-
-    // Expert has many reviews
-    public function reviews()
-    {
-        return $this->hasMany(ExpertReview::class);
     }
 }

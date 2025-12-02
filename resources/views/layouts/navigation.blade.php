@@ -143,7 +143,7 @@
                         </x-nav-link>
 
                         <!-- Expert Profile -->
-                        <x-nav-link :href="route('expert.profile.edit')"
+                        <x-nav-link :href="route('expert.profile.show')"
                                     :active="request()->routeIs('expert.profile.*')">
                             <div class="flex items-center gap-2">
                                 <svg class="w-4 h-4 text-forest" fill="none" stroke="currentColor" stroke-width="1.5"
@@ -305,7 +305,7 @@
                     Travelers
                 </x-responsive-nav-link>
 
-                <x-responsive-nav-link :href="route('expert.profile.edit')"
+                <x-responsive-nav-link :href="route('expert.profile.show')"
                                     :active="request()->routeIs('expert.profile.*')">
                     Profile
                 </x-responsive-nav-link>
