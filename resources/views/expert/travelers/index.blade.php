@@ -26,23 +26,23 @@
             {{-- Empty State --}}
             @if($travelers->isEmpty())
                 <div class="p-10 text-center text-ink-700 dark:text-sand-200 bg-white dark:bg-sand-800
-                            border border-sand-200 dark:border-ink-700 rounded-2xl shadow-soft">
-                    <p class="text-xl">No travelers found.</p>
-                    <p class="text-sm mt-2 opacity-70">Travelers you’re helping will appear here.</p>
+                    border border-sand-200 dark:border-ink-700 rounded-2xl shadow-soft">
+                    <p class="text-xl font-semibold">No travelers found.</p>
+                    <p class="text-sm mt-2 opacity-70">Travelers you’re assisting will appear here.</p>
                 </div>
             @endif
 
+
             {{-- Travelers Grid --}}
-            <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-8 mt-6">
 
                 @foreach ($travelers as $traveler)
-                    <a href="{{ route('expert.travelers.show', $traveler) }}"
-                       class="group block bg-white dark:bg-sand-800 rounded-3xl shadow-soft 
-                              border border-sand-200 dark:border-ink-700 p-6 transition-all 
-                              hover:shadow-glow hover:scale-[1.02]">
+                    <div class="group bg-white dark:bg-sand-800 rounded-3xl shadow-soft 
+                                border border-sand-200 dark:border-ink-700 p-6 transition-all 
+                                hover:shadow-glow hover:scale-[1.02] flex flex-col">
 
                         {{-- Photo --}}
-                        <img src="{{ $traveler->photo_url ?: 'https://via.placeholder.com/200' }}"
+                        <img src="{{ $traveler->photo_url ?: 'https://via.placeholder.com/300' }}"
                              class="w-full h-56 object-cover rounded-2xl shadow mb-5"
                              alt="{{ $traveler->user->name }}">
 
@@ -55,9 +55,9 @@
                         <p class="text-sm text-ink-700 dark:text-sand-300 flex items-center gap-2">
                             <svg xmlns="http://www.w3.org/2000/svg"
                                  class="w-4 h-4 text-copper"
-                                 fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                 fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round"
-                                      d="M16 12H8m0 0l4 4m-4-4l4-4" />
+                                    d="M16 12H8m0 0l4 4m-4-4l4-4" />
                             </svg>
                             {{ $traveler->user->email }}
                         </p>
@@ -66,8 +66,8 @@
                         @if($traveler->user->phone_number)
                             <p class="text-sm mt-2 text-ink-700 dark:text-sand-300 flex items-center gap-2">
                                 <svg xmlns="http://www.w3.org/2000/svg"
-                                     class="w-4 h-4 text-copper" fill="none"
-                                     viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                     class="w-4 h-4 text-copper"
+                                     fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round"
                                         d="M3 5a2 2 0 012-2h2l2 5-2 1 4 7 4-2 1 2H7a2 2 0 01-2-2V5z" />
                                 </svg>
@@ -75,7 +75,7 @@
                             </p>
                         @endif
 
-                        {{-- Date of Birth --}}
+                        {{-- DOB --}}
                         @if($traveler->user->date_of_birth)
                             <p class="text-sm mt-2 text-ink-700 dark:text-sand-300">
                                 <strong>DOB:</strong> {{ $traveler->user->date_of_birth->format('M d, Y') }}
@@ -87,7 +87,30 @@
                             Last active: {{ $traveler->updated_at->diffForHumans() }}
                         </p>
 
-                    </a>
+
+                        {{-- CTA Buttons --}}
+                        <div class="mt-6 flex flex-col gap-3">
+
+                            {{-- View Profile --}}
+                            <a href="{{ route('expert.travelers.show', $traveler) }}"
+                               class="w-full text-center px-5 py-2.5 rounded-full 
+                                    border border-copper text-copper font-medium 
+                                    hover:bg-copper hover:text-white hover:shadow-glow 
+                                    hover:scale-[1.02] transition-all duration-200">
+                                View Profile
+                            </a>
+
+                            {{-- Message --}}
+                            <a href="{{ route('expert.travelers.messages', $traveler) }}"
+                               class="w-full text-center px-5 py-2.5 rounded-full 
+                                    bg-gradient-copper text-white font-semibold shadow-soft
+                                    hover:shadow-glow hover:scale-[1.02] transition-all duration-200">
+                                Message Traveler
+                            </a>
+
+                        </div>
+
+                    </div>
                 @endforeach
 
             </div>

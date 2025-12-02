@@ -11,7 +11,6 @@ use App\Models\User;
 use App\Models\Itinerary;
 use App\Models\PreferenceProfile;
 
-
 class Traveler extends Model
 {
     use HasFactory;
@@ -21,19 +20,30 @@ class Traveler extends Model
         'bio',
     ];
 
+    /**
+     * Traveler belongs to a User.
+     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
+    /**
+     * Traveler has many itineraries.
+     * Foreign key in itineraries table: traveler_id
+     */
     public function itineraries(): HasMany
     {
-        return $this->hasMany(Itinerary::class, 'user_id', 'user_id');
+        return $this->hasMany(Itinerary::class, 'traveler_id', 'id');
     }
 
+    /**
+     * Traveler has many preference profiles.
+     * Foreign key in preference_profiles table: traveler_id
+     */
     public function preferenceProfiles(): HasMany
     {
-        return $this->hasMany(PreferenceProfile::class, 'user_id', 'user_id');
+        return $this->hasMany(PreferenceProfile::class, 'traveler_id', 'id');
     }
 
     protected static function newFactory()

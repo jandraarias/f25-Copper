@@ -6,16 +6,58 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Traveler;
 use App\Models\Message;
-use App\Models\User;
 
 class MessageController extends Controller
 {
     /**
-     * @param \App\Models\Traveler $traveler
+     * Expert Inbox — list all travelers they’ve messaged
      */
-    public function index(Traveler $traveler)
+    public function inbox()
     {
-        $expert = auth()->user(); // Expert user
+        $expert = auth()->user();
+
+        // Get all travelers who have exchanged messages with this expert
+        $threads = Traveler::whereHas('user.sentMessages', function ($q) use ($expert) {
+                $q->where('receiver_id', $expert->id);
+            })
+            ->orWhereHas('user.receivedMessages', function ($q) use ($expert) {
+                $q->where('sender_id', $expert->id);
+            })
+            ->with([
+                'user',
+                'user.sentMessages' => fn ($q) => $q->where('receiver_id', $expert->id),
+                'user.receivedMessages' => fn ($q) => $q->where('sender_id', $expert->id),
+            ])
+            ->get()
+            ->map(function ($traveler) use ($expert) {
+                $traveler->last_message = Message::where(function ($q) use ($expert, $traveler) {
+                        $q->where('sender_id', $expert->id)
+                          ->where('receiver_id', $traveler->user_id);
+                    })
+                    ->orWhere(function ($q) use ($expert, $traveler) {
+                        $q->where('sender_id', $traveler->user_id)
+                          ->where('receiver_id', $expert->id);
+                    })
+                    ->latest()
+                    ->first();
+
+                return $traveler;
+            })
+            ->sortByDesc(fn ($t) => $t->last_message?->created_at)
+            ->values();
+
+        return view('expert.messages.index', [
+            'threads' => $threads,
+        ]);
+    }
+
+
+    /**
+     * Show a specific message thread between Expert and Traveler
+     */
+    public function show(Traveler $traveler)
+    {
+        $expert = auth()->user();
 
         $messages = Message::where(function ($q) use ($expert, $traveler) {
                 $q->where('sender_id', $expert->id)
@@ -28,15 +70,15 @@ class MessageController extends Controller
             ->orderBy('created_at')
             ->get();
 
-        return view('expert.travelers.messages', [
+        return view('expert.messages.show', [
             'traveler' => $traveler,
             'messages' => $messages,
         ]);
     }
 
+
     /**
-     * @param \Illuminate\Http\Request $request
-     * @param \App\Models\Traveler $traveler
+     * Send a message from Expert → Traveler
      */
     public function store(Request $request, Traveler $traveler)
     {
