@@ -85,6 +85,7 @@ class RegisteredUserController extends Controller
         if ($user->role === User::ROLE_EXPERT) {
             \App\Models\Expert::create([
                 'user_id'   => $user->id,
+                'name'    => $user->name,
                 'city'      => '',   // empty defaults until expert edits profile
                 'photo_url' => null,
                 'bio'       => null,

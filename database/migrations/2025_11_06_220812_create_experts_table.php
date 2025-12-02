@@ -6,28 +6,20 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('experts', function (Blueprint $table) {
             $table->id();
-
-            // Correct - links each expert to exactly one user
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
 
+            $table->string('name');
             $table->string('city')->index();
             $table->string('photo_url')->nullable();
             $table->text('bio')->nullable();
-
             $table->timestamps();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('experts');

@@ -106,6 +106,7 @@ namespace App\Models{
 /**
  * @property int $id
  * @property int $user_id
+ * @property string $name
  * @property string $city
  * @property string|null $photo_url
  * @property string|null $bio
@@ -121,6 +122,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Expert whereCity($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Expert whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Expert whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Expert whereName($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Expert wherePhotoUrl($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Expert whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Expert whereUserId($value)

@@ -48,6 +48,7 @@ class ExpertSeeder extends Seeder
             // Create related expert profile
             $expert = Expert::create([
                 'user_id'   => $user->id,
+                'name'      => $data['name'],   // ← REQUIRED
                 'city'      => $data['city'],
                 'photo_url' => $data['photo_url'],
                 'bio'       => $data['bio'],
