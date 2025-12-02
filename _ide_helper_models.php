@@ -14,6 +14,59 @@
 namespace App\Models{
 /**
  * @property int $id
+ * @property int $user_id
+ * @property string $name
+ * @property string $city
+ * @property string|null $logo_url
+ * @property string|null $description
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\User $user
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Business newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Business newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Business query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Business whereCity($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Business whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Business whereDescription($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Business whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Business whereLogoUrl($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Business whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Business whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Business whereUserId($value)
+ */
+	class Business extends \Eloquent {}
+}
+
+namespace App\Models{
+/**
+ * @property int $id
+ * @property int $user_id
+ * @property string $title
+ * @property string|null $description
+ * @property string|null $starts_at
+ * @property string|null $ends_at
+ * @property int $active
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|BusinessOffer newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|BusinessOffer newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|BusinessOffer query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|BusinessOffer whereActive($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|BusinessOffer whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|BusinessOffer whereDescription($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|BusinessOffer whereEndsAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|BusinessOffer whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|BusinessOffer whereStartsAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|BusinessOffer whereTitle($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|BusinessOffer whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|BusinessOffer whereUserId($value)
+ */
+	class BusinessOffer extends \Eloquent {}
+}
+
+namespace App\Models{
+/**
+ * @property int $id
  * @property string $code
  * @property string $name
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Itinerary> $itineraries
@@ -52,6 +105,7 @@ namespace App\Models{
 namespace App\Models{
 /**
  * @property int $id
+ * @property int $user_id
  * @property string $name
  * @property string $city
  * @property string|null $photo_url
@@ -60,6 +114,7 @@ namespace App\Models{
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ExpertReview> $reviews
  * @property-read int|null $reviews_count
+ * @property-read \App\Models\User $user
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Expert newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Expert newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Expert query()
@@ -70,6 +125,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Expert whereName($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Expert wherePhotoUrl($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Expert whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Expert whereUserId($value)
  */
 	class Expert extends \Eloquent {}
 }
@@ -109,9 +165,9 @@ namespace App\Models{
  * @property \Illuminate\Support\Carbon|null $end_date
  * @property string|null $description
  * @property bool $is_collaborative
+ * @property int|null $preference_profile_id
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property int|null $preference_profile_id
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\User> $collaborators
  * @property-read int|null $collaborators_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Country> $countries
@@ -180,12 +236,12 @@ namespace App\Models{
  * @property string $location
  * @property string|null $rating
  * @property string|null $google_maps_url
+ * @property int|null $place_id
  * @property \Illuminate\Support\Carbon|null $start_time
  * @property \Illuminate\Support\Carbon|null $end_time
  * @property string|null $details
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property int|null $place_id
  * @property-read mixed $duration
  * @property-read \App\Models\Itinerary $itinerary
  * @property-read mixed $label
@@ -218,7 +274,7 @@ namespace App\Models{
 /**
  * @property int $id
  * @property string $name
- * @property string|null $category
+ * @property string|null $photo_url
  * @property string|null $description
  * @property int|null $num_reviews
  * @property string|null $address
@@ -236,7 +292,8 @@ namespace App\Models{
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ItineraryItem> $itineraryItems
  * @property-read int|null $itinerary_items_count
  * @property-read mixed $main_category
- * @property-read mixed $photo_url
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PreferenceOption> $preferenceOptions
+ * @property-read int|null $preference_options_count
  * @property-read mixed $price_level
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Review> $reviews
  * @property-read int|null $reviews_count
@@ -253,7 +310,6 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Place query()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Place whereAddress($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Place whereCategories($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Place whereCategory($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Place whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Place whereDescription($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Place whereId($value)
@@ -264,6 +320,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Place whereName($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Place whereNumReviews($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Place wherePhone($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Place wherePhotoUrl($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Place whereRating($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Place whereSource($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Place whereTags($value)
@@ -311,6 +368,8 @@ namespace App\Models{
  * @property-read \Illuminate\Database\Eloquent\Collection<int, PreferenceOption> $children
  * @property-read int|null $children_count
  * @property-read PreferenceOption|null $parent
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Place> $places
+ * @property-read int|null $places_count
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PreferenceOption newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PreferenceOption newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PreferenceOption query()
@@ -359,16 +418,21 @@ namespace App\Models{
 namespace App\Models{
 /**
  * @property int $id
+ * @property int|null $review_id
  * @property int $place_id
  * @property string|null $place_name
+ * @property string|null $reviewer_name
  * @property string $source
  * @property string|null $author
  * @property float|null $rating
+ * @property string|null $review_text
+ * @property string|null $reviewed_at
+ * @property string|null $review_keywords
  * @property string|null $text
  * @property \Illuminate\Support\Carbon|null $published_at
  * @property \Illuminate\Support\Carbon|null $published_at_date
  * @property string|null $owner_response
- * @property string|null $owner_response_published_date
+ * @property \Illuminate\Support\Carbon|null $owner_response_publish_date
  * @property array<array-key, mixed>|null $review_photos
  * @property \Illuminate\Support\Carbon|null $fetched_at
  * @property array<array-key, mixed>|null $meta
@@ -378,7 +442,6 @@ namespace App\Models{
  * @property-read mixed $excerpt
  * @property-read mixed $experience_list
  * @property-read mixed $photo_urls
- * @property-read mixed $reviewer_name
  * @property-read \App\Models\Place $place
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Review newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Review newQuery()
@@ -389,13 +452,18 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Review whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Review whereMeta($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Review whereOwnerResponse($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Review whereOwnerResponsePublishedDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Review whereOwnerResponsePublishDate($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Review wherePlaceId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Review wherePlaceName($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Review wherePublishedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Review wherePublishedAtDate($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Review whereRating($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Review whereReviewId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Review whereReviewKeywords($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Review whereReviewPhotos($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Review whereReviewText($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Review whereReviewedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Review whereReviewerName($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Review whereSource($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Review whereText($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Review whereUpdatedAt($value)
@@ -469,10 +537,12 @@ namespace App\Models{
  * @property string|null $remember_token
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\Business|null $business
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Itinerary> $collaborativeItineraries
  * @property-read int|null $collaborative_itineraries_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Itinerary> $createdItineraries
  * @property-read int|null $created_itineraries_count
+ * @property-read \App\Models\Expert|null $expert
  * @property-read \Illuminate\Notifications\DatabaseNotificationCollection<int, \Illuminate\Notifications\DatabaseNotification> $notifications
  * @property-read int|null $notifications_count
  * @property-read \App\Models\Traveler|null $traveler

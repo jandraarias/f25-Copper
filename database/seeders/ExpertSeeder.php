@@ -3,6 +3,8 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
+use App\Models\User;
 use App\Models\Expert;
 use App\Models\ExpertReview;
 
@@ -10,34 +12,63 @@ class ExpertSeeder extends Seeder
 {
     public function run()
     {
-        $experts = [
+        $expertData = [
             [
-                'name' => 'Aiko Tanaka',
-                'city' => 'Williamsburg',
+                'name'      => 'Aiko Tanaka',
+                'city'      => 'Williamsburg',
                 'photo_url' => 'https://i.pravatar.cc/300?img=5',
-                'bio' => 'Local food and culture expert with 10+ years of guiding.',
+                'bio'       => 'Local food and culture expert with 10+ years of guiding.',
             ],
             [
-                'name' => 'Luis Martínez',
-                'city' => 'Williamsburg',
+                'name'      => 'Luis Martínez',
+                'city'      => 'Williamsburg',
                 'photo_url' => 'https://i.pravatar.cc/300?img=12',
-                'bio' => 'Nightlife, architecture, and art tour specialist.',
+                'bio'       => 'Nightlife, architecture, and art tour specialist.',
             ],
             [
-                'name' => 'Sophie Laurent',
-                'city' => 'Williamsburg',
+                'name'      => 'Sophie Laurent',
+                'city'      => 'Williamsburg',
                 'photo_url' => 'https://i.pravatar.cc/300?img=28',
-                'bio' => 'Fashion, museums, and cultural history expert.',
+                'bio'       => 'Fashion, museums, and cultural history expert.',
             ],
         ];
 
-        foreach ($experts as $data) {
-            $expert = Expert::create($data);
+        foreach ($expertData as $data) {
 
-            // Add some fake reviews
-            ExpertReview::factory()->count(rand(3, 15))->create([
-                'expert_id' => $expert->id,
+            // Create a user account for the expert
+            $user = User::create([
+                'name'          => $data['name'],
+                'email'         => $this->makeEmail($data['name']),
+                'password'      => Hash::make('password'), // default password
+                'role'          => User::ROLE_EXPERT,
+                'phone_number'  => null,
+                'date_of_birth' => now()->subYears(rand(25, 45))->format('Y-m-d'),
             ]);
+
+            // Create related expert profile
+            $expert = Expert::create([
+                'user_id'   => $user->id,
+                'name'      => $data['name'],   // ← REQUIRED
+                'city'      => $data['city'],
+                'photo_url' => $data['photo_url'],
+                'bio'       => $data['bio'],
+            ]);
+
+            // Add review records
+            ExpertReview::factory()
+                ->count(rand(3, 15))
+                ->create([
+                    'expert_id' => $expert->id,
+                ]);
         }
+    }
+
+    /**
+     * Generate a safe, unique email for seeded users.
+     */
+    protected function makeEmail(string $name): string
+    {
+        $slug = strtolower(preg_replace('/[^a-z0-9]+/i', '.', $name));
+        return "{$slug}@" . config('app.domain', 'example.com');
     }
 }

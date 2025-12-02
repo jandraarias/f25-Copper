@@ -47,34 +47,31 @@ class RegisteredUserController extends Controller
             $rules['phone_number'] = ['required', 'string', 'max:20'];
         }
 
-        $request->validate($rules);
+        $validated = $request->validate($rules);
 
-        // Prevent non-admins from registering as admin
+        // Prevent non-admins from creating admin users
         if (
-            $request->role === 'admin' &&
+            $validated['role'] === User::ROLE_ADMIN &&
             (!Auth::check() || Auth::user()->role !== User::ROLE_ADMIN)
         ) {
             abort(403, 'Unauthorized action.');
         }
 
-        // Build user data
-        $userData = [
-            'name'     => $request->name,
-            'email'    => $request->email,
-            'password' => Hash::make($request->password),
-            'role'     => $request->role,
-        ];
+        // Create base user
+        $user = User::create([
+            'name'         => $validated['name'],
+            'email'        => $validated['email'],
+            'password'     => Hash::make($validated['password']),
+            'role'         => $validated['role'],
+            'date_of_birth'=> $validated['date_of_birth'] ?? null,
+            'phone_number' => $validated['phone_number'] ?? null,
+        ]);
 
-        // Add conditional fields
-        if (in_array($request->role, ['traveler', 'expert'])) {
-            $userData['date_of_birth'] = $request->date_of_birth;
-            $userData['phone_number']  = $request->phone_number;
-        } elseif ($request->role === 'business') {
-            $userData['phone_number'] = $request->phone_number;
-        }
-
-        // Create the user
-        $user = User::create($userData);
+        /**
+         * ==========================================================
+         *  CREATE ROLE-SPECIFIC PROFILE TABLE ENTRIES
+         * ==========================================================
+         */
 
         // Traveler profile
         if ($user->role === User::ROLE_TRAVELER) {
@@ -83,6 +80,19 @@ class RegisteredUserController extends Controller
                 'bio'     => null,
             ]);
         }
+
+        // Expert profile
+        if ($user->role === User::ROLE_EXPERT) {
+            \App\Models\Expert::create([
+                'user_id'   => $user->id,
+                'name'    => $user->name,
+                'city'      => '',   // empty defaults until expert edits profile
+                'photo_url' => null,
+                'bio'       => null,
+            ]);
+        }
+
+        // Business / Admin have no profile rows unless you want one
 
         event(new Registered($user));
         Auth::login($user);

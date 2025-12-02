@@ -1,3 +1,5 @@
+<!-- resources/views/layouts/navigation.blade.php -->
+
 <nav x-data="{ open: false, darkMode: localStorage.getItem('theme') === 'dark' }"
      x-init="if (darkMode) document.documentElement.classList.add('dark')"
      class="bg-white dark:bg-sand-800 border-b border-sand-200 dark:border-ink-700
@@ -29,6 +31,7 @@
                 <div class="hidden sm:flex sm:space-x-8 sm:ml-10">
 
                     @auth
+                        <!-- Travelers -->
                         @if(auth()->user()->isTraveler())
 
                             <!-- Dashboard -->
@@ -97,6 +100,62 @@
                             </x-nav-link>
 
                         @endif
+
+                        <!-- Experts -->
+                        @if(auth()->user()->isExpert())
+                        <!-- Expert Dashboard -->
+                        <x-nav-link :href="route('expert.dashboard')"
+                                    :active="request()->routeIs('expert.dashboard')">
+                            <div class="flex items-center gap-2">
+                                <svg class="w-4 h-4 text-copper" fill="none" stroke="currentColor" stroke-width="1.5"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M3 12l9-9 9 9M4 10v10a1 1 0 001 1h5m5 0h5a1 1 0 001-1V10" />
+                                </svg>
+                                {{ __('Dashboard') }}
+                            </div>
+                        </x-nav-link>
+
+                        <!-- Expert Itineraries -->
+                        <x-nav-link :href="route('expert.itineraries.index')"
+                                    :active="request()->routeIs('expert.itineraries.*')">
+                            <div class="flex items-center gap-2">
+                                <svg class="w-4 h-4 text-copper" fill="none" stroke="currentColor" stroke-width="1.5"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M3 7h18M3 12h18M3 17h18" />
+                                </svg>
+                                {{ __('Itineraries') }}
+                            </div>
+                        </x-nav-link>
+
+                        <!-- Travelers for Experts -->
+                        <x-nav-link :href="route('expert.travelers.index')"
+                                    :active="request()->routeIs('expert.travelers.*')">
+                            <div class="flex items-center gap-2">
+                                <svg class="w-4 h-4 text-copper" fill="none" stroke="currentColor" stroke-width="1.5"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14c-4.418 0-8 2-8 4v2h16v-2c0-2-3.582-4-8-4z" />
+                                </svg>
+                                {{ __('Travelers') }}
+                            </div>
+                        </x-nav-link>
+
+                        <!-- Expert Profile -->
+                        <x-nav-link :href="route('expert.profile.show')"
+                                    :active="request()->routeIs('expert.profile.*')">
+                            <div class="flex items-center gap-2">
+                                <svg class="w-4 h-4 text-forest" fill="none" stroke="currentColor" stroke-width="1.5"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M12 3v18m9-9H3" />
+                                </svg>
+                                {{ __('Profile') }}
+                            </div>
+                        </x-nav-link>
+                    @endif
+
                     @endauth
 
                 </div>
@@ -199,6 +258,7 @@
          class="sm:hidden bg-white dark:bg-sand-800 border-t border-sand-200 dark:border-ink-700 px-4 py-4 space-y-2">
 
         @auth
+            <!-- Travelers -->
             @if(auth()->user()->isTraveler())
 
                 <x-responsive-nav-link :href="route('traveler.dashboard')"
@@ -225,8 +285,32 @@
                                        :active="request()->routeIs('traveler.rewards')">
                     Rewards
                 </x-responsive-nav-link>
-
             @endif
+
+            <!-- Experts -->
+            @if(auth()->user()->isExpert())
+
+                <x-responsive-nav-link :href="route('expert.dashboard')"
+                                    :active="request()->routeIs('expert.dashboard')">
+                    Dashboard
+                </x-responsive-nav-link>
+
+                <x-responsive-nav-link :href="route('expert.itineraries.index')"
+                                    :active="request()->routeIs('expert.itineraries.*')">
+                    Itineraries
+                </x-responsive-nav-link>
+
+                <x-responsive-nav-link :href="route('expert.travelers.index')"
+                                    :active="request()->routeIs('expert.travelers.*')">
+                    Travelers
+                </x-responsive-nav-link>
+
+                <x-responsive-nav-link :href="route('expert.profile.show')"
+                                    :active="request()->routeIs('expert.profile.*')">
+                    Profile
+                </x-responsive-nav-link>
+            @endif
+
         @endauth
 
         <!-- Divider -->

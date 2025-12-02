@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Expert extends Model
+class Business extends Model
 {
     use HasFactory;
 
@@ -13,20 +13,13 @@ class Expert extends Model
         'user_id',
         'name',
         'city',
-        'photo_url',
-        'bio',
-        'expertise',
-        'languages',
-        'experience_years',
+        'website',
+        'description',
+        'logo_url',
     ];
 
     public function user()
     {
         return $this->belongsTo(User::class);
-    }
-
-    public function reviews()
-    {
-        return $this->hasMany(ExpertReview::class);
     }
 }

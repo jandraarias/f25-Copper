@@ -84,4 +84,15 @@ class User extends Authenticatable
     {
         return $this->hasOne(Traveler::class);
     }
+
+    public function expert()
+    {
+        return $this->hasOne(Expert::class);
+    }
+
+    public function business()
+    {
+        return $this->hasOne(Business::class);
+    }
+
 }
