@@ -166,16 +166,20 @@ class PreferenceProfileController extends Controller
             }
         }
 
-        // --- Budget (descriptive) ---
+        // --- Budget (multi-select with default) ---
         if ($request->filled('budget')) {
-            $profile->preferences()->create([
-                'key'   => 'budget',
-                'value' => $request->input('budget'),
-            ]);
+            // Save each selected budget level
+            foreach ($request->budget as $budgetValue) {
+                $profile->preferences()->create([
+                    'key'   => 'budget',
+                    'value' => $budgetValue,
+                ]);
+            }
         } else {
+            // Auto default to "Moderate"
             $profile->preferences()->create([
                 'key'   => 'budget',
-                'value' => 'moderate',
+                'value' => 'Moderate',
             ]);
         }
 

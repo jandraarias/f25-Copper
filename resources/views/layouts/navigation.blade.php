@@ -72,7 +72,7 @@
                         </x-nav-link>
 
                         <!-- Experts -->
-                        <x-nav-link :href="route('traveler.experts')"
+                        <x-nav-link :href="route('traveler.experts.index')"
                             :active="request()->routeIs('traveler.experts')">
                             <div class="flex items-center gap-2">
                                 <svg class="w-4 h-4 text-copper" fill="none" stroke="currentColor"
@@ -312,8 +312,8 @@
                 Itineraries
             </x-responsive-nav-link>
 
-            <x-responsive-nav-link :href="route('traveler.experts')" 
-                                   :active="request()->routeIs('traveler.experts')">
+            <x-responsive-nav-link :href="route('traveler.experts.index')" 
+                                   :active="request()->routeIs('traveler.experts.*')">
                 Experts
             </x-responsive-nav-link>
 

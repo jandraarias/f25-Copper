@@ -147,6 +147,7 @@ namespace App\Models{
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Expert $expert
+ * @property-read \App\Models\User|null $user
  * @method static \Database\Factories\ExpertReviewFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ExpertReview newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ExpertReview newQuery()

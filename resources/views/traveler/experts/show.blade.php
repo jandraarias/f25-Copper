@@ -1,0 +1,178 @@
+{{-- resources/views/traveler/experts/show.blade.php --}}
+
+<x-app-layout>
+
+    {{-- =============================== HEADER =============================== --}}
+    <x-slot name="header">
+        <div class="flex items-center justify-between py-4 px-2">
+            <h2 class="text-2xl font-semibold text-ink-900 dark:text-ink-200 flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg"
+                     class="w-6 h-6 text-copper"
+                     fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                          d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14c-4.418 0-8 2-8 4v2h16v-2c0-2-3.582-4-8-4z" />
+                </svg>
+                {{ $expert->name }}
+            </h2>
+
+            <a href="{{ route('traveler.messages.show', $expert) }}"
+               class="px-5 py-2.5 rounded-full bg-gradient-copper text-white font-medium shadow-soft
+                      hover:shadow-glow hover:scale-[1.03] transition-all duration-200 ease-out">
+                Message Expert
+            </a>
+        </div>
+    </x-slot>
+
+
+
+
+    {{-- =============================== MAIN CONTENT =============================== --}}
+    <div class="py-12 bg-sand dark:bg-sand-900 min-h-screen">
+        <div class="mx-auto max-w-5xl sm:px-6 lg:px-8 space-y-12">
+
+            {{-- ========================== Overview Card ========================== --}}
+            <div class="bg-white dark:bg-sand-800 border border-sand-200 dark:border-ink-700
+                        rounded-3xl shadow-soft hover:shadow-glow hover:scale-[1.01]
+                        transition-all duration-200 ease-out">
+
+                <div class="p-8 sm:p-10 text-ink-900 dark:text-ink-100">
+
+                    <h3 class="text-2xl font-bold mb-8 flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg"
+                             class="w-6 h-6 text-copper" fill="none"
+                             viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                  d="M4 4h16v16H4zM4 9h16" />
+                        </svg>
+                        Expert Overview
+                    </h3>
+
+                    {{-- PHOTO + DETAILS --}}
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center gap-10">
+
+                        {{-- Photo --}}
+                        <div class="flex-shrink-0">
+                            <img src="{{ $expert->photo_url ?: asset('data/images/placeholders/expert-avatar.png') }}"
+                                 class="w-40 h-40 rounded-3xl object-cover shadow-lg
+                                        border border-sand-300 dark:border-ink-700"
+                                 alt="{{ $expert->name }}" />
+                        </div>
+
+                        {{-- Details --}}
+                        <div class="flex-1 space-y-6">
+
+                            {{-- Name --}}
+                            <h3 class="text-3xl font-bold">
+                                {{ $expert->name }}
+                            </h3>
+
+                            {{-- City --}}
+                            <p class="text-lg flex items-center gap-2 text-ink-700 dark:text-sand-200">
+                                <svg xmlns="http://www.w3.org/2000/svg"
+                                    class="w-5 h-5 text-copper" fill="none"
+                                    viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M17.657 16.657L13.414 20.9a2 2 0 01-2.828 0l-4.243-4.243a8 8 0 1111.314 0z" />
+                                </svg>
+                                <strong class="font-semibold">Location:</strong>
+                                {{ $expert->city ?: 'Location not provided' }}
+                            </p>
+
+                            {{-- Expertise --}}
+                            <p class="text-md flex items-start gap-2 text-ink-700 dark:text-sand-200">
+                                <svg xmlns="http://www.w3.org/2000/svg"
+                                    class="w-5 h-5 mt-1 text-copper" fill="none"
+                                    viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M12 6v6l4 2" />
+                                </svg>
+                                <span>
+                                    <strong class="font-semibold">Expertise:</strong><br>
+                                    {{ $expert->expertise ?: 'No expertise listed yet.' }}
+                                </span>
+                            </p>
+
+                            {{-- Languages --}}
+                            <p class="text-md flex items-start gap-2 text-ink-700 dark:text-sand-200">
+                                <svg xmlns="http://www.w3.org/2000/svg"
+                                    class="w-5 h-5 mt-1 text-copper" fill="none"
+                                    viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M3 5h12M9 3v2m6 14h6m-3-2v2M3 19h12M5 7h8m-8 4h4" />
+                                </svg>
+                                <span>
+                                    <strong class="font-semibold">Languages:</strong><br>
+                                    {{ $expert->languages ?: 'No languages listed yet.' }}
+                                </span>
+                            </p>
+
+                            {{-- Experience --}}
+                            <p class="text-md flex items-center gap-2 text-ink-700 dark:text-sand-200">
+                                <svg xmlns="http://www.w3.org/2000/svg"
+                                    class="w-5 h-5 text-copper" fill="none"
+                                    viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M8 7V3m8 4V3M5 21h14M5 7h14M5 11h14M5 15h14" />
+                                </svg>
+                                <strong class="font-semibold">Experience:</strong>
+                                {{ $expert->experience_years ? $expert->experience_years . ' years' : 'No experience listed' }}
+                            </p>
+
+                            {{-- Bio --}}
+                            <div class="pt-2">
+                                <p class="text-md leading-relaxed text-ink-700 dark:text-sand-200">
+                                    <strong class="font-semibold">Bio:</strong><br>
+                                    {{ $expert->bio ?: 'No bio available.' }}
+                                </p>
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+
+
+
+            {{-- ============================== REVIEWS ============================== --}}
+            @if($expert->reviews && $expert->reviews->count())
+                <div class="bg-white dark:bg-sand-800 border border-sand-200 dark:border-ink-700
+                            rounded-3xl shadow-soft hover:shadow-glow transition-all duration-200">
+
+                    <div class="p-8 sm:p-10">
+                        <h3 class="text-2xl font-bold mb-6 flex items-center gap-2 text-ink-900 dark:text-ink-100">
+                            <svg xmlns="http://www.w3.org/2000/svg"
+                                 class="w-6 h-6 text-copper" fill="none"
+                                 viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                      d="M11.3 2.3a1 1 0 011.4 0l2 3.7 4.1.6a1 1 0 01.6 1.7l-3 2.9.7 4a1 1 0 01-1.5 1l-3.6-1.9-3.6 1.9a1 1 0 01-1.5-1l.7-4-3-2.9a1 1 0 01.6-1.7l4.1-.6 2-3.7z" />
+                            </svg>
+                            Reviews ({{ $expert->reviews->count() }})
+                        </h3>
+
+                        <div class="space-y-4">
+                            @foreach ($expert->reviews as $review)
+                                <div class="p-5 rounded-2xl bg-sand-50 dark:bg-sand-900
+                                            border border-sand-200 dark:border-ink-700 shadow-sm">
+
+                                    <p class="text-sm text-ink-800 dark:text-sand-100 leading-relaxed">
+                                        “{{ $review->content }}”
+                                    </p>
+
+                                    <p class="text-xs text-ink-500 dark:text-sand-300 mt-1">
+                                        — Rated {{ $review->rating }}/5
+                                    </p>
+                                </div>
+                            @endforeach
+                        </div>
+
+                    </div>
+                </div>
+            @endif
+
+
+        </div>
+    </div>
+
+</x-app-layout>

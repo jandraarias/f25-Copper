@@ -1,42 +1,40 @@
 <x-app-layout>
 
-    {{-- HEADER --}}
+    {{-- ========================= HEADER ========================= --}}
     <x-slot name="header">
-        <div class="flex items-center justify-between py-4 px-2">
+        <div class="flex items-center justify-between">
             <h2 class="text-2xl font-semibold text-ink-900 dark:text-sand-100 flex items-center gap-2">
-                <svg xmlns="http://www.w3.org/2000/svg" 
-                     class="w-6 h-6 text-copper" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                          d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14c-4.418 0-8 2-8 4v2h16v-2c0-2-3.582-4-8-4z" />
-                </svg>
                 Local Experts
             </h2>
+
+            {{-- Simple CTA for consistency --}}
+            <a href="{{ route('traveler.messages.index') }}"
+               class="px-5 py-2.5 rounded-full bg-gradient-copper text-white font-medium shadow-soft
+                      hover:shadow-glow hover:scale-[1.03] transition-all duration-200 ease-out">
+                Inbox
+            </a>
         </div>
     </x-slot>
 
 
-
-
-    {{-- MAIN CONTENT --}}
+    {{-- ========================= MAIN CONTENT ========================= --}}
     <div class="py-12 bg-sand dark:bg-sand-900 min-h-screen">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-10">
 
-            {{-- Intro Card --}}
+            {{-- ========================= Intro Card ========================= --}}
             <div class="bg-white dark:bg-sand-800 shadow-soft rounded-3xl p-8 border border-sand-200 dark:border-ink-700
-                        transition-all duration-200 hover:shadow-glow hover:scale-[1.01]">
+                        transition-all duration-200 ease-out hover:shadow-glow hover:scale-[1.01]">
                 <p class="text-lg font-semibold text-ink-900 dark:text-ink-100">
                     Discover Local Experts
                 </p>
                 <p class="text-sm text-ink-600 dark:text-sand-200 mt-1">
-                    Connect with experienced local guides, ask questions, and get personalized insights
-                    for your travel plans.
+                    Connect with knowledgeable local guides, ask questions, and get personalized insights
+                    tailored to your travel plans.
                 </p>
             </div>
 
 
-
-
-            {{-- SEARCH + SORT FORM --}}
+            {{-- ========================= Search & Sort ========================= --}}
             <form method="GET"
                   class="bg-white dark:bg-sand-800 border border-sand-200 dark:border-ink-700 
                          rounded-3xl shadow-soft p-6 flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
@@ -70,7 +68,7 @@
                                    border border-sand-300 dark:border-ink-700 text-ink-800 dark:text-sand-100
                                    focus:ring focus:ring-copper/30 focus:border-copper transition">
                         <option value="popularity" {{ $sort === 'popularity' ? 'selected' : '' }}>Most Popular</option>
-                        <option value="alphabetical" {{ $sort === 'alphabetical' ? 'selected' : '' }}>Alphabetical (A–Z)</option>
+                        <option value="alphabetical" {{ $sort === 'alphabetical' ? 'selected' : '' }}>A–Z</option>
                         <option value="newest" {{ $sort === 'newest' ? 'selected' : '' }}>Newest Experts</option>
                     </select>
                 </div>
@@ -84,7 +82,7 @@
                     </button>
 
                     @if ($q || $sort !== 'popularity')
-                        <a href="{{ route('traveler.experts') }}"
+                        <a href="{{ route('traveler.experts.index') }}"
                            class="px-5 py-2.5 rounded-full border border-sand-300 dark:border-ink-700
                                   text-ink-700 dark:text-sand-100 bg-white dark:bg-sand-900
                                   hover:bg-sand-100 dark:hover:bg-ink-700 shadow-soft transition-all">
@@ -95,9 +93,7 @@
             </form>
 
 
-
-
-            {{-- EXPERTS GRID --}}
+            {{-- ========================= Experts Grid ========================= --}}
             @if($experts->count())
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
 
@@ -106,7 +102,8 @@
                                     rounded-3xl p-6 shadow-soft transition-all hover:shadow-glow hover:scale-[1.02]">
 
                             {{-- Avatar --}}
-                            <div class="w-24 h-24 mx-auto rounded-full overflow-hidden mb-5 shadow-soft border border-sand-300 dark:border-ink-700">
+                            <div class="w-24 h-24 mx-auto rounded-full overflow-hidden mb-5 shadow-soft 
+                                        border border-sand-300 dark:border-ink-700">
                                 <img src="{{ $expert->photo_url ?? asset('data/images/placeholders/expert-avatar.png') }}"
                                      class="w-full h-full object-cover"
                                      alt="{{ $expert->name }}" />
@@ -122,9 +119,10 @@
                                 {{ $expert->city }}
                             </p>
 
-                            {{-- Reviews count --}}
+                            {{-- Reviews --}}
                             <p class="text-center text-sm text-copper font-semibold mt-2">
-                                {{ $expert->reviews_count }} {{ Str::plural('review', $expert->reviews_count) }}
+                                {{ $expert->reviews_count }}
+                                {{ Str::plural('review', $expert->reviews_count) }}
                             </p>
 
                             {{-- Bio preview --}}
@@ -137,7 +135,7 @@
                             <div class="mt-6 flex flex-col gap-3">
 
                                 {{-- View Profile --}}
-                                <a href="{{ route('expert.profile.show', $expert) }}"
+                                <a href="{{ route('traveler.experts.show', $expert) }}"
                                    class="block text-center px-4 py-2 rounded-full border border-copper text-copper
                                           hover:bg-copper hover:text-white hover:shadow-glow hover:scale-[1.03]
                                           transition-all duration-200 text-sm font-medium">
