@@ -7,20 +7,18 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-/**
- * @mixin IdeHelperTraveler
- */
+use App\Models\User;
+use App\Models\Itinerary;
+use App\Models\PreferenceProfile;
+
+
 class Traveler extends Model
 {
     use HasFactory;
 
     protected $fillable = [
         'user_id',
-        'bio', // traveler-specific only
-    ];
-
-    protected $casts = [
-        'id' => 'integer',
+        'bio',
     ];
 
     public function user(): BelongsTo
@@ -30,12 +28,12 @@ class Traveler extends Model
 
     public function itineraries(): HasMany
     {
-        return $this->hasMany(Itinerary::class);
+        return $this->hasMany(Itinerary::class, 'user_id', 'user_id');
     }
 
     public function preferenceProfiles(): HasMany
     {
-        return $this->hasMany(PreferenceProfile::class);
+        return $this->hasMany(PreferenceProfile::class, 'user_id', 'user_id');
     }
 
     protected static function newFactory()

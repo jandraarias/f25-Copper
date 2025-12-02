@@ -29,6 +29,7 @@ use App\Http\Controllers\Expert\DashboardController as ExpertDashboardController
 use App\Http\Controllers\Expert\ItineraryController as ExpertItineraryController;
 use App\Http\Controllers\Expert\TravelerController as ExpertTravelerController;
 use App\Http\Controllers\Expert\ProfileController as ExpertProfileController;
+use App\Http\Controllers\Expert\MessageController as ExpertMessageController;
 
 // Business Controller
 use App\Http\Controllers\BusinessController;
@@ -130,6 +131,14 @@ Route::middleware(['auth', 'role:expert'])
             ->name('travelers.index');
         Route::get('/travelers/{traveler}', [ExpertTravelerController::class, 'show'])
             ->name('travelers.show');
+
+        Route::get('/travelers/{traveler}/messages',
+            [ExpertMessageController::class, 'index'])
+            ->name('travelers.messages');
+
+        Route::post('/travelers/{traveler}/messages',
+            [ExpertMessageController::class, 'store'])
+            ->name('travelers.messages.store');
 
         // Profile (SHOW)
         Route::get('/profile', [ExpertProfileController::class, 'show'])

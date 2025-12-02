@@ -110,6 +110,9 @@ namespace App\Models{
  * @property string $city
  * @property string|null $photo_url
  * @property string|null $bio
+ * @property string|null $expertise
+ * @property string|null $languages
+ * @property int|null $experience_years
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ExpertReview> $reviews
@@ -121,7 +124,10 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Expert whereBio($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Expert whereCity($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Expert whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Expert whereExperienceYears($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Expert whereExpertise($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Expert whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Expert whereLanguages($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Expert whereName($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Expert wherePhotoUrl($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Expert whereUpdatedAt($value)
@@ -268,6 +274,31 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ItineraryItem whereUpdatedAt($value)
  */
 	class ItineraryItem extends \Eloquent {}
+}
+
+namespace App\Models{
+/**
+ * @property int $id
+ * @property int $sender_id
+ * @property int $receiver_id
+ * @property string $content
+ * @property int $is_read
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\User $receiver
+ * @property-read \App\Models\User $sender
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Message newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Message newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Message query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Message whereContent($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Message whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Message whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Message whereIsRead($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Message whereReceiverId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Message whereSenderId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Message whereUpdatedAt($value)
+ */
+	class Message extends \Eloquent {}
 }
 
 namespace App\Models{
@@ -499,7 +530,6 @@ namespace App\Models{
 
 namespace App\Models{
 /**
- * @mixin IdeHelperTraveler
  * @property int $id
  * @property int $user_id
  * @property string|null $bio
@@ -545,6 +575,10 @@ namespace App\Models{
  * @property-read \App\Models\Expert|null $expert
  * @property-read \Illuminate\Notifications\DatabaseNotificationCollection<int, \Illuminate\Notifications\DatabaseNotification> $notifications
  * @property-read int|null $notifications_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Message> $receivedMessages
+ * @property-read int|null $received_messages_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Message> $sentMessages
+ * @property-read int|null $sent_messages_count
  * @property-read \App\Models\Traveler|null $traveler
  * @method static \Database\Factories\UserFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User newModelQuery()
