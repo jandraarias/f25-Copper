@@ -6,11 +6,17 @@ use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
 use App\Models\Traveler;
+
+use Database\Seeders\TravelerSeeder;
+use Database\Seeders\BusinessSeeder;
+use Database\Seeders\ExpertSeeder;
+use Database\Seeders\PreferencesTableSeeder;
+use Database\Seeders\CountrySeeder;
+use Database\Seeders\RewardsTableSeeder;
 use Database\Factories\ItineraryFactory;
 use Database\Factories\ItineraryItemFactory;
 use Database\Factories\PreferenceProfileFactory;
 use Database\Factories\PreferenceFactory;
-
 
 class DatabaseSeeder extends Seeder
 {
@@ -28,6 +34,9 @@ class DatabaseSeeder extends Seeder
 
         // Traveler seeder
         $this->call(TravelerSeeder::class);
+
+        // Business seeder
+        $this->call(BusinessSeeder::class);
 
         // Expert seeder
         $this->call(ExpertSeeder::class);
