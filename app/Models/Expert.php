@@ -30,13 +30,15 @@ class Expert extends Model
         return $this->hasMany(ExpertReview::class);
     }
 
-    // === Accessor ===
     public function getProfilePhotoUrlAttribute(): string
     {
-        if (!empty($this->profile_photo_path)) {
-            return asset('storage/' . ltrim($this->profile_photo_path, '/'));
+        if ($this->profile_photo_path) {
+            $path = public_path('storage/' . $this->profile_photo_path);
+            if (file_exists($path)) {
+                return asset('storage/' . $this->profile_photo_path);
+            }
         }
 
-        return asset('data/images/defaults/expert.png');
+        return asset('storage/images/defaults/expert.png');
     }
 }

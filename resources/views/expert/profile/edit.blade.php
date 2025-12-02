@@ -51,17 +51,18 @@
                         </label>
 
                         <div class="flex items-center gap-6">
-                            <img src="{{ $expert->photo_url ?? 'https://via.placeholder.com/150' }}"
-                                 class="w-28 h-28 rounded-2xl object-cover shadow" />
+                            <img src="{{ $expert->profile_photo_url ?? asset('storage/images/defaults/expert.png') }}"
+                                class="w-28 h-28 rounded-2xl object-cover shadow
+                                        border border-sand-300 dark:border-ink-700" />
 
                             <input type="file" name="photo"
-                                   accept="image/*"
-                                   class="block w-full text-sm text-ink-700 dark:text-ink-200
-                                          file:mr-4 file:py-2.5 file:px-4
-                                          file:rounded-full file:border-0
-                                          file:bg-copper file:text-white
-                                          hover:file:bg-copper-600
-                                          transition-all duration-200 shadow-soft" />
+                                accept="image/*"
+                                class="block w-full text-sm text-ink-700 dark:text-ink-200
+                                        file:mr-4 file:py-2.5 file:px-4
+                                        file:rounded-full file:border-0
+                                        file:bg-copper file:text-white
+                                        hover:file:bg-copper-600
+                                        transition-all duration-200 shadow-soft" />
                         </div>
 
                         @error('photo')

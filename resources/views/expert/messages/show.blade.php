@@ -8,9 +8,10 @@
 
             <div class="flex items-center gap-4">
                 {{-- Avatar --}}
-                <img src="{{ $traveler->user->photo_url ?? 'https://via.placeholder.com/200' }}"
-                     class="w-12 h-12 rounded-2xl object-cover shadow 
-                            border border-sand-300 dark:border-ink-700">
+                <img src="{{ $traveler->user->profile_photo_url ?? asset('storage/images/defaults/traveler.png') }}"
+                    class="w-12 h-12 rounded-2xl object-cover shadow 
+                            border border-sand-300 dark:border-ink-700"
+                    alt="{{ $traveler->user->name }}">
 
                 <h2 class="text-3xl font-bold text-ink-900 dark:text-sand-100">
                     Messaging — {{ $traveler->user->name }}
@@ -46,10 +47,11 @@
                     <div class="flex {{ $message->sender_id === auth()->id() ? 'justify-end' : 'justify-start' }}">
 
                         {{-- Traveler Avatar --}}
-                        @if($message->sender_id !== auth()->id())
-                            <img src="{{ $traveler->user->photo_url ?? 'https://via.placeholder.com/200' }}"
-                                 class="w-10 h-10 rounded-2xl object-cover shadow mr-2
-                                        border border-sand-300 dark:border-ink-700">
+                        @if ($message->sender_id !== auth()->id())
+                            <img src="{{ $traveler->user->profile_photo_url ?? asset('storage/images/defaults/traveler.png') }}"
+                                class="w-10 h-10 rounded-2xl object-cover shadow mr-2
+                                        border border-sand-300 dark:border-ink-700"
+                                alt="{{ $traveler->user->name }}">
                         @endif
 
                         <div class="max-w-xs p-4 rounded-2xl

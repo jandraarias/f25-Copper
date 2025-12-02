@@ -104,9 +104,9 @@
                             {{-- Avatar --}}
                             <div class="w-24 h-24 mx-auto rounded-full overflow-hidden mb-5 shadow-soft 
                                         border border-sand-300 dark:border-ink-700">
-                                <img src="{{ $expert->photo_url ?? asset('data/images/placeholders/expert-avatar.png') }}"
-                                     class="w-full h-full object-cover"
-                                     alt="{{ $expert->name }}" />
+                                <img src="{{ $expert->profile_photo_url ?? asset('storage/images/defaults/expert.png') }}"
+                                    class="w-full h-full object-cover"
+                                    alt="{{ $expert->name }}" />
                             </div>
 
                             {{-- Name --}}

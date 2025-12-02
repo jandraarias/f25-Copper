@@ -23,13 +23,15 @@ class Business extends Model
         return $this->belongsTo(User::class);
     }
 
-    // === Accessor ===
     public function getProfilePhotoUrlAttribute(): string
     {
-        if (!empty($this->profile_photo_path)) {
-            return asset('storage/' . ltrim($this->profile_photo_path, '/'));
+        if ($this->profile_photo_path) {
+            $path = public_path('storage/' . $this->profile_photo_path);
+            if (file_exists($path)) {
+                return asset('storage/' . $this->profile_photo_path);
+            }
         }
 
-        return asset('data/images/defaults/business.png');
+        return asset('storage/images/defaults/business.png');
     }
 }

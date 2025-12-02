@@ -52,10 +52,10 @@
 
                         {{-- Photo --}}
                         <div class="flex-shrink-0">
-                            <img src="{{ $expert->photo_url ?: asset('data/images/placeholders/expert-avatar.png') }}"
-                                 class="w-40 h-40 rounded-3xl object-cover shadow-lg
+                            <img src="{{ $expert->profile_photo_url ?? asset('storage/images/defaults/expert.png') }}"
+                                class="w-40 h-40 rounded-3xl object-cover shadow-lg
                                         border border-sand-300 dark:border-ink-700"
-                                 alt="{{ $expert->name }}" />
+                                alt="{{ $expert->name }}" />
                         </div>
 
                         {{-- Details --}}

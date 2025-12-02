@@ -86,10 +86,11 @@
 
                             {{-- Avatar --}}
                             <div class="relative">
-                                <img src="{{ $expert->photo_url ?? 'https://via.placeholder.com/150' }}"
-                                     class="w-16 h-16 rounded-2xl object-cover shadow-md"
-                                     alt="{{ $expert->user->name }}">
-                                @if($unread > 0)
+                                <img src="{{ $expert->profile_photo_url ?? asset('storage/images/defaults/expert.png') }}"
+                                    class="w-16 h-16 rounded-2xl object-cover shadow-md"
+                                    alt="{{ $expert->user->name }}">
+                                    
+                                @if ($unread > 0)
                                     <span class="absolute -top-1 -right-1 bg-copper text-white text-xs px-2 py-0.5 rounded-full shadow">
                                         {{ $unread }}
                                     </span>

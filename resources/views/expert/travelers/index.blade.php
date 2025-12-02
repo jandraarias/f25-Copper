@@ -42,9 +42,9 @@
                                 hover:shadow-glow hover:scale-[1.02] flex flex-col">
 
                         {{-- Photo --}}
-                        <img src="{{ $traveler->photo_url ?: 'https://via.placeholder.com/300' }}"
-                             class="w-full h-56 object-cover rounded-2xl shadow mb-5"
-                             alt="{{ $traveler->user->name }}">
+                        <img src="{{ $traveler->user->profile_photo_url ?? asset('storage/images/defaults/traveler.png') }}"
+                            class="w-full h-56 object-cover rounded-2xl shadow mb-5"
+                            alt="{{ $traveler->user->name }}">
 
                         {{-- Name --}}
                         <h3 class="text-2xl font-bold text-ink-900 dark:text-sand-100 mb-2">

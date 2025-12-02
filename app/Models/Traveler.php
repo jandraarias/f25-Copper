@@ -33,10 +33,20 @@ class Traveler extends Model
     // === Accessor ===
     public function getProfilePhotoUrlAttribute(): string
     {
-        if (!empty($this->profile_photo_path)) {
-            return asset('storage/' . ltrim($this->profile_photo_path, '/'));
+        // If custom uploaded profile photo exists
+        if ($this->profile_photo_path && file_exists(public_path('storage/' . $this->profile_photo_path))) {
+            return asset('storage/' . $this->profile_photo_path);
         }
 
-        return asset('data/images/defaults/traveler.png');
+        // Correct default path
+        $defaultPath = 'storage/images/defaults/traveler.png';
+
+        // Check the file really exists in public/
+        if (file_exists(public_path($defaultPath))) {
+            return asset($defaultPath);
+        }
+
+        // Ultimate fallback (prevents broken images)
+        return 'https://via.placeholder.com/150?text=Traveler';
     }
 }
