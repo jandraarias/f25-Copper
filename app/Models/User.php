@@ -54,16 +54,16 @@ class User extends Authenticatable
     public function getProfilePhotoUrlAttribute(): string
     {
         return match ($this->role) {
-            self::ROLE_TRAVELER => $this->traveler?->profile_photo_url
-                ?? asset('data/images/defaults/traveler.png'),
+            self::ROLE_TRAVELER => $this->traveler->profile_photo_url
+                ?? asset('storage/images/defaults/traveler.png'),
 
-            self::ROLE_EXPERT => $this->expert?->profile_photo_url
-                ?? asset('data/images/defaults/expert.png'),
+            self::ROLE_EXPERT => $this->expert->profile_photo_url
+                ?? asset('storage/images/defaults/expert.png'),
 
-            self::ROLE_BUSINESS => $this->business?->profile_photo_url
-                ?? asset('data/images/defaults/business.png'),
+            self::ROLE_BUSINESS => $this->business->profile_photo_url
+                ?? asset('storage/images/defaults/business.png'),
 
-            default => asset('data/images/defaults/traveler.png'),
+            default => asset('storage/images/defaults/traveler.png'),
         };
     }
 }

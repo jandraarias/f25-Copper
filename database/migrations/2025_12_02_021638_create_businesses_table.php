@@ -6,28 +6,29 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up()
-        {
-            Schema::create('businesses', function (Blueprint $table) {
-                $table->id();
-                $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+    {
+        Schema::create('businesses', function (Blueprint $table) {
+            $table->id();
 
-                $table->string('name');
-                $table->string('city')->index();
+            // Linked user account
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
 
-                $table->string('profile_photo_path')->nullable();
-                $table->text('description')->nullable();
+            // Basic business info
+            $table->string('name');
+            $table->string('city')->index();
 
-                $table->timestamps();
-            });
-        }
+            // Website field (required by seeder)
+            $table->string('website')->nullable();
 
-    /**
-     * Reverse the migrations.
-     */
+            // Profile & description
+            $table->string('profile_photo_path')->nullable();
+            $table->text('description')->nullable();
+
+            $table->timestamps();
+        });
+    }
+
     public function down(): void
     {
         Schema::dropIfExists('businesses');

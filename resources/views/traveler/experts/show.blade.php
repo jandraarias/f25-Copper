@@ -1,50 +1,39 @@
-<!-- resources/views/expert/profile/show.blade.php -->
+{{-- resources/views/traveler/experts/show.blade.php --}}
 
 <x-app-layout>
 
-    {{-- HEADER --}}
+    {{-- =============================== HEADER =============================== --}}
     <x-slot name="header">
-        <div class="flex items-center justify-between py-4 px-2 
-            bg-gradient-to-r from-copper-100/60 to-transparent 
-            dark:from-copper-900/20 rounded-2xl shadow-soft">
-
-            <h2 class="text-3xl font-bold tracking-tight text-ink-900 dark:text-sand-100 flex items-center gap-3">
+        <div class="flex items-center justify-between py-4 px-2">
+            <h2 class="text-2xl font-semibold text-ink-900 dark:text-ink-200 flex items-center gap-2">
                 <svg xmlns="http://www.w3.org/2000/svg"
-                     class="w-7 h-7 text-copper"
+                     class="w-6 h-6 text-copper"
                      fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round"
                           d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14c-4.418 0-8 2-8 4v2h16v-2c0-2-3.582-4-8-4z" />
                 </svg>
-                {{ auth()->user()->name }} — Expert Profile
+                {{ $expert->name }}
             </h2>
 
-            <a href="{{ route('expert.profile.edit') }}"
-               class="group flex items-center gap-2 px-5 py-2.5 rounded-full 
-                    border border-copper text-copper 
-                    hover:bg-copper hover:text-white hover:shadow-glow hover:scale-[1.03]
-                    transition-all duration-200 ease-out font-medium shadow-soft">
-                <svg xmlns="http://www.w3.org/2000/svg"
-                     class="w-4 h-4 transition-transform duration-200 group-hover:rotate-6"
-                     fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                          d="M11 5h2M12 19v2M12 3v2M15 9h.01M9 9h.01" />
-                </svg>
-                Edit Profile
+            <a href="{{ route('traveler.messages.show', $expert) }}"
+               class="px-5 py-2.5 rounded-full bg-gradient-copper text-white font-medium shadow-soft
+                      hover:shadow-glow hover:scale-[1.03] transition-all duration-200 ease-out">
+                Message Expert
             </a>
         </div>
     </x-slot>
 
 
 
-    {{-- MAIN CONTENT --}}
+
+    {{-- =============================== MAIN CONTENT =============================== --}}
     <div class="py-12 bg-sand dark:bg-sand-900 min-h-screen">
         <div class="mx-auto max-w-5xl sm:px-6 lg:px-8 space-y-12">
 
-
-            {{-- PROFILE OVERVIEW --}}
+            {{-- ========================== Overview Card ========================== --}}
             <div class="bg-white dark:bg-sand-800 border border-sand-200 dark:border-ink-700
                         rounded-3xl shadow-soft hover:shadow-glow hover:scale-[1.01]
-                        transition-all duration-300">
+                        transition-all duration-200 ease-out">
 
                 <div class="p-8 sm:p-10 text-ink-900 dark:text-ink-100">
 
@@ -55,7 +44,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round"
                                   d="M4 4h16v16H4zM4 9h16" />
                         </svg>
-                        Profile Overview
+                        Expert Overview
                     </h3>
 
                     {{-- PHOTO + DETAILS --}}
@@ -64,7 +53,7 @@
                         {{-- Photo --}}
                         <div class="flex-shrink-0">
                             <img src="{{ $expert->profile_photo_url ?? asset('storage/images/defaults/expert.png') }}"
-                                class="w-40 h-40 rounded-3xl object-cover shadow-lg 
+                                class="w-40 h-40 rounded-3xl object-cover shadow-lg
                                         border border-sand-300 dark:border-ink-700"
                                 alt="{{ $expert->name }}" />
                         </div>
@@ -74,7 +63,7 @@
 
                             {{-- Name --}}
                             <h3 class="text-3xl font-bold">
-                                {{ auth()->user()->name }}
+                                {{ $expert->name }}
                             </h3>
 
                             {{-- City --}}
@@ -86,7 +75,7 @@
                                         d="M17.657 16.657L13.414 20.9a2 2 0 01-2.828 0l-4.243-4.243a8 8 0 1111.314 0z" />
                                 </svg>
                                 <strong class="font-semibold">Location:</strong>
-                                {{ $expert->city ?: 'No city selected' }}
+                                {{ $expert->city ?: 'Location not provided' }}
                             </p>
 
                             {{-- Expertise --}}
@@ -117,7 +106,7 @@
                                 </span>
                             </p>
 
-                            {{-- Years of Experience --}}
+                            {{-- Experience --}}
                             <p class="text-md flex items-center gap-2 text-ink-700 dark:text-sand-200">
                                 <svg xmlns="http://www.w3.org/2000/svg"
                                     class="w-5 h-5 text-copper" fill="none"
@@ -126,14 +115,14 @@
                                         d="M8 7V3m8 4V3M5 21h14M5 7h14M5 11h14M5 15h14" />
                                 </svg>
                                 <strong class="font-semibold">Experience:</strong>
-                                {{ $expert->experience_years !== null ? $expert->experience_years . ' years' : 'No experience listed' }}
+                                {{ $expert->experience_years ? $expert->experience_years . ' years' : 'No experience listed' }}
                             </p>
 
                             {{-- Bio --}}
                             <div class="pt-2">
                                 <p class="text-md leading-relaxed text-ink-700 dark:text-sand-200">
                                     <strong class="font-semibold">Bio:</strong><br>
-                                    {{ $expert->bio ?: 'No bio added yet.' }}
+                                    {{ $expert->bio ?: 'No bio available.' }}
                                 </p>
                             </div>
 
@@ -143,10 +132,13 @@
                 </div>
             </div>
 
-            {{-- REVIEWS --}}
+
+
+
+            {{-- ============================== REVIEWS ============================== --}}
             @if($expert->reviews && $expert->reviews->count())
                 <div class="bg-white dark:bg-sand-800 border border-sand-200 dark:border-ink-700
-                            rounded-3xl shadow-soft hover:shadow-glow transition-all duration-300">
+                            rounded-3xl shadow-soft hover:shadow-glow transition-all duration-200">
 
                     <div class="p-8 sm:p-10">
                         <h3 class="text-2xl font-bold mb-6 flex items-center gap-2 text-ink-900 dark:text-ink-100">
@@ -178,6 +170,7 @@
                     </div>
                 </div>
             @endif
+
 
         </div>
     </div>

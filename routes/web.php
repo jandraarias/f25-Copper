@@ -2,17 +2,19 @@
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Http\Request;
 
-use App\Http\Controllers\ProfileController;
-
-use App\Http\Controllers\Admin\UserManagementController;
-use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
-
+// Public-facing Controllers
 use App\Http\Controllers\PublicItineraryController;
-use App\Http\Controllers\ItineraryPdfController;
 use App\Http\Controllers\PlaceController;
 use App\Http\Controllers\PlaceReviewController;
+use App\Http\Controllers\ItineraryPdfController;
+
+// Shared Controllers
+use App\Http\Controllers\ProfileController;
+
+// Admin Controllers
+use App\Http\Controllers\Admin\UserManagementController;
+use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 
 // Traveler Controllers
 use App\Http\Controllers\Traveler\DashboardController as TravelerDashboardController;
@@ -25,14 +27,14 @@ use App\Http\Controllers\Traveler\RewardsController;
 use App\Http\Controllers\Traveler\ExpertsController as TravelerExpertsController;
 use App\Http\Controllers\Traveler\MessageController as TravelerMessageController;
 
-// Expert Controllers (alias to avoid collisions)
+// Expert Controllers
 use App\Http\Controllers\Expert\DashboardController as ExpertDashboardController;
 use App\Http\Controllers\Expert\ItineraryController as ExpertItineraryController;
 use App\Http\Controllers\Expert\TravelerController as ExpertTravelerController;
 use App\Http\Controllers\Expert\ProfileController as ExpertProfileController;
 use App\Http\Controllers\Expert\MessageController as ExpertMessageController;
 
-// Business Controller
+// Business Controllers
 use App\Http\Controllers\BusinessController;
 use App\Http\Controllers\Business\DashboardController as BusinessDashboardController;
 
@@ -42,12 +44,15 @@ use App\Http\Controllers\Business\DashboardController as BusinessDashboardContro
 |--------------------------------------------------------------------------
 */
 
-Route::middleware(['throttle:20,1'])->get('/i/{uuid}', [PublicItineraryController::class, 'show'])
-    ->name('public.itinerary.short');
+Route::middleware(['throttle:20,1'])->group(function () {
+    Route::get('/i/{uuid}', [PublicItineraryController::class, 'show'])
+        ->name('public.itinerary.short');
 
-Route::middleware(['throttle:20,1'])->get('/public/itineraries/{uuid}', [PublicItineraryController::class, 'show'])
-    ->name('public.itinerary.show');
+    Route::get('/public/itineraries/{uuid}', [PublicItineraryController::class, 'show'])
+        ->name('public.itinerary.show');
+});
 
+// Places
 Route::get('/places/{place}', [PlaceController::class, 'show'])
     ->name('places.show');
 
@@ -59,7 +64,7 @@ Route::get('/places/{place}/reviews', [PlaceReviewController::class, 'index'])
 
 /*
 |--------------------------------------------------------------------------
-| Welcome / Home Redirect
+| Welcome / Home
 |--------------------------------------------------------------------------
 */
 
@@ -78,19 +83,19 @@ Route::get('/', function () {
 
 /*
 |--------------------------------------------------------------------------
-| Profile (Authenticated)
+| Authenticated User Profile
 |--------------------------------------------------------------------------
 */
 
 Route::middleware('auth')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::get('/profile',  [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
 /*
 |--------------------------------------------------------------------------
-| Admin
+| Admin Routes
 |--------------------------------------------------------------------------
 */
 
@@ -102,13 +107,14 @@ Route::middleware(['auth', 'role:admin'])
         Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
 
         Route::resource('users', UserManagementController::class)->except(['show']);
-        Route::get('/users/export', [UserManagementController::class, 'export'])->name('users.export');
-        Route::get('/users/search', [UserManagementController::class, 'search'])->name('users.search');
+
+        Route::get('users/export', [UserManagementController::class, 'export'])->name('users.export');
+        Route::get('users/search', [UserManagementController::class, 'search'])->name('users.search');
     });
 
 /*
 |--------------------------------------------------------------------------
-| Expert
+| Expert Routes
 |--------------------------------------------------------------------------
 */
 
@@ -117,56 +123,30 @@ Route::middleware(['auth', 'role:expert'])
     ->name('expert.')
     ->group(function () {
 
-        // Dashboard
-        Route::get('/dashboard', [ExpertDashboardController::class, 'index'])
-            ->name('dashboard');
+        Route::get('/dashboard', [ExpertDashboardController::class, 'index'])->name('dashboard');
 
         // Itineraries
-        Route::get('/itineraries', [ExpertItineraryController::class, 'index'])
-            ->name('itineraries.index');
-
-        Route::get('/itineraries/{itinerary}', [ExpertItineraryController::class, 'show'])
-            ->name('itineraries.show');
+        Route::get('/itineraries', [ExpertItineraryController::class, 'index'])->name('itineraries.index');
+        Route::get('/itineraries/{itinerary}', [ExpertItineraryController::class, 'show'])->name('itineraries.show');
 
         // Travelers
-        Route::get('/travelers', [ExpertTravelerController::class, 'index'])
-            ->name('travelers.index');
+        Route::get('/travelers', [ExpertTravelerController::class, 'index'])->name('travelers.index');
+        Route::get('/travelers/{traveler}', [ExpertTravelerController::class, 'show'])->name('travelers.show');
 
-        Route::get('/travelers/{traveler}', [ExpertTravelerController::class, 'show'])
-            ->name('travelers.show');
+        // Messaging
+        Route::get('/messages', [ExpertMessageController::class, 'inbox'])->name('messages.index');
+        Route::get('/messages/{traveler}', [ExpertMessageController::class, 'show'])->name('messages.show');
+        Route::post('/messages/{traveler}', [ExpertMessageController::class, 'store'])->name('messages.store');
 
-        /*
-        |--------------------------------------------------------------------------
-        | Messaging
-        |--------------------------------------------------------------------------
-        */
-
-        // Expert inbox (all message threads)
-        Route::get('/messages', [ExpertMessageController::class, 'inbox'])
-            ->name('messages.index');
-
-        // Chat thread with a specific traveler
-        Route::get('/messages/{traveler}', [ExpertMessageController::class, 'show'])
-            ->name('messages.show');
-
-        // Send message to traveler
-        Route::post('/messages/{traveler}', [ExpertMessageController::class, 'store'])
-            ->name('messages.store');
-
-        // Profile
-        Route::get('/profile', [ExpertProfileController::class, 'show'])
-            ->name('profile.show');
-
-        Route::get('/profile/edit', [ExpertProfileController::class, 'edit'])
-            ->name('profile.edit');
-
-        Route::patch('/profile', [ExpertProfileController::class, 'update'])
-            ->name('profile.update');
+        // Expert's own profile
+        Route::get('/profile', [ExpertProfileController::class, 'show'])->name('profile.show');
+        Route::get('/profile/edit', [ExpertProfileController::class, 'edit'])->name('profile.edit');
+        Route::patch('/profile', [ExpertProfileController::class, 'update'])->name('profile.update');
     });
 
 /*
 |--------------------------------------------------------------------------
-| Business
+| Business Routes
 |--------------------------------------------------------------------------
 */
 
@@ -175,13 +155,12 @@ Route::middleware(['auth', 'role:business'])
     ->name('business.')
     ->group(function () {
 
-        Route::get('/dashboard', [BusinessController::class, 'index'])
-            ->name('dashboard');
+        Route::get('/dashboard', [BusinessDashboardController::class, 'index'])->name('dashboard');
     });
 
 /*
 |--------------------------------------------------------------------------
-| Traveler
+| Traveler Routes
 |--------------------------------------------------------------------------
 */
 
@@ -190,8 +169,14 @@ Route::middleware(['auth', 'role:traveler'])
     ->name('traveler.')
     ->group(function () {
 
-        Route::get('/dashboard', [TravelerDashboardController::class, 'index'])->name('dashboard');
+        Route::get('/dashboard', [TravelerDashboardController::class, 'index'])
+            ->name('dashboard');
 
+        /*
+        |--------------------------------------------------------------------------
+        | Itineraries
+        |--------------------------------------------------------------------------
+        */
         Route::resource('itineraries', TravelerItineraryController::class);
 
         Route::post('itineraries/{itinerary}/generate', [TravelerItineraryController::class, 'generate'])
@@ -210,43 +195,68 @@ Route::middleware(['auth', 'role:traveler'])
             ->shallow()
             ->only(['store', 'update', 'destroy']);
 
+        /*
+        |--------------------------------------------------------------------------
+        | Preference Profiles
+        |--------------------------------------------------------------------------
+        */
         Route::resource('preference-profiles', PreferenceProfileController::class);
 
         Route::resource('preference-profiles.preferences', PreferenceController::class)
             ->shallow()
             ->only(['create', 'store', 'edit', 'update', 'destroy']);
 
-        Route::get('preference-profiles/{preferenceProfile}/preferences/create', [PreferenceController::class, 'create'])
-            ->name('preferences.create');
-
+        /*
+        |--------------------------------------------------------------------------
+        | Rewards
+        |--------------------------------------------------------------------------
+        */
         Route::get('/rewards', [RewardsController::class, 'index'])
             ->name('rewards');
 
-        Route::post('/places/{place}/add-to-itinerary', [ItineraryItemController::class, 'addPlace'])
-            ->name('places.add-to-itinerary');
-
-        // Traveler Messaging
+        /*
+        |--------------------------------------------------------------------------
+        | Traveler Messaging
+        |--------------------------------------------------------------------------
+        */
         Route::prefix('messages')->name('messages.')->group(function () {
-            
-            // All conversations (optional)
+
             Route::get('/', [TravelerMessageController::class, 'index'])
                 ->name('index');
 
-            // View conversation with a specific expert
             Route::get('/{expert}', [TravelerMessageController::class, 'show'])
-                ->name('show');  // traveler.messages.show
+                ->name('show');
 
-            // Send message to a specific expert
             Route::post('/{expert}', [TravelerMessageController::class, 'store'])
-                ->name('store'); // traveler.messages.store
+                ->name('store');
         });
 
-        Route::get('/experts', [TravelerExpertsController::class, 'index'])->name('experts');
+        /*
+        |--------------------------------------------------------------------------
+        | Local Experts
+        |--------------------------------------------------------------------------
+        */
+
+        // List experts
+        Route::get('/experts', [TravelerExpertsController::class, 'index'])
+            ->name('experts.index');
+
+        // Traveler-facing expert profile
+        Route::get('/experts/{expert}', [TravelerExpertsController::class, 'show'])
+            ->name('experts.show');
+
+        /*
+        |--------------------------------------------------------------------------
+        | Place → Add to itinerary
+        |--------------------------------------------------------------------------
+        */
+        Route::post('/places/{place}/add-to-itinerary', [ItineraryItemController::class, 'addPlace'])
+            ->name('places.add-to-itinerary');
     });
 
 /*
 |--------------------------------------------------------------------------
-| Invitations (Public)
+| Itinerary Invitations (Public)
 |--------------------------------------------------------------------------
 */
 
@@ -258,18 +268,19 @@ Route::prefix('itinerary-invitations')->name('itinerary-invitations.')->group(fu
 
 /*
 |--------------------------------------------------------------------------
-| PDF
+| PDF Export
 |--------------------------------------------------------------------------
 */
 
 Route::get('/itineraries/{itinerary}/pdf', ItineraryPdfController::class)
-    ->middleware(['web', 'auth'])
+    ->middleware(['auth'])
     ->name('itineraries.pdf');
 
 /*
 |--------------------------------------------------------------------------
-| Auth
+| Auth Scaffolding
 |--------------------------------------------------------------------------
 */
 
 require __DIR__ . '/auth.php';
+

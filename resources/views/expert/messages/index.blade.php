@@ -41,8 +41,10 @@
                                   hover:shadow-glow hover:scale-[1.02] transition-all duration-200">
 
                             {{-- Avatar --}}
-                            <img src="{{ $traveler->user->photo_url ?? 'https://via.placeholder.com/120' }}"
-                                 class="w-14 h-14 rounded-2xl object-cover shadow border border-sand-300 dark:border-ink-700">
+                            <img src="{{ $traveler->user->profile_photo_url ?? asset('storage/images/defaults/traveler.png') }}"
+                                class="w-14 h-14 rounded-2xl object-cover shadow 
+                                        border border-sand-300 dark:border-ink-700"
+                                alt="Traveler avatar">
 
                             <div class="flex-1">
                                 <p class="text-lg font-semibold text-ink-900 dark:text-sand-100">

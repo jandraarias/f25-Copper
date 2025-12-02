@@ -13,7 +13,8 @@ class Expert extends Model
         'user_id',
         'name',
         'city',
-        'profile_photo_path',
+        'profile_photo_path', // local file upload
+        'photo_url',          // remote URL from seeder (optional)
         'bio',
         'expertise',
         'languages',
@@ -30,13 +31,34 @@ class Expert extends Model
         return $this->hasMany(ExpertReview::class);
     }
 
-    // === Accessor ===
+    /**
+     * Profile Photo Accessor (Unified)
+     *
+     * Priority:
+     * 1. Uploaded image stored in storage/
+     * 2. Remote photo URL from seeder
+     * 3. Default expert image
+     */
     public function getProfilePhotoUrlAttribute(): string
     {
-        if (!empty($this->profile_photo_path)) {
-            return asset('storage/' . ltrim($this->profile_photo_path, '/'));
+        $path = $this->profile_photo_path;
+
+        // If stored as a full remote URL (https://...)
+        if ($path && str_starts_with($path, 'http')) {
+            return $path;
         }
 
-        return asset('data/images/defaults/expert.png');
+        // If uploaded and stored locally
+        if ($path) {
+            return asset('storage/' . ltrim($path, '/'));
+        }
+
+        // If seeded remote photo exists
+        if (!empty($this->photo_url)) {
+            return $this->photo_url;
+        }
+
+        // Default image
+        return asset('storage/images/defaults/expert.png');
     }
 }

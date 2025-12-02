@@ -11,6 +11,7 @@ class ExpertReview extends Model
 
     protected $fillable = [
         'expert_id',
+        'user_id',   // <-- IMPORTANT
         'rating',
         'comment',
     ];
@@ -18,5 +19,10 @@ class ExpertReview extends Model
     public function expert()
     {
         return $this->belongsTo(Expert::class);
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
     }
 }

@@ -47,10 +47,10 @@
                     <div class="flex flex-col sm:flex-row gap-10 items-start sm:items-center">
 
                         {{-- Photo --}}
-                        <img src="{{ $traveler->user->photo_url ?? 'https://via.placeholder.com/300' }}"
-                             class="w-44 h-44 rounded-3xl object-cover shadow-lg 
+                        <img src="{{ $traveler->user->profile_photo_url ?? asset('storage/images/defaults/traveler.png') }}"
+                            class="w-44 h-44 rounded-3xl object-cover shadow-lg 
                                     border border-sand-300 dark:border-ink-700"
-                             alt="Traveler photo" />
+                            alt="Traveler photo" />
 
                         {{-- Details --}}
                         <div class="space-y-4 flex-1">

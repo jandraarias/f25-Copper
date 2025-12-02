@@ -8,8 +8,10 @@
 
             <div class="flex items-center gap-4">
                 {{-- Expert Avatar --}}
-                <img src="{{ $expert->photo_url ?? $expert->user->photo_url ?? 'https://via.placeholder.com/120' }}"
-                     class="w-12 h-12 rounded-2xl object-cover shadow border border-sand-300 dark:border-ink-700">
+                <img src="{{ $expert->profile_photo_url ?? asset('storage/images/defaults/expert.png') }}"
+                    class="w-12 h-12 rounded-2xl object-cover shadow 
+                            border border-sand-300 dark:border-ink-700"
+                    alt="{{ $expert->name }}">
 
                 {{-- Name --}}
                 <h2 class="text-3xl font-bold text-ink-900 dark:text-sand-100">
@@ -48,10 +50,11 @@
                     <div class="flex {{ $message->sender_id === auth()->id() ? 'justify-end' : 'justify-start' }}">
 
                         {{-- Avatar (left only) --}}
-                        @if($message->sender_id !== auth()->id())
-                            <img src="{{ $expert->photo_url ?? $expert->user->photo_url ?? 'https://via.placeholder.com/120' }}"
-                                 class="w-10 h-10 rounded-2xl object-cover shadow mr-2
-                                        border border-sand-300 dark:border-ink-700">
+                        @if ($message->sender_id !== auth()->id())
+                            <img src="{{ $expert->profile_photo_url ?? asset('storage/images/defaults/expert.png') }}"
+                                class="w-10 h-10 rounded-2xl object-cover shadow mr-2
+                                        border border-sand-300 dark:border-ink-700"
+                                alt="{{ $expert->name }}">
                         @endif
 
                         {{-- Message bubble --}}
