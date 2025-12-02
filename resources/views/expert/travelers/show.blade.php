@@ -100,7 +100,8 @@
 
                             {{-- Message Traveler Button --}}
                             <div class="pt-4">
-                                <a href="{{ route('expert.travelers.messages', $traveler) }}"
+                                <a href="{{ route('expert.messages.show', $traveler)
+ }}"
                                    class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full 
                                           bg-gradient-copper text-white font-semibold shadow-soft
                                           hover:shadow-glow hover:scale-[1.03] transition-all duration-200">

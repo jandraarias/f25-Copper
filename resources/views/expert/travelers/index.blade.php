@@ -101,7 +101,7 @@
                             </a>
 
                             {{-- Message --}}
-                            <a href="{{ route('expert.travelers.messages', $traveler) }}"
+                            <a href="{{ route('expert.messages.show', $traveler)}}"
                                class="w-full text-center px-5 py-2.5 rounded-full 
                                     bg-gradient-copper text-white font-semibold shadow-soft
                                     hover:shadow-glow hover:scale-[1.02] transition-all duration-200">
