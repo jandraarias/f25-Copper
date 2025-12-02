@@ -16,68 +16,29 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-
-        // Seed the experts
-        $this->call(ExpertSeeder::class);
-
-        // Seed the  preference options
-        $this->call(PreferencesTableSeeder::class);
-
-        // Seed the countries first
-        $this->call(CountrySeeder::class);
-
-        // Seed the Rewards Table
-        $this->call(RewardsTableSeeder::class);
-
-        // Admin user
+        // Admin
         User::query()->updateOrCreate(
             ['email' => 'admin@test.com'],
             [
-                'name' => 'Admin User',
+                'name'     => 'Admin',
                 'password' => Hash::make('password'),
-                'role' => User::ROLE_ADMIN,
+                'role'     => User::ROLE_ADMIN,
             ]
         );
 
-        // Travelers with linked Users
-        $users = User::factory()
-            ->count(3)
-            ->create(['role' => User::ROLE_TRAVELER]);
+        // Traveler seeder
+        $this->call(TravelerSeeder::class);
 
-        foreach ($users as $user) {
-            // Each traveler profile belongs to a user
-            $traveler = Traveler::create([
-                'user_id' => $user->id,
-                'bio' => fake()->sentence(),
-            ]);
+        // Expert seeder
+        $this->call(ExpertSeeder::class);
 
-            // Each Traveler gets 2 itineraries
-            $itineraries = ItineraryFactory::new()->count(2)->create([
-                'traveler_id' => $traveler->id,
-            ]);
+        // Preference options
+        $this->call(PreferencesTableSeeder::class);
 
-            foreach ($itineraries as $itinerary) {
-                // Each Itinerary gets 3 items
-                ItineraryItemFactory::new()->count(3)->create([
-                    'itinerary_id' => $itinerary->id,
-                ]);
+        // Countries
+        $this->call(CountrySeeder::class);
 
-                // Attach a random country to each itinerary
-                $country = \App\Models\Country::inRandomOrder()->first();
-                if ($country) {
-                    $itinerary->countries()->attach($country->id);
-                }
-            }
-
-            // Each Traveler gets 1 preference profile
-            $profile = PreferenceProfileFactory::new()->create([
-                'traveler_id' => $traveler->id,
-            ]);
-
-            // Each profile gets 3 preferences
-            PreferenceFactory::new()->count(3)->create([
-                'preference_profile_id' => $profile->id,
-            ]);
-        }
+        // Rewards
+        $this->call(RewardsTableSeeder::class);
     }
 }

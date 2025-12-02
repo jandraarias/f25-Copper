@@ -12,30 +12,30 @@ class ExpertSeeder extends Seeder
 {
     public function run()
     {
-        $expertData = [
+        $experts = [
             [
-                'name'      => 'Aiko Tanaka',
-                'city'      => 'Williamsburg',
-                'profile_photo_path' => 'defaults/expert.png',
-                'bio'       => 'Local food and culture expert with 10+ years of guiding.',
+                'name' => 'Aiko Tanaka',
+                'city' => 'Williamsburg',
+                'photo_url' => 'https://i.pravatar.cc/300?img=5',
+                'bio' => 'Local food and culture expert with 10+ years of guiding.',
             ],
             [
-                'name'      => 'Luis Martínez',
-                'city'      => 'Williamsburg',
-                'profile_photo_path' => 'defaults/expert.png',
-                'bio'       => 'Nightlife, architecture, and art tour specialist.',
+                'name' => 'Luis Martínez',
+                'city' => 'Williamsburg',
+                'photo_url' => 'https://i.pravatar.cc/300?img=12',
+                'bio' => 'Nightlife, architecture, and art tour specialist.',
             ],
             [
-                'name'      => 'Sophie Laurent',
-                'city'      => 'Williamsburg',
-                'profile_photo_path' => 'defaults/expert.png',
-                'bio'       => 'Fashion, museums, and cultural history expert.',
+                'name' => 'Sophie Laurent',
+                'city' => 'Williamsburg',
+                'photo_url' => 'https://i.pravatar.cc/300?img=28',
+                'bio' => 'Fashion, museums, and cultural history expert.',
             ],
         ];
 
-        foreach ($expertData as $data) {
+        foreach ($experts as $data) {
 
-            // Create a user account for the expert
+            // Create user account
             $user = User::create([
                 'name'          => $data['name'],
                 'email'         => $this->makeEmail($data['name']),
@@ -45,16 +45,19 @@ class ExpertSeeder extends Seeder
                 'date_of_birth' => now()->subYears(rand(25, 45))->format('Y-m-d'),
             ]);
 
-            // Create Expert profile
+            // Create expert profile
             $expert = Expert::create([
                 'user_id'            => $user->id,
                 'name'               => $data['name'],
                 'city'               => $data['city'],
-                'profile_photo_path' => $data['profile_photo_path'],
+
+                // Store URL inside profile_photo_path
+                'profile_photo_path' => $data['photo_url'],
+
                 'bio'                => $data['bio'],
             ]);
 
-            // Add review records
+            // Generate reviews
             ExpertReview::factory()
                 ->count(rand(3, 15))
                 ->create([
@@ -63,9 +66,6 @@ class ExpertSeeder extends Seeder
         }
     }
 
-    /**
-     * Generate a safe, unique email for seeded users.
-     */
     protected function makeEmail(string $name): string
     {
         $slug = strtolower(preg_replace('/[^a-z0-9]+/i', '.', $name));
