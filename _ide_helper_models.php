@@ -17,10 +17,11 @@ namespace App\Models{
  * @property int $user_id
  * @property string $name
  * @property string $city
- * @property string|null $logo_url
+ * @property string|null $profile_photo_path
  * @property string|null $description
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read string $profile_photo_url
  * @property-read \App\Models\User $user
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Business newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Business newQuery()
@@ -29,8 +30,8 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Business whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Business whereDescription($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Business whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Business whereLogoUrl($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Business whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Business whereProfilePhotoPath($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Business whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Business whereUserId($value)
  */
@@ -108,10 +109,14 @@ namespace App\Models{
  * @property int $user_id
  * @property string $name
  * @property string $city
- * @property string|null $photo_url
+ * @property string|null $profile_photo_path
  * @property string|null $bio
+ * @property string|null $expertise
+ * @property string|null $languages
+ * @property int|null $experience_years
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read string $profile_photo_url
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ExpertReview> $reviews
  * @property-read int|null $reviews_count
  * @property-read \App\Models\User $user
@@ -121,9 +126,12 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Expert whereBio($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Expert whereCity($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Expert whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Expert whereExperienceYears($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Expert whereExpertise($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Expert whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Expert whereLanguages($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Expert whereName($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Expert wherePhotoUrl($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Expert whereProfilePhotoPath($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Expert whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Expert whereUserId($value)
  */
@@ -268,6 +276,31 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ItineraryItem whereUpdatedAt($value)
  */
 	class ItineraryItem extends \Eloquent {}
+}
+
+namespace App\Models{
+/**
+ * @property int $id
+ * @property int $sender_id
+ * @property int $receiver_id
+ * @property string $content
+ * @property int $is_read
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\User $receiver
+ * @property-read \App\Models\User $sender
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Message newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Message newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Message query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Message whereContent($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Message whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Message whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Message whereIsRead($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Message whereReceiverId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Message whereSenderId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Message whereUpdatedAt($value)
+ */
+	class Message extends \Eloquent {}
 }
 
 namespace App\Models{
@@ -499,12 +532,13 @@ namespace App\Models{
 
 namespace App\Models{
 /**
- * @mixin IdeHelperTraveler
  * @property int $id
  * @property int $user_id
+ * @property string|null $profile_photo_path
  * @property string|null $bio
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read string $profile_photo_url
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Itinerary> $itineraries
  * @property-read int|null $itineraries_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PreferenceProfile> $preferenceProfiles
@@ -517,6 +551,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Traveler whereBio($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Traveler whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Traveler whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Traveler whereProfilePhotoPath($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Traveler whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Traveler whereUserId($value)
  */
@@ -525,7 +560,6 @@ namespace App\Models{
 
 namespace App\Models{
 /**
- * @mixin IdeHelperUser
  * @property int $id
  * @property string $name
  * @property string $email
@@ -538,13 +572,14 @@ namespace App\Models{
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Business|null $business
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Itinerary> $collaborativeItineraries
- * @property-read int|null $collaborative_itineraries_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Itinerary> $createdItineraries
- * @property-read int|null $created_itineraries_count
  * @property-read \App\Models\Expert|null $expert
+ * @property-read string $profile_photo_url
  * @property-read \Illuminate\Notifications\DatabaseNotificationCollection<int, \Illuminate\Notifications\DatabaseNotification> $notifications
  * @property-read int|null $notifications_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Message> $receivedMessages
+ * @property-read int|null $received_messages_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Message> $sentMessages
+ * @property-read int|null $sent_messages_count
  * @property-read \App\Models\Traveler|null $traveler
  * @method static \Database\Factories\UserFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User newModelQuery()

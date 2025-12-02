@@ -4,42 +4,39 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 
-/**
- * @mixin IdeHelperTraveler
- */
 class Traveler extends Model
 {
     use HasFactory;
 
     protected $fillable = [
         'user_id',
-        'bio', // traveler-specific only
+        'bio',
+        'profile_photo_path',
     ];
 
-    protected $casts = [
-        'id' => 'integer',
-    ];
-
-    public function user(): BelongsTo
+    public function user()
     {
         return $this->belongsTo(User::class);
     }
 
-    public function itineraries(): HasMany
+    public function itineraries()
     {
-        return $this->hasMany(Itinerary::class);
+        return $this->hasMany(Itinerary::class, 'traveler_id');
     }
 
-    public function preferenceProfiles(): HasMany
+    public function preferenceProfiles()
     {
-        return $this->hasMany(PreferenceProfile::class);
+        return $this->hasMany(PreferenceProfile::class, 'traveler_id');
     }
 
-    protected static function newFactory()
+    // === Accessor ===
+    public function getProfilePhotoUrlAttribute(): string
     {
-        return \Database\Factories\TravelerFactory::new();
+        if (!empty($this->profile_photo_path)) {
+            return asset('storage/' . ltrim($this->profile_photo_path, '/'));
+        }
+
+        return asset('data/images/defaults/traveler.png');
     }
 }

@@ -23,15 +23,18 @@ use App\Http\Controllers\Traveler\PreferenceController;
 use App\Http\Controllers\Traveler\ItineraryInvitationController;
 use App\Http\Controllers\Traveler\RewardsController;
 use App\Http\Controllers\Traveler\ExpertsController as TravelerExpertsController;
+use App\Http\Controllers\Traveler\MessageController as TravelerMessageController;
 
 // Expert Controllers (alias to avoid collisions)
 use App\Http\Controllers\Expert\DashboardController as ExpertDashboardController;
 use App\Http\Controllers\Expert\ItineraryController as ExpertItineraryController;
 use App\Http\Controllers\Expert\TravelerController as ExpertTravelerController;
 use App\Http\Controllers\Expert\ProfileController as ExpertProfileController;
+use App\Http\Controllers\Expert\MessageController as ExpertMessageController;
 
 // Business Controller
 use App\Http\Controllers\BusinessController;
+use App\Http\Controllers\Business\DashboardController as BusinessDashboardController;
 
 /*
 |--------------------------------------------------------------------------
@@ -129,15 +132,34 @@ Route::middleware(['auth', 'role:expert'])
         Route::get('/travelers', [ExpertTravelerController::class, 'index'])
             ->name('travelers.index');
 
-        // Profile (SHOW)
+        Route::get('/travelers/{traveler}', [ExpertTravelerController::class, 'show'])
+            ->name('travelers.show');
+
+        /*
+        |--------------------------------------------------------------------------
+        | Messaging
+        |--------------------------------------------------------------------------
+        */
+
+        // Expert inbox (all message threads)
+        Route::get('/messages', [ExpertMessageController::class, 'inbox'])
+            ->name('messages.index');
+
+        // Chat thread with a specific traveler
+        Route::get('/messages/{traveler}', [ExpertMessageController::class, 'show'])
+            ->name('messages.show');
+
+        // Send message to traveler
+        Route::post('/messages/{traveler}', [ExpertMessageController::class, 'store'])
+            ->name('messages.store');
+
+        // Profile
         Route::get('/profile', [ExpertProfileController::class, 'show'])
             ->name('profile.show');
 
-        // Profile (EDIT FORM)
         Route::get('/profile/edit', [ExpertProfileController::class, 'edit'])
             ->name('profile.edit');
 
-        // Profile update
         Route::patch('/profile', [ExpertProfileController::class, 'update'])
             ->name('profile.update');
     });
@@ -202,6 +224,22 @@ Route::middleware(['auth', 'role:traveler'])
 
         Route::post('/places/{place}/add-to-itinerary', [ItineraryItemController::class, 'addPlace'])
             ->name('places.add-to-itinerary');
+
+        // Traveler Messaging
+        Route::prefix('messages')->name('messages.')->group(function () {
+            
+            // All conversations (optional)
+            Route::get('/', [TravelerMessageController::class, 'index'])
+                ->name('index');
+
+            // View conversation with a specific expert
+            Route::get('/{expert}', [TravelerMessageController::class, 'show'])
+                ->name('show');  // traveler.messages.show
+
+            // Send message to a specific expert
+            Route::post('/{expert}', [TravelerMessageController::class, 'store'])
+                ->name('store'); // traveler.messages.store
+        });
 
         Route::get('/experts', [TravelerExpertsController::class, 'index'])->name('experts');
     });

@@ -70,7 +70,7 @@
                         </div>
 
                         {{-- Details --}}
-                        <div class="flex-1 space-y-4">
+                        <div class="flex-1 space-y-6">
 
                             {{-- Name --}}
                             <h3 class="text-3xl font-bold">
@@ -80,25 +80,68 @@
                             {{-- City --}}
                             <p class="text-lg flex items-center gap-2 text-ink-700 dark:text-sand-200">
                                 <svg xmlns="http://www.w3.org/2000/svg"
-                                     class="w-5 h-5 text-copper" fill="none"
-                                     viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                    class="w-5 h-5 text-copper" fill="none"
+                                    viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round"
-                                          d="M17.657 16.657L13.414 20.9a2 2 0 01-2.828 0l-4.243-4.243a8 8 0 1111.314 0z" />
+                                        d="M17.657 16.657L13.414 20.9a2 2 0 01-2.828 0l-4.243-4.243a8 8 0 1111.314 0z" />
                                 </svg>
+                                <strong class="font-semibold">Location:</strong>
                                 {{ $expert->city ?: 'No city selected' }}
                             </p>
 
-                            {{-- Bio --}}
-                            <p class="text-md leading-relaxed text-ink-700 dark:text-sand-200">
-                                {{ $expert->bio ?: 'No bio added yet.' }}
+                            {{-- Expertise --}}
+                            <p class="text-md flex items-start gap-2 text-ink-700 dark:text-sand-200">
+                                <svg xmlns="http://www.w3.org/2000/svg"
+                                    class="w-5 h-5 mt-1 text-copper" fill="none"
+                                    viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M12 6v6l4 2" />
+                                </svg>
+                                <span>
+                                    <strong class="font-semibold">Expertise:</strong><br>
+                                    {{ $expert->expertise ?: 'No expertise listed yet.' }}
+                                </span>
                             </p>
 
+                            {{-- Languages --}}
+                            <p class="text-md flex items-start gap-2 text-ink-700 dark:text-sand-200">
+                                <svg xmlns="http://www.w3.org/2000/svg"
+                                    class="w-5 h-5 mt-1 text-copper" fill="none"
+                                    viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M3 5h12M9 3v2m6 14h6m-3-2v2M3 19h12M5 7h8m-8 4h4" />
+                                </svg>
+                                <span>
+                                    <strong class="font-semibold">Languages:</strong><br>
+                                    {{ $expert->languages ?: 'No languages listed yet.' }}
+                                </span>
+                            </p>
+
+                            {{-- Years of Experience --}}
+                            <p class="text-md flex items-center gap-2 text-ink-700 dark:text-sand-200">
+                                <svg xmlns="http://www.w3.org/2000/svg"
+                                    class="w-5 h-5 text-copper" fill="none"
+                                    viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M8 7V3m8 4V3M5 21h14M5 7h14M5 11h14M5 15h14" />
+                                </svg>
+                                <strong class="font-semibold">Experience:</strong>
+                                {{ $expert->experience_years !== null ? $expert->experience_years . ' years' : 'No experience listed' }}
+                            </p>
+
+                            {{-- Bio --}}
+                            <div class="pt-2">
+                                <p class="text-md leading-relaxed text-ink-700 dark:text-sand-200">
+                                    <strong class="font-semibold">Bio:</strong><br>
+                                    {{ $expert->bio ?: 'No bio added yet.' }}
+                                </p>
+                            </div>
+
                         </div>
+
                     </div>
                 </div>
             </div>
-
-
 
             {{-- REVIEWS --}}
             @if($expert->reviews && $expert->reviews->count())

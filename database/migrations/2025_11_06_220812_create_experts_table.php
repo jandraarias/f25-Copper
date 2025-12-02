@@ -10,12 +10,19 @@ return new class extends Migration
     {
         Schema::create('experts', function (Blueprint $table) {
             $table->id();
+
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
 
             $table->string('name');
             $table->string('city')->index();
-            $table->string('photo_url')->nullable();
+
+            $table->string('profile_photo_path')->nullable();   // <-- RENAMED
             $table->text('bio')->nullable();
+
+            $table->string('expertise')->nullable();
+            $table->string('languages')->nullable();
+            $table->integer('experience_years')->nullable();
+
             $table->timestamps();
         });
     }

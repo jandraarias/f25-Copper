@@ -16,7 +16,8 @@ class ProfileController extends Controller
     public function edit(Request $request): View
     {
         return view('profile.edit', [
-            'user' => $request->user(),
+            'user'     => $request->user(),
+            'traveler' => $request->user()->traveler,
         ]);
     }
 
@@ -27,27 +28,23 @@ class ProfileController extends Controller
     {
         $user = $request->user();
 
-        // Base validation
         $rules = [
             'name'  => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255'],
             'bio'   => ['nullable', 'string', 'max:500'],
+            'photo' => ['nullable', 'image', 'max:2048'], // <--- NEW
         ];
 
-        // Role-specific validation
-        if (in_array($user->role, ['traveler', 'expert'])) {
-            $rules['phone_number']  = ['required', 'string', 'max:20'];
-            // still validate date_of_birth so form errors work, but we won’t overwrite it
-            $rules['date_of_birth'] = ['required', 'date'];
-        } elseif ($user->role === 'business') {
+        // Shared roles (traveler + expert + business)
+        if (in_array($user->role, ['traveler', 'expert', 'business'])) {
             $rules['phone_number'] = ['required', 'string', 'max:20'];
         }
 
         $validated = $request->validate($rules);
 
-        // Update user fields (except date_of_birth, which is view-only)
-        $updatable = collect($validated)->except('date_of_birth')->toArray();
-        $user->fill($updatable);
+        // Update User fields
+        $updatableUserFields = collect($validated)->except(['bio', 'photo'])->toArray();
+        $user->fill($updatableUserFields);
 
         if ($user->isDirty('email')) {
             $user->email_verified_at = null;
@@ -55,13 +52,26 @@ class ProfileController extends Controller
 
         $user->save();
 
-        // Update Traveler bio if present
-        if (array_key_exists('bio', $validated)) {
+        // === Handle Traveler Profile changes ===
+        if ($user->isTraveler()) {
             $traveler = $user->traveler;
-            if ($traveler) {
-                $traveler->bio = $validated['bio'];
-                $traveler->save();
+
+            if (!$traveler) {
+                $traveler = $user->traveler()->create([]);
             }
+
+            // Update Traveler fields
+            if (array_key_exists('bio', $validated)) {
+                $traveler->bio = $validated['bio'];
+            }
+
+            // Handle Traveler photo upload
+            if ($request->hasFile('photo')) {
+                $path = $request->file('photo')->store('traveler_photos', 'public');
+                $traveler->profile_photo_path = $path;
+            }
+
+            $traveler->save();
         }
 
         return Redirect::route('profile.edit')->with('status', 'profile-updated');
@@ -79,7 +89,6 @@ class ProfileController extends Controller
         $user = $request->user();
 
         Auth::logout();
-
         $user->delete();
 
         $request->session()->invalidate();

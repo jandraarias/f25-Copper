@@ -2,20 +2,21 @@
 
 namespace App\Providers;
 
+use App\Models\Traveler;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 class RouteServiceProvider extends ServiceProvider
 {
-    /**
-     * Default home route (used if no valid role is found)
-     */
     public const HOME = '/';
 
-    /**
-     * Determine where to redirect users after login or verification.
-     */
+    public function boot(): void
+    {
+        parent::boot();
+        Route::model('traveler', Traveler::class);
+    }
+
     public static function redirectTo(): string
     {
         $user = Auth::user();
@@ -24,7 +25,6 @@ class RouteServiceProvider extends ServiceProvider
             return self::HOME;
         }
 
-        // Make sure role routes exist before redirecting
         return match ($user->role) {
             'admin'    => Route::has('admin.dashboard') ? route('admin.dashboard') : self::HOME,
             'expert'   => Route::has('expert.dashboard') ? route('expert.dashboard') : self::HOME,

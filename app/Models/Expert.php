@@ -13,7 +13,7 @@ class Expert extends Model
         'user_id',
         'name',
         'city',
-        'photo_url',
+        'profile_photo_path',
         'bio',
         'expertise',
         'languages',
@@ -28,5 +28,15 @@ class Expert extends Model
     public function reviews()
     {
         return $this->hasMany(ExpertReview::class);
+    }
+
+    // === Accessor ===
+    public function getProfilePhotoUrlAttribute(): string
+    {
+        if (!empty($this->profile_photo_path)) {
+            return asset('storage/' . ltrim($this->profile_photo_path, '/'));
+        }
+
+        return asset('data/images/defaults/expert.png');
     }
 }

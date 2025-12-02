@@ -2,13 +2,10 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Notifications\Notifiable;
 
-/**
- * @mixin IdeHelperUser
- */
 class User extends Authenticatable
 {
     use HasFactory, Notifiable;
@@ -19,9 +16,6 @@ class User extends Authenticatable
     public const ROLE_BUSINESS = 'business';
     public const ROLE_ADMIN    = 'admin';
 
-    /**
-     * The attributes that are mass assignable.
-     */
     protected $fillable = [
         'name',
         'email',
@@ -31,68 +25,45 @@ class User extends Authenticatable
         'date_of_birth',
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     */
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
-    /**
-     * The attributes that should be cast.
-     */
     protected $casts = [
         'email_verified_at' => 'datetime',
         'password'          => 'hashed',
-        'date_of_birth'     => 'date', // ensures Y-m-d format on save/read
+        'date_of_birth'     => 'date',
     ];
 
     // === Role helpers ===
-    public function isTraveler(): bool
-    {
-        return $this->role === self::ROLE_TRAVELER;
-    }
-
-    public function isExpert(): bool
-    {
-        return $this->role === self::ROLE_EXPERT;
-    }
-
-    public function isBusiness(): bool
-    {
-        return $this->role === self::ROLE_BUSINESS;
-    }
-
-    public function isAdmin(): bool
-    {
-        return $this->role === self::ROLE_ADMIN;
-    }
-
-    public function createdItineraries()
-    {
-        return $this->hasMany(Itinerary::class);
-    }
-
-    public function collaborativeItineraries()
-    {
-        return $this->belongsToMany(Itinerary::class, 'itinerary_user')->withTimestamps();
-    }
+    public function isTraveler(): bool { return $this->role === self::ROLE_TRAVELER; }
+    public function isExpert(): bool   { return $this->role === self::ROLE_EXPERT; }
+    public function isBusiness(): bool { return $this->role === self::ROLE_BUSINESS; }
+    public function isAdmin(): bool    { return $this->role === self::ROLE_ADMIN; }
 
     // === Relationships ===
-    public function traveler()
-    {
-        return $this->hasOne(Traveler::class);
-    }
+    public function traveler() { return $this->hasOne(Traveler::class); }
+    public function expert()   { return $this->hasOne(Expert::class); }
+    public function business() { return $this->hasOne(Business::class); }
 
-    public function expert()
-    {
-        return $this->hasOne(Expert::class);
-    }
+    public function sentMessages() { return $this->hasMany(Message::class, 'sender_id'); }
+    public function receivedMessages() { return $this->hasMany(Message::class, 'receiver_id'); }
 
-    public function business()
+    // === Universal Profile Photo Accessor ===
+    public function getProfilePhotoUrlAttribute(): string
     {
-        return $this->hasOne(Business::class);
-    }
+        return match ($this->role) {
+            self::ROLE_TRAVELER => $this->traveler?->profile_photo_url
+                ?? asset('data/images/defaults/traveler.png'),
 
+            self::ROLE_EXPERT => $this->expert?->profile_photo_url
+                ?? asset('data/images/defaults/expert.png'),
+
+            self::ROLE_BUSINESS => $this->business?->profile_photo_url
+                ?? asset('data/images/defaults/business.png'),
+
+            default => asset('data/images/defaults/traveler.png'),
+        };
+    }
 }
