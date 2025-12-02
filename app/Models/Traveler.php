@@ -4,12 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-
-use App\Models\User;
-use App\Models\Itinerary;
-use App\Models\PreferenceProfile;
 
 class Traveler extends Model
 {
@@ -18,36 +12,31 @@ class Traveler extends Model
     protected $fillable = [
         'user_id',
         'bio',
+        'profile_photo_path',
     ];
 
-    /**
-     * Traveler belongs to a User.
-     */
-    public function user(): BelongsTo
+    public function user()
     {
         return $this->belongsTo(User::class);
     }
 
-    /**
-     * Traveler has many itineraries.
-     * Foreign key in itineraries table: traveler_id
-     */
-    public function itineraries(): HasMany
+    public function itineraries()
     {
-        return $this->hasMany(Itinerary::class, 'traveler_id', 'id');
+        return $this->hasMany(Itinerary::class, 'traveler_id');
     }
 
-    /**
-     * Traveler has many preference profiles.
-     * Foreign key in preference_profiles table: traveler_id
-     */
-    public function preferenceProfiles(): HasMany
+    public function preferenceProfiles()
     {
-        return $this->hasMany(PreferenceProfile::class, 'traveler_id', 'id');
+        return $this->hasMany(PreferenceProfile::class, 'traveler_id');
     }
 
-    protected static function newFactory()
+    // === Accessor ===
+    public function getProfilePhotoUrlAttribute(): string
     {
-        return \Database\Factories\TravelerFactory::new();
+        if ($this->profile_photo_path) {
+            return asset('storage/' . $this->profile_photo_path);
+        }
+
+        return asset('data/images/defaults/traveler.png');
     }
 }

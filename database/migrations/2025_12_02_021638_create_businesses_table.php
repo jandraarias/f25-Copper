@@ -14,10 +14,13 @@ return new class extends Migration
             Schema::create('businesses', function (Blueprint $table) {
                 $table->id();
                 $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+
                 $table->string('name');
                 $table->string('city')->index();
-                $table->string('logo_url')->nullable();
+
+                $table->string('profile_photo_path')->nullable();
                 $table->text('description')->nullable();
+
                 $table->timestamps();
             });
         }

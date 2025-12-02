@@ -15,11 +15,21 @@ class Business extends Model
         'city',
         'website',
         'description',
-        'logo_url',
+        'profile_photo_path',
     ];
 
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    // === Accessor ===
+    public function getProfilePhotoUrlAttribute(): string
+    {
+        if ($this->profile_photo_path) {
+            return asset('storage/' . $this->profile_photo_path);
+        }
+
+        return asset('data/images/defaults/business.png');
     }
 }
