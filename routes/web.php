@@ -34,6 +34,7 @@ use App\Http\Controllers\Expert\MessageController as ExpertMessageController;
 
 // Business Controller
 use App\Http\Controllers\BusinessController;
+use App\Http\Controllers\Business\DashboardController as BusinessDashboardController;
 
 /*
 |--------------------------------------------------------------------------
@@ -136,7 +137,7 @@ Route::middleware(['auth', 'role:expert'])
 
         /*
         |--------------------------------------------------------------------------
-        | Messaging (NEW CLEAN ROUTES)
+        | Messaging
         |--------------------------------------------------------------------------
         */
 
@@ -225,14 +226,20 @@ Route::middleware(['auth', 'role:traveler'])
             ->name('places.add-to-itinerary');
 
         // Traveler Messaging
-        Route::get('/messages', [TravelerMessageController::class, 'index'])
-            ->name('messages.index');
+        Route::prefix('messages')->name('messages.')->group(function () {
+            
+            // All conversations (optional)
+            Route::get('/', [TravelerMessageController::class, 'index'])
+                ->name('index');
 
-        Route::get('/messages/{expert}', [TravelerMessageController::class, 'show'])
-            ->name('messages.show');
+            // View conversation with a specific expert
+            Route::get('/{expert}', [TravelerMessageController::class, 'show'])
+                ->name('show');  // traveler.messages.show
 
-        Route::post('/messages/{expert}', [TravelerMessageController::class, 'store'])
-            ->name('messages.store');
+            // Send message to a specific expert
+            Route::post('/{expert}', [TravelerMessageController::class, 'store'])
+                ->name('store'); // traveler.messages.store
+        });
 
         Route::get('/experts', [TravelerExpertsController::class, 'index'])->name('experts');
     });

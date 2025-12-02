@@ -16,19 +16,19 @@ class ExpertSeeder extends Seeder
             [
                 'name'      => 'Aiko Tanaka',
                 'city'      => 'Williamsburg',
-                'photo_url' => 'https://i.pravatar.cc/300?img=5',
+                'profile_photo_path' => 'defaults/expert.png',
                 'bio'       => 'Local food and culture expert with 10+ years of guiding.',
             ],
             [
                 'name'      => 'Luis Martínez',
                 'city'      => 'Williamsburg',
-                'photo_url' => 'https://i.pravatar.cc/300?img=12',
+                'profile_photo_path' => 'defaults/expert.png',
                 'bio'       => 'Nightlife, architecture, and art tour specialist.',
             ],
             [
                 'name'      => 'Sophie Laurent',
                 'city'      => 'Williamsburg',
-                'photo_url' => 'https://i.pravatar.cc/300?img=28',
+                'profile_photo_path' => 'defaults/expert.png',
                 'bio'       => 'Fashion, museums, and cultural history expert.',
             ],
         ];
@@ -39,19 +39,19 @@ class ExpertSeeder extends Seeder
             $user = User::create([
                 'name'          => $data['name'],
                 'email'         => $this->makeEmail($data['name']),
-                'password'      => Hash::make('password'), // default password
+                'password'      => Hash::make('password'),
                 'role'          => User::ROLE_EXPERT,
                 'phone_number'  => null,
                 'date_of_birth' => now()->subYears(rand(25, 45))->format('Y-m-d'),
             ]);
 
-            // Create related expert profile
+            // Create Expert profile
             $expert = Expert::create([
-                'user_id'   => $user->id,
-                'name'      => $data['name'],   // ← REQUIRED
-                'city'      => $data['city'],
-                'photo_url' => $data['photo_url'],
-                'bio'       => $data['bio'],
+                'user_id'            => $user->id,
+                'name'               => $data['name'],
+                'city'               => $data['city'],
+                'profile_photo_path' => $data['profile_photo_path'],
+                'bio'                => $data['bio'],
             ]);
 
             // Add review records

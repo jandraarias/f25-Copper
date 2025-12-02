@@ -33,8 +33,8 @@ class Traveler extends Model
     // === Accessor ===
     public function getProfilePhotoUrlAttribute(): string
     {
-        if ($this->profile_photo_path) {
-            return asset('storage/' . $this->profile_photo_path);
+        if (!empty($this->profile_photo_path)) {
+            return asset('storage/' . ltrim($this->profile_photo_path, '/'));
         }
 
         return asset('data/images/defaults/traveler.png');

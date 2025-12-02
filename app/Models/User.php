@@ -53,7 +53,6 @@ class User extends Authenticatable
     // === Universal Profile Photo Accessor ===
     public function getProfilePhotoUrlAttribute(): string
     {
-        // Determine role → delegate to correct model
         return match ($this->role) {
             self::ROLE_TRAVELER => $this->traveler?->profile_photo_url
                 ?? asset('data/images/defaults/traveler.png'),

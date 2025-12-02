@@ -17,7 +17,7 @@ namespace App\Models{
  * @property int $user_id
  * @property string $name
  * @property string $city
- * @property string|null $logo_url
+ * @property string|null $profile_photo_path
  * @property string|null $description
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
@@ -30,8 +30,8 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Business whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Business whereDescription($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Business whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Business whereLogoUrl($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Business whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Business whereProfilePhotoPath($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Business whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Business whereUserId($value)
  */
@@ -109,7 +109,7 @@ namespace App\Models{
  * @property int $user_id
  * @property string $name
  * @property string $city
- * @property string|null $photo_url
+ * @property string|null $profile_photo_path
  * @property string|null $bio
  * @property string|null $expertise
  * @property string|null $languages
@@ -131,7 +131,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Expert whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Expert whereLanguages($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Expert whereName($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Expert wherePhotoUrl($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Expert whereProfilePhotoPath($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Expert whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Expert whereUserId($value)
  */
@@ -534,6 +534,7 @@ namespace App\Models{
 /**
  * @property int $id
  * @property int $user_id
+ * @property string|null $profile_photo_path
  * @property string|null $bio
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
@@ -550,6 +551,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Traveler whereBio($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Traveler whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Traveler whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Traveler whereProfilePhotoPath($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Traveler whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Traveler whereUserId($value)
  */
