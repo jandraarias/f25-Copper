@@ -16,9 +16,10 @@
     </x-slot>
 
     @php
-        $expert      = $expert ?? optional(auth()->user())->expert;
-        $itineraries = $itineraries ?? collect();
-        $travelerRequests = $travelerRequests ?? collect(); 
+        $expert             = $expert ?? optional(auth()->user())->expert;
+        $itineraries        = $itineraries ?? collect();
+        $travelerRequests   = $travelerRequests ?? collect();
+        $pendingInvitations = $pendingInvitations ?? collect();
     @endphp
 
     <div class="py-12 bg-sand dark:bg-sand-900 min-h-screen transition-colors duration-300">
@@ -36,6 +37,49 @@
             </div>
 
             {{-- ================= Traveler Requests ================= --}}
+            {{-- ================= Pending Expert Invitations (Prompt) ================= --}}
+            @if($pendingInvitations->isNotEmpty())
+                <div class="bg-amber-50 dark:bg-amber-900/20 shadow-soft rounded-3xl border border-amber-200 dark:border-amber-800 p-6">
+                    <div class="flex items-start justify-between">
+                        <div class="flex items-center gap-4">
+                            <div class="w-10 h-10 flex items-center justify-center rounded-full bg-amber-200 dark:bg-amber-800">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-amber-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M12 18v.01" />
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-semibold text-ink-900 dark:text-ink-100">You have <span class="pending-invitations-count">{{ $pendingInvitations->count() }}</span> pending itinerary request(s)</h3>
+                                <p class="text-sm text-ink-600 dark:text-ink-300">Review and accept a request to gain edit access to a traveler’s itinerary.</p>
+                            </div>
+                        </div>
+                        <a href="{{ route('expert.itinerary-invitations.index') }}" class="text-sm text-amber-700 underline">View all</a>
+                    </div>
+
+                    <div class="mt-4 divide-y divide-amber-100 dark:divide-amber-800">
+                        @foreach($pendingInvitations->take(3) as $inv)
+                            <div class="py-3 flex items-center justify-between">
+                                <div>
+                                    <p class="font-medium text-ink-900 dark:text-ink-100">{{ $inv->itinerary->name ?? 'Untitled itinerary' }}</p>
+                                    <p class="text-xs text-ink-600 dark:text-ink-300">Traveler: {{ $inv->traveler->user->name ?? 'Traveler' }} — Dates: {{ $inv->itinerary->start_date ?? 'TBD' }} → {{ $inv->itinerary->end_date ?? 'TBD' }}</p>
+                                </div>
+
+                                <div class="flex items-center gap-2">
+                                    <form method="POST" action="{{ route('expert.itinerary-invitations.accept', $inv) }}" class="ajax-invite-form" data-invitation-id="{{ $inv->id }}">
+                                        @csrf
+                                        <button type="submit" class="px-3 py-1.5 rounded-full bg-copper text-white text-sm font-medium">Accept</button>
+                                    </form>
+
+                                    <form method="POST" action="{{ route('expert.itinerary-invitations.decline', $inv) }}" class="ajax-invite-form" data-invitation-id="{{ $inv->id }}">
+                                        @csrf
+                                        <button type="submit" class="px-3 py-1.5 rounded-full border border-ink-200 text-ink-700 text-sm">Decline</button>
+                                    </form>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            @endif
+
             @if($travelerRequests->isNotEmpty())
                 <div class="bg-white dark:bg-sand-800 shadow-soft rounded-3xl border border-sand-200 dark:border-ink-700
                             p-8 transition-all duration-200 ease-out hover:shadow-glow hover:scale-[1.01]">
@@ -150,4 +194,63 @@
 
         </div>
     </div>
+        {{-- AJAX handlers for accept/decline invitations --}}
+        <script>
+            (function(){
+                const csrf = '{{ csrf_token() }}';
+
+                function updatePendingCount(delta) {
+                    const el = document.querySelector('.pending-invitations-count');
+                    if (!el) return;
+                    const current = parseInt(el.textContent || '0', 10);
+                    el.textContent = Math.max(0, current + delta);
+                }
+
+                document.querySelectorAll('.ajax-invite-form').forEach(form => {
+                    form.addEventListener('submit', async (e) => {
+                        e.preventDefault();
+                        const btn = form.querySelector('button[type="submit"]');
+                        if (btn) btn.disabled = true;
+                        const card = form.closest('.py-3');
+
+                        try {
+                            const res = await fetch(form.action, {
+                                method: 'POST',
+                                headers: {
+                                    'X-CSRF-TOKEN': csrf,
+                                    'X-Requested-With': 'XMLHttpRequest',
+                                    'Accept': 'application/json'
+                                },
+                                credentials: 'same-origin'
+                            });
+
+                            if (!res.ok) {
+                                const txt = await res.text();
+                                console.error('Invite request failed', res.status, txt);
+                                alert('Failed to process request. Please try again.');
+                                if (btn) btn.disabled = false;
+                                return;
+                            }
+
+                            const data = await res.json();
+                            // Remove the invitation card from the UI
+                            if (card) card.remove();
+                            // Decrement pending count if present
+                            updatePendingCount(-1);
+
+                            // Optionally redirect when accepted to itinerary show
+                            if (data.status === 'accepted' && data.itinerary) {
+                                // navigate to the itinerary show page to give immediate access
+                                // Commented out by default; uncomment to auto-redirect:
+                                // window.location.href = `/expert/itineraries/${data.itinerary.id}`;
+                            }
+                        } catch (err) {
+                            console.error(err);
+                            alert('An error occurred. Please try again.');
+                            if (btn) btn.disabled = false;
+                        }
+                    });
+                });
+            })();
+        </script>
 </x-app-layout>

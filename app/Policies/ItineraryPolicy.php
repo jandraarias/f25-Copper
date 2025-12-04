@@ -20,23 +20,40 @@ class ItineraryPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->role === 'traveler' && $user->traveler !== null;
+        return in_array($user->role, ['traveler', 'expert']) && 
+               ($user->traveler !== null || $user->expert !== null);
     }
 
     /**
      * Determine if the user can view a specific itinerary.
      *
-     * Owners and collaborators can view.
+     * Owners, collaborators, and accepted expert invitees can view.
      */
     public function view(User $user, Itinerary $itinerary): bool
     {
+        // Traveler owner can view
         $travelerId = $user->traveler?->id;
+        if ($user->role === 'traveler' && $travelerId === $itinerary->traveler_id) {
+            return true;
+        }
 
-        return $user->role === 'traveler'
-            && (
-                $travelerId === $itinerary->traveler_id ||
-                $itinerary->collaborators()->where('user_id', $user->id)->exists()
-            );
+        // Traveler collaborators can view
+        if ($user->role === 'traveler' && $itinerary->collaborators()->where('user_id', $user->id)->exists()) {
+            return true;
+        }
+
+        // Expert with accepted invitation can view
+        if ($user->role === 'expert') {
+            $expert = $user->expert;
+            if ($expert && $itinerary->expertInvitations()
+                ->where('expert_id', $expert->id)
+                ->where('status', 'accepted')
+                ->exists()) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -50,23 +67,39 @@ class ItineraryPolicy
     /**
      * Determine if the user can update a specific itinerary.
      *
-     * Owners and collaborators can update.
+     * Owners, collaborators, and accepted expert invitees can update.
      */
     public function update(User $user, Itinerary $itinerary): bool
     {
+        // Traveler owner can update
         $travelerId = $user->traveler?->id;
+        if ($user->role === 'traveler' && $travelerId === $itinerary->traveler_id) {
+            return true;
+        }
 
-        return $user->role === 'traveler'
-            && (
-                $travelerId === $itinerary->traveler_id ||
-                $itinerary->collaborators()->where('user_id', $user->id)->exists()
-            );
+        // Traveler collaborators can update
+        if ($user->role === 'traveler' && $itinerary->collaborators()->where('user_id', $user->id)->exists()) {
+            return true;
+        }
+
+        // Expert with accepted invitation can update
+        if ($user->role === 'expert') {
+            $expert = $user->expert;
+            if ($expert && $itinerary->expertInvitations()
+                ->where('expert_id', $expert->id)
+                ->where('status', 'accepted')
+                ->exists()) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
      * Determine if the user can delete the itinerary.
      *
-     * Only the owner (not collaborators) can delete.
+     * Only the owner (not collaborators or experts) can delete.
      */
     public function delete(User $user, Itinerary $itinerary): bool
     {
