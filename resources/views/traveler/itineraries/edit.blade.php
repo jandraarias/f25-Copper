@@ -88,6 +88,10 @@
                                 </select>
                             </div>
                         </div>
+                        {{-- Preserve existing countries so validation passes --}}
+                        @foreach ($itinerary->countries as $country)
+                            <input type="hidden" name="countries[]" value="{{ $country->id }}">
+                        @endforeach
 
                         <div class="mt-8 flex justify-end gap-4 flex-wrap">
                             <a href="{{ route('traveler.itineraries.show', $itinerary) }}"

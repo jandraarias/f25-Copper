@@ -143,19 +143,32 @@ class ItineraryController extends Controller
     public function update(Request $request, Itinerary $itinerary)
     {
         $this->authorize('update', $itinerary);
-
+    
         $validated = $this->validateItinerary($request);
-
-        $itinerary->update($validated);
+    
+        // Update only real DB columns (same pattern as store())
+        $itinerary->update([
+            'name'                  => $validated['name'],
+            'destination'           => $validated['destination'] ?? null,
+            'location'              => $validated['location'] ?? null,
+            'preference_profile_id' => $validated['preference_profile_id'] ?? null,
+            'start_date'            => $validated['start_date'] ?? null,
+            'end_date'              => $validated['end_date'] ?? null,
+            'description'           => $validated['description'] ?? null,
+            'is_collaborative'      => $request->boolean('is_collaborative'),
+        ]);
+    
+        // Update related countries
         $itinerary->countries()->sync($validated['countries']);
-
+    
+        // Handle collaborators / invitations based on collaboration flag
         if (!$itinerary->is_collaborative) {
             $itinerary->collaborators()->detach();
             $itinerary->invitations()->delete();
         } else {
             $this->processInvitations($itinerary, $validated['invite_emails'] ?? []);
         }
-
+    
         return redirect()
             ->route('traveler.itineraries.show', $itinerary)
             ->with('success', 'Itinerary updated successfully!');
