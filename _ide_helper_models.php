@@ -17,6 +17,7 @@ namespace App\Models{
  * @property int $user_id
  * @property string $name
  * @property string $city
+ * @property string|null $website
  * @property string|null $profile_photo_path
  * @property string|null $description
  * @property \Illuminate\Support\Carbon|null $created_at
@@ -34,6 +35,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Business whereProfilePhotoPath($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Business whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Business whereUserId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Business whereWebsite($value)
  */
 	class Business extends \Eloquent {}
 }
@@ -453,30 +455,34 @@ namespace App\Models{
 /**
  * @property int $id
  * @property int|null $review_id
- * @property int|null $place_id
+ * @property int $place_id
  * @property string|null $place_name
  * @property string|null $reviewer_name
+ * @property string $source
+ * @property string|null $author
  * @property float|null $rating
  * @property string|null $review_text
- * @property string|null $reviewed_at
+ * @property \Illuminate\Support\Carbon|null $reviewed_at
  * @property string|null $review_keywords
- * @property string|null $source
+ * @property string|null $text
+ * @property string|null $published_at
+ * @property \Illuminate\Support\Carbon|null $published_at_date
  * @property string|null $owner_response
  * @property \Illuminate\Support\Carbon|null $owner_response_publish_date
  * @property array<array-key, mixed>|null $review_photos
  * @property \Illuminate\Support\Carbon|null $fetched_at
  * @property array<array-key, mixed>|null $meta
- * @property \Illuminate\Support\Carbon|null $published_at_date
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read mixed $avatar
  * @property-read mixed $excerpt
  * @property-read mixed $experience_list
  * @property-read mixed $photo_urls
- * @property-read \App\Models\Place|null $place
+ * @property-read \App\Models\Place $place
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Review newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Review newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Review query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Review whereAuthor($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Review whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Review whereFetchedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Review whereId($value)
@@ -485,6 +491,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Review whereOwnerResponsePublishDate($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Review wherePlaceId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Review wherePlaceName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Review wherePublishedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Review wherePublishedAtDate($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Review whereRating($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Review whereReviewId($value)
@@ -494,6 +501,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Review whereReviewedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Review whereReviewerName($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Review whereSource($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Review whereText($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Review whereUpdatedAt($value)
  */
 	class Review extends \Eloquent {}

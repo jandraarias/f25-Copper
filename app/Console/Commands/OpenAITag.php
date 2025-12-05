@@ -89,7 +89,7 @@ class OpenAITag extends Command
         }
 
         // Build strings
-        $reviewArray = $reviews->pluck('text')->toArray();
+        $reviewArray = $reviews->pluck('review_text')->toArray();
         $reviewsString = implode(', ', $reviewArray);
 
         $tags = PreferenceOption::where('type', 'sub')->get();
