@@ -311,8 +311,8 @@ class ImportPlacesReviews extends Command
             // If still no place_id match, skip this review
             if (!$placeId) { $pid ? $noExt++ : $noName++; $skipped++; continue; }
 
-            $author = $this->s($r['author'] ?? $r['author_name'] ?? $r['username'] ?? $r['name'] ?? 'Anonymous');
-            $text   = $this->s($r['review_text'] ?? $r['text'] ?? $r['comment'] ?? $r['content'] ?? '');
+            $reviewer_name = $this->s($r['reviewer_name'] ?? $r['reviewer_name_name'] ?? $r['username'] ?? $r['name'] ?? 'Anonymous');
+            $review_text   = $this->s($r['review_review_text'] ?? $r['review_text'] ?? $r['comment'] ?? $r['content'] ?? '');
             $rating = $this->i($r['rating'] ?? $r['stars'] ?? $r['score'] ?? null);
 
             // Convert to DATE ONLY (Y-m-d) to match published_at_date (DATE) column
@@ -320,10 +320,10 @@ class ImportPlacesReviews extends Command
 
             if ($dry) { $inserted++; continue; }
 
-            // Checks if a review already exists for the same place_id and same (author, text, published_at_date). If found, skip
+            // Checks if a review already exists for the same place_id and same (reviewer_name, review_text, published_at_date). If found, skip
             $q = Review::where('place_id', $placeId);
-            ($author !== '') ? $q->where('author', $author) : $q->whereNull('author');
-            ($text   !== '') ? $q->where('text', $text)     : $q->whereNull('text');
+            ($reviewer_name !== '') ? $q->where('reviewer_name', $reviewer_name) : $q->whereNull('reviewer_name');
+            ($review_text   !== '') ? $q->where('review_text', $review_text)     : $q->whereNull('review_text');
             ($published)     ? $q->where('published_at_date', $published)
                                 : $q->whereNull('published_at_date');
 
@@ -335,11 +335,11 @@ class ImportPlacesReviews extends Command
                 'place_name'        => $this->s($r['place_name'] ?? null), // if you have this column
                 'source'            => 'google_maps_scraper',
                 'rating'            => $rating,        // null ok if column is nullable
-                'text'              => $text,
-                'author'            => $author,        // requires `author` column
+                'review_text'              => $review_text,
+                'reviewer_name'            => $reviewer_name,        // requires `reviewer_name` column
                 'published_at_date' => $published,     // DATE (Y-m-d)
                 'fetched_at'        => now(),
-                'owner_response'                 => $this->s($r['response_from_owner_text'] ?? null),
+                'owner_response'                 => $this->s($r['response_from_owner_review_text'] ?? null),
                 'owner_response_published_date'  => $this->toDateOnly($r['response_from_owner_date'] ?? null),
                 'review_photos'                  => $this->s($r['review_photos'] ?? null),
                 'meta'              => $r,             // stored as JSON by Eloquent
