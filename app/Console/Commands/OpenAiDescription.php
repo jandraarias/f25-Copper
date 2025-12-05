@@ -84,7 +84,7 @@ class OpenAiDescription extends Command
 
         //Grab the review text from the review table entries into a list
         foreach($reviews as $review) {
-            $reviewArray[] = $review->text;
+            $reviewArray[] = $review->review_text;
         }
 
         //Change the arrays into Strings seperating each entry with a comma

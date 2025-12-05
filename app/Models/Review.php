@@ -10,22 +10,26 @@ class Review extends Model
 {
     use HasFactory;
 
+    /*
+    |--------------------------------------------------------------------------
+    | Fillable (MATCHES MIGRATION)
+    |--------------------------------------------------------------------------
+    */
     protected $fillable = [
         'place_id',
         'place_name',
 
-        // Reviewer
-        'author',
+        // Reviewer info
+        'reviewer_name',
         'reviewer_id',
         'reviewer_profile',
 
-        // Core review
-        'rating',
-        'text',
+        // Core review text
+        'review_text',
         'text_translated',
 
-        // Timestamps
-        'published_at',
+        // Dates
+        'reviewed_at',
         'published_at_date',
 
         // Owner response
@@ -33,103 +37,130 @@ class Review extends Model
         'owner_response_translated',
         'owner_response_publish_date',
 
-        // Structured extra data
-        'experience_details',  // JSON array
-        'review_photos',       // JSON array of objects
-        'meta',                // JSON catch-all
+        // Structured data
+        'experience_details',    // JSON array
+        'review_photos',         // JSON array
+        'meta',                  // JSON blob
 
-        // Source and import timestamp
+        // Source + metadata
         'source',
         'fetched_at',
     ];
 
+    /*
+    |--------------------------------------------------------------------------
+    | Casts
+    |--------------------------------------------------------------------------
+    */
     protected $casts = [
-        'rating'                    => 'float',
+        'rating'                        => 'float',
 
-        'published_at'              => 'datetime',
-        'published_at_date'         => 'datetime',
+        'reviewed_at'                   => 'date',
+        'published_at_date'             => 'datetime',
+        'owner_response_publish_date'   => 'datetime',
 
-        'owner_response_publish_date' => 'datetime',
+        'experience_details'            => 'array',
+        'review_photos'                 => 'array',
+        'meta'                           => 'array',
 
-        'experience_details'        => 'array',
-        'review_photos'             => 'array',
-
-        'meta'                      => 'array',
-        'fetched_at'                => 'datetime',
+        'fetched_at'                    => 'datetime',
     ];
+
+    /*
+    |--------------------------------------------------------------------------
+    | Backwards-Compatible Shims
+    | Allows legacy code using ->author and ->text to keep working.
+    |--------------------------------------------------------------------------
+    */
+
+    // old ->author
+    public function getAuthorAttribute()
+    {
+        return $this->reviewer_name;
+    }
+    public function setAuthorAttribute($value)
+    {
+        $this->reviewer_name = $value;
+    }
+
+    // old ->text
+    public function getTextAttribute()
+    {
+        return $this->review_text;
+    }
+    public function setTextAttribute($value)
+    {
+        $this->review_text = $value;
+    }
 
     /*
     |--------------------------------------------------------------------------
     | Relationships
     |--------------------------------------------------------------------------
     */
-
     public function place()
     {
         return $this->belongsTo(Place::class);
     }
 
-
     /*
     |--------------------------------------------------------------------------
-    | Accessors (Virtual Attributes for UI)
+    | Derived / Virtual Attributes
     |--------------------------------------------------------------------------
     */
 
     /**
-     * Primary avatar or initials extracted from meta->reviewer_profile.
+     * Primary avatar or profile photo URL, falling back to meta.
      */
     public function getAvatarAttribute()
     {
-        $url = $this->reviewer_profile
+        return $this->reviewer_profile
             ?? ($this->meta['reviewer_profile'] ?? null);
-
-        return $url ?: null;
     }
 
     /**
-     * Preferred display name of reviewer.
+     * Preferred display name.
      */
     public function getReviewerNameAttribute()
     {
-        return $this->author
+        return $this->reviewer_name
             ?? ($this->meta['name'] ?? 'Anonymous');
     }
 
     /**
-     * Shortens long review text for excerpt displays.
+     * Short excerpt version of the review for UI cards.
      */
     public function getExcerptAttribute()
     {
-        if (!$this->text) {
+        if (!$this->review_text) {
             return null;
         }
 
-        return Str::limit(strip_tags($this->text), 180);
+        return Str::limit(strip_tags($this->review_text), 180);
     }
 
     /**
-     * Return decoded experience detail pairs cleanly.
-     * Example: [["name" => "Food", "value" => 5], ...]
+     * Cleanly returns structured experience detail pairs.
      */
     public function getExperienceListAttribute()
     {
         $list = $this->experience_details ?? [];
 
-        // Clean numeric strings
         return collect($list)->map(function ($item) {
+
             if (is_array($item) && isset($item['value'])) {
                 if (is_numeric($item['value'])) {
                     $item['value'] = +$item['value'];
                 }
             }
+
             return $item;
+
         })->values()->toArray();
     }
 
-
     /**
-     * Returns photos as a simple array of URLs.
+     * Returns array of photo URLs extracted from review_photos objects.
      */
     public function getPhotoUrlsAttribute()
     {

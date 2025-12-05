@@ -1,7 +1,7 @@
 @php
     use Illuminate\Support\Str;
 
-    $textIsLong = Str::length(strip_tags($review->text)) > 220;
+    $textIsLong = Str::length(strip_tags($review->review_text)) > 220;
 
     $ownerResponse =
         $review->owner_response
@@ -43,7 +43,7 @@
 
         <div class="flex flex-col">
             <h4 class="text-lg font-semibold text-ink-900 dark:text-sand-100">
-                {{ $review->author ?? 'Anonymous' }}
+                {{ $review->reviewer_name ?? 'Anonymous' }}
             </h4>
 
             @if ($review->published_at_date)
@@ -64,13 +64,13 @@
     </div>
 
     {{-- REVIEW TEXT --}}
-    @if ($review->text)
+    @if ($review->review_text)
         <p class="text-ink-800 dark:text-sand-100 leading-relaxed text-sm mb-3"
            :class="{
                 'line-clamp-none': expanded,
                 'line-clamp-3': !expanded && textIsLong
            }">
-            @linkify($review->text)
+            @linkify($review->review_text)
         </p>
 
         @if ($textIsLong)
