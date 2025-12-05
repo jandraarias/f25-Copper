@@ -11,42 +11,29 @@ return new class extends Migration
      */
     public function up(): void
     {
+        // Creates the reviews table and uses $table (a Blueprint) to define its columns
         Schema::create('reviews', function (Blueprint $table) {
             $table->id();
-
-            // External review ID (e.g., Google Review ID)
-            $table->unsignedBigInteger('review_id')->nullable();
-
-            // === Relationships ===
             $table->foreignId('place_id')
-                  ->nullable()
                   ->constrained('places')
-                  ->nullOnDelete();
-
-            // === Core Identifying Fields ===
-            $table->string('place_name')->nullable();     // Name of place at time of scrape/save
-            $table->string('reviewer_name')->nullable();  // Human-readable reviewer identifier
-
-            // === Review Content ===
-            $table->decimal('rating', 3, 1)->nullable();  // e.g. 4.5
-            $table->text('review_text')->nullable();
-            $table->date('reviewed_at')->nullable();      // Date the review was written
-            $table->text('review_keywords')->nullable();  // Optional extracted keywords/tags
-
-            // === Additional Meta Fields (merged from the old create migration) ===
-            $table->string('source')->default('gmaps_scrape_local')->nullable();
+                  ->cascadeOnDelete();
+            $table->string('place_name')->nullable();
+            $table->string('source')->default('gmaps_scrape_local');
+            $table->string('author')->nullable();
+            $table->unsignedTinyInteger('rating')->nullable();
+            $table->text('text')->nullable();
+            $table->timestamp('published_at')->nullable();
+            $table->datetime('published_at_date')->nullable(); // consolidated + altered to date
             $table->text('owner_response')->nullable();
             $table->datetime('owner_response_publish_date')->nullable();
-            $table->text('review_photos')->nullable();    // JSON/CSV blob depending on scraper logic
+            $table->text('review_photos')->nullable();
             $table->timestamp('fetched_at')->nullable();
             $table->json('meta')->nullable();
-            $table->datetime('published_at_date')->nullable(); // old column preserved
-
             $table->timestamps();
-
-            // === Indexes ===
-            $table->index(['place_id', 'reviewed_at']);
-            $table->index(['place_id', 'reviewer_name']);
+            
+            // Speeds up common queries
+            $table->index(['place_id', 'published_at']);
+            $table->index(['place_id', 'author']);
         });
     }
 
