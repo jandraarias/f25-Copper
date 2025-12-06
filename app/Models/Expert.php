@@ -19,6 +19,8 @@ class Expert extends Model
         'expertise',
         'languages',
         'experience_years',
+        'hourly_rate',
+        'availability',
     ];
 
     public function user()
@@ -29,6 +31,11 @@ class Expert extends Model
     public function reviews()
     {
         return $this->hasMany(ExpertReview::class);
+    }
+
+    public function itineraryInvitations()
+    {
+        return $this->hasMany(ExpertItineraryInvitation::class);
     }
 
     /**

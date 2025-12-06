@@ -22,6 +22,9 @@ return new class extends Migration
             $table->string('expertise')->nullable();
             $table->string('languages')->nullable();
             $table->integer('experience_years')->nullable();
+            $table->decimal('hourly_rate', 8, 2)->nullable();
+            $table->string('availability')->nullable();
+            
 
             $table->timestamps();
         });

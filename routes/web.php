@@ -33,6 +33,7 @@ use App\Http\Controllers\Expert\ItineraryController as ExpertItineraryController
 use App\Http\Controllers\Expert\TravelerController as ExpertTravelerController;
 use App\Http\Controllers\Expert\ProfileController as ExpertProfileController;
 use App\Http\Controllers\Expert\MessageController as ExpertMessageController;
+use App\Http\Controllers\Expert\ItineraryInvitationController as ExpertItineraryInvitationController;
 
 // Business Controllers
 use App\Http\Controllers\BusinessController;
@@ -124,6 +125,12 @@ Route::middleware(['auth', 'role:expert'])
     ->group(function () {
 
         Route::get('/dashboard', [ExpertDashboardController::class, 'index'])->name('dashboard');
+
+        // Itinerary Invitations
+        Route::get('/itinerary-invitations', [ExpertItineraryInvitationController::class, 'index'])->name('itinerary-invitations.index');
+        Route::get('/itinerary-invitations/{invitation}', [ExpertItineraryInvitationController::class, 'show'])->name('itinerary-invitations.show');
+        Route::post('/itinerary-invitations/{invitation}/accept', [ExpertItineraryInvitationController::class, 'accept'])->name('itinerary-invitations.accept');
+        Route::post('/itinerary-invitations/{invitation}/decline', [ExpertItineraryInvitationController::class, 'decline'])->name('itinerary-invitations.decline');
 
         // Itineraries
         Route::get('/itineraries', [ExpertItineraryController::class, 'index'])->name('itineraries.index');

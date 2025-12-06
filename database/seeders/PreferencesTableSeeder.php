@@ -57,7 +57,7 @@ class PreferencesTableSeeder extends Seeder
                 'Aquariums',
                 'Interactive Museums',
             ],
-            'Entertainmnet & Performing Arts' => [
+            'Entertainment & Performing Arts' => [
                 'Live Music & Concerts',
                 'Comedy',
                 'Theater & Shows',

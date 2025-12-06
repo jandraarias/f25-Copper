@@ -102,6 +102,14 @@ class Itinerary extends Model
     }
 
     /**
+     * Expert invitations for this itinerary.
+     */
+    public function expertInvitations(): HasMany
+    {
+        return $this->hasMany(ExpertItineraryInvitation::class);
+    }
+
+    /**
      * Helper method for readability.
      */
     public function isCollaborative(): bool
