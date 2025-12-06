@@ -20,6 +20,8 @@ class ProfileController extends Controller
             'experience_years' => 'nullable|integer|min:0|max:60',
             'city'             => ['required', 'string'],
             'photo'            => 'nullable|image|max:2048',
+            'hourly_rate'      => 'nullable|numeric|min:0|max:1000',
+            'availability'     => 'nullable|string|max:255',
         ]);
 
         // Handle photo upload

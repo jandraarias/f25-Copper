@@ -19,6 +19,8 @@ class Expert extends Model
         'expertise',
         'languages',
         'experience_years',
+        'hourly_rate',
+        'availability',
     ];
 
     public function user()

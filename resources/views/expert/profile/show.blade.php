@@ -137,6 +137,52 @@
                                 </p>
                             </div>
 
+                            {{-- Hourly Rate & Availability --}}
+                            <div class="space-y-4 mt-8 px-4 py-3 rounded-2xl bg-sand-50 
+                                        dark:bg-sand-900/40 border border-sand-200 dark:border-ink-700">
+
+                                {{-- Hourly Rate --}}
+                                <p class="text-lg flex items-center gap-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" 
+                                        class="w-5 h-5 text-copper" fill="none"
+                                        viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                            d="M12 8c-1.657 0-3 1.343-3 3s1.343 3 3 3m0 0c1.657 0 3-1.343 3-3s-1.343-3-3-3m0 3v6m0-12v3" />
+                                    </svg>
+
+                                    <strong>Hourly Rate:</strong>
+
+                                    @if($expert->hourly_rate)
+                                        <span class="text-ink-800 dark:text-sand-100">
+                                            ${{ number_format($expert->hourly_rate, 2) }}
+                                        </span>
+                                    @else
+                                        <span class="text-ink-500 dark:text-sand-400 italic">Not set</span>
+                                    @endif
+                                </p>
+
+                                {{-- Availability --}}
+                                <p class="text-lg flex items-start gap-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" 
+                                        class="w-5 h-5 text-copper mt-1" fill="none"
+                                        viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                            d="M8 7V3m8 4V3M5 21h14M5 7h14M5 11h14M5 15h14" />
+                                    </svg>
+
+                                    <strong>Availability:</strong>
+
+                                    @if($expert->availability)
+                                        <span class="text-ink-800 dark:text-sand-100 leading-relaxed">
+                                            {{ $expert->availability }}
+                                        </span>
+                                    @else
+                                        <span class="text-ink-500 dark:text-sand-400 italic">Not provided</span>
+                                    @endif
+                                </p>
+
+                            </div>
+
                         </div>
 
                     </div>

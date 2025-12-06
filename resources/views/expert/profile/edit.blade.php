@@ -119,6 +119,31 @@
                                value="{{ old('experience_years', $expert->experience_years) }}">
                     </div>
 
+                     {{-- HOURLY RATE --}}
+                    <div>
+                        <label class="block text-sm font-medium text-ink-700 dark:text-ink-200 mb-1">
+                            Hourly Rate (USD)
+                        </label>
+                        <input type="number" 
+                            name="hourly_rate" 
+                            step="0.01" min="0"
+                            class="w-full rounded-xl border-sand-300 dark:border-ink-700 
+                                    dark:bg-sand-900 text-ink-900 dark:text-ink-100"
+                            value="{{ old('hourly_rate', $expert->hourly_rate) }}">
+                    </div>
+
+                    {{-- AVAILABILITY --}}
+                    <div>
+                        <label class="block text-sm font-medium text-ink-700 dark:text-ink-200 mb-1">
+                            Availability (ex: Weekdays 9-5, Weekends Only, Flexible)
+                        </label>
+                        <input type="text" 
+                            name="availability"
+                            class="w-full rounded-xl border-sand-300 dark:border-ink-700 
+                                    dark:bg-sand-900 text-ink-900 dark:text-ink-100"
+                            value="{{ old('availability', $expert->availability) }}">
+                    </div>
+
                     {{-- CITY SELECT --}}
                     <div>
                         <label class="block text-sm font-medium text-ink-700 dark:text-ink-200 mb-1">
