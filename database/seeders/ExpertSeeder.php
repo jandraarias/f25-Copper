@@ -51,7 +51,7 @@ class ExpertSeeder extends Seeder
                 'city' => 'Williamsburg',
                 'photo_url' => 'https://i.pravatar.cc/300?img=28',
                 'bio' => '
-                             Canguide guests through Williamsburg’s fashion scene, museums, and cultural history. 
+                             Can guide guests through Williamsburg’s fashion scene, museums, and cultural history. 
                             I’m fluent in English, French, and Italian, which allows me to connect with travelers from around the world. 
                             Whether we’re exploring historic exhibits or discovering the city’s fashion-forward side, I make sure every tour blends elegance, storytelling, and unforgettable experiences.
 ',
