@@ -33,6 +33,11 @@ class Expert extends Model
         return $this->hasMany(ExpertReview::class);
     }
 
+    public function itineraryInvitations()
+    {
+        return $this->hasMany(ExpertItineraryInvitation::class);
+    }
+
     /**
      * Profile Photo Accessor (Unified)
      *

@@ -194,6 +194,85 @@
                                     </p>
                                 </div>
                             </div>
+
+                            {{-- Local Expert Invitation --}}
+                            <div class="md:col-span-2"
+                                 x-data="expertForm({
+                                    enabled: {{ old('invite_experts') ? 'true' : 'false' }},
+                                    initialExperts: @json(old('expert_ids', []))
+                                 })">
+                                <div class="space-y-4">
+                                    <div class="flex items-center justify-between gap-4">
+                                        <div>
+                                            <label class="block text-sm font-semibold text-ink-700 dark:text-sand-100 mb-1">
+                                                Add Local Expert
+                                            </label>
+                                            <p class="text-xs text-ink-500 dark:text-ink-300">
+                                                Would you like to add a local expert to your itinerary?
+                                            </p>
+                                        </div>
+
+                                        <div class="flex items-center gap-3">
+                                            <input type="hidden" name="invite_experts" :value="enabled ? 1 : 0">
+                                            <button type="button"
+                                                    @click="enabled = !enabled"
+                                                    :class="enabled ? 'bg-gradient-copper text-white shadow-glow' : 'border border-copper text-copper'"
+                                                    class="px-4 py-1.5 rounded-full text-sm font-medium transition-all duration-200 ease-out">
+                                                <span x-text="enabled ? 'Yes' : 'No'"></span>
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    {{-- Expert Selection UI --}}
+                                    <div x-show="enabled" x-transition.opacity.duration.200ms class="bg-sand-50 dark:bg-sand-900/40 border border-sand-200 dark:border-ink-700 rounded-2xl p-6 space-y-4">
+                                        {{-- Selected Experts Display --}}
+                                        <div v-if="selectedExperts.length > 0" class="space-y-2">
+                                            <p class="text-sm font-semibold text-ink-700 dark:text-sand-100">Selected Experts:</p>
+                                            <div class="flex flex-wrap gap-2">
+                                                <template x-for="expertId in selectedExperts" :key="expertId">
+                                                    <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-copper text-white text-sm shadow-soft">
+                                                        <span x-text="getExpertName(expertId)"></span>
+                                                        <button type="button" @click="toggleExpert(expertId)" class="text-white/90 hover:text-white">&times;</button>
+                                                        <input type="hidden" name="expert_ids[]" :value="expertId">
+                                                    </span>
+                                                </template>
+                                            </div>
+                                        </div>
+
+                                        {{-- Available Experts List --}}
+                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            @forelse($experts as $expert)
+                                                <div class="border border-sand-200 dark:border-ink-700 rounded-xl p-4 hover:shadow-glow transition-all duration-200 cursor-pointer"
+                                                     @click="toggleExpert({{ $expert->id }})"
+                                                     x-data="{ selected: selectedExperts.includes({{ $expert->id }}) }"
+                                                     @change="selected = selectedExperts.includes({{ $expert->id }})"
+                                                     :class="selected ? 'bg-copper/10 border-copper' : 'bg-white dark:bg-sand-800'">
+                                                    <div class="flex items-start justify-between gap-3">
+                                                        <div class="flex-1">
+                                                            <h4 class="font-semibold text-ink-900 dark:text-ink-100">{{ $expert->name }}</h4>
+                                                            <p class="text-xs text-ink-600 dark:text-sand-300 mt-1">📍 {{ $expert->city }}</p>
+                                                            <p class="text-xs text-ink-600 dark:text-sand-300">🎓 {{ $expert->expertise }}</p>
+                                                            <p class="text-xs text-ink-600 dark:text-sand-300">💬 {{ $expert->languages }}</p>
+                                                            <p class="text-xs text-ink-600 dark:text-sand-300">⏰ {{ $expert->experience_years ?? 0 }} years exp</p>
+                                                            @if($expert->hourly_rate)
+                                                                <p class="text-xs font-semibold text-copper mt-2">${{ number_format($expert->hourly_rate, 2) }}/hr</p>
+                                                            @endif
+                                                            @if($expert->availability)
+                                                                <p class="text-xs text-ink-500 dark:text-sand-400 mt-1">Available: {{ $expert->availability }}</p>
+                                                            @endif
+                                                        </div>
+                                                        <input type="checkbox" 
+                                                               :checked="selectedExperts.includes({{ $expert->id }})"
+                                                               class="w-5 h-5 rounded-lg border-copper text-copper focus:ring-copper cursor-pointer" />
+                                                    </div>
+                                                </div>
+                                            @empty
+                                                <p class="text-sm text-ink-500 dark:text-sand-400 md:col-span-2">No local experts available in this area.</p>
+                                            @endforelse
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
                         {{-- Buttons --}}
@@ -242,6 +321,27 @@
                 },
                 removeInvite(email) {
                     this.invites = this.invites.filter(i => i !== email);
+                }
+            }
+        }
+
+        function expertForm({ enabled = false, initialExperts = [] }) {
+            return {
+                enabled,
+                selectedExperts: initialExperts,
+                experts: @json($experts),
+
+                toggleExpert(expertId) {
+                    if (this.selectedExperts.includes(expertId)) {
+                        this.selectedExperts = this.selectedExperts.filter(id => id !== expertId);
+                    } else {
+                        this.selectedExperts.push(expertId);
+                    }
+                },
+                
+                getExpertName(expertId) {
+                    const expert = this.experts.find(e => e.id === expertId);
+                    return expert ? expert.name : 'Unknown';
                 }
             }
         }

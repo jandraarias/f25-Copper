@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Traveler;
 
 use App\Http\Controllers\Controller;
 use App\Models\Itinerary;
+use App\Models\Expert;
+use App\Models\ExpertItineraryInvitation;
 use App\Models\User;
 use App\Models\ItineraryInvitation;
 use App\Services\ItineraryGenerationService;
@@ -65,7 +67,11 @@ class ItineraryController extends Controller
     */
     public function create()
     {
-        return view('traveler.itineraries.create');
+        $experts = Expert::with('user', 'reviews')
+            ->select('id', 'name', 'city', 'expertise', 'languages', 'experience_years', 'hourly_rate', 'availability', 'user_id')
+            ->get();
+        
+        return view('traveler.itineraries.create', compact('experts'));
     }
 
     public function store(Request $request)
@@ -89,6 +95,11 @@ class ItineraryController extends Controller
 
         if ($itinerary->is_collaborative) {
             $this->processInvitations($itinerary, $validated['invite_emails'] ?? []);
+        }
+
+        // Handle expert invitations
+        if ($request->boolean('invite_experts') && !empty($validated['expert_ids'])) {
+            $this->inviteExperts($itinerary, $validated['expert_ids']);
         }
 
         $result = $this->generationService->generateForItinerary($itinerary);
@@ -294,6 +305,9 @@ class ItineraryController extends Controller
             'is_collaborative' => ['nullable', 'boolean'],
             'invite_emails'    => ['nullable', 'array'],
             'invite_emails.*'  => ['email', 'distinct'],
+            'invite_experts'   => ['nullable', 'boolean'],
+            'expert_ids'       => ['nullable', 'array'],
+            'expert_ids.*'     => ['integer', 'exists:experts,id'],
         ]);
     }
 
@@ -318,6 +332,30 @@ class ItineraryController extends Controller
                 );
                 Mail::to($email)->send(new ItineraryInvitationMail($invitation));
             }
+        }
+    }
+
+    protected function inviteExperts(Itinerary $itinerary, array $expertIds)
+    {
+        $traveler = Auth::user()->traveler;
+
+        foreach ($expertIds as $expertId) {
+            $expert = Expert::find($expertId);
+            
+            if (!$expert) {
+                continue;
+            }
+
+            // Create invitation if not already exists
+            $invitation = ExpertItineraryInvitation::updateOrCreate(
+                ['itinerary_id' => $itinerary->id, 'expert_id' => $expertId],
+                [
+                    'traveler_id' => $traveler->id,
+                    'status' => 'pending'
+                ]
+            );
+
+            // Invitation created; expert will see this in their dashboard in-app
         }
     }
 }
