@@ -38,17 +38,19 @@ class ItineraryPolicy
         }
 
         // Traveler collaborators can view
-        if ($user->role === 'traveler' && $itinerary->collaborators()->where('user_id', $user->id)->exists()) {
+        if ($user->role === 'traveler' &&
+            $itinerary->collaborators()->where('user_id', $user->id)->exists()) {
             return true;
         }
 
         // Expert with accepted invitation can view
         if ($user->role === 'expert') {
             $expert = $user->expert;
-            if ($expert && $itinerary->expertInvitations()
-                ->where('expert_id', $expert->id)
-                ->where('status', 'accepted')
-                ->exists()) {
+            if ($expert &&
+                $itinerary->expertInvitations()
+                    ->where('expert_id', $expert->id)
+                    ->where('status', 'accepted')
+                    ->exists()) {
                 return true;
             }
         }
@@ -78,17 +80,19 @@ class ItineraryPolicy
         }
 
         // Traveler collaborators can update
-        if ($user->role === 'traveler' && $itinerary->collaborators()->where('user_id', $user->id)->exists()) {
+        if ($user->role === 'traveler' &&
+            $itinerary->collaborators()->where('user_id', $user->id)->exists()) {
             return true;
         }
 
         // Expert with accepted invitation can update
         if ($user->role === 'expert') {
             $expert = $user->expert;
-            if ($expert && $itinerary->expertInvitations()
-                ->where('expert_id', $expert->id)
-                ->where('status', 'accepted')
-                ->exists()) {
+            if ($expert &&
+                $itinerary->expertInvitations()
+                    ->where('expert_id', $expert->id)
+                    ->where('status', 'accepted')
+                    ->exists()) {
                 return true;
             }
         }
@@ -108,5 +112,22 @@ class ItineraryPolicy
         return $user->role === 'traveler'
             && $travelerId !== null
             && $travelerId === $itinerary->traveler_id;
+    }
+
+    /**
+     * Determine if the user can invite an expert to the itinerary.
+     *
+     * Only the itinerary owner can invite expert collaborators.
+     */
+    public function inviteExpert(User $user, Itinerary $itinerary): bool
+    {
+        // Only travelers can invite experts
+        if ($user->role !== 'traveler') {
+            return false;
+        }
+
+        // Only the traveler who owns the itinerary may invite experts
+        return $user->traveler &&
+               $user->traveler->id === $itinerary->traveler_id;
     }
 }

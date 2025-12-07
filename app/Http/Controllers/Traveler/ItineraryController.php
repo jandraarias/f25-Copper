@@ -231,7 +231,7 @@ class ItineraryController extends Controller
 
     /*
     |--------------------------------------------------------------------------
-    | ENABLE COLLABORATION (NEW)
+    | ENABLE / DISABLE COLLABORATION
     |--------------------------------------------------------------------------
     */
     public function enableCollaboration(Itinerary $itinerary)
@@ -265,7 +265,7 @@ class ItineraryController extends Controller
 
     /*
     |--------------------------------------------------------------------------
-    | INVITE
+    | INVITE TRAVELER (EMAIL BASED)
     |--------------------------------------------------------------------------
     */
     public function invite(Request $request, Itinerary $itinerary)
@@ -283,6 +283,46 @@ class ItineraryController extends Controller
         Mail::to($email)->send(new ItineraryInvitationMail($invitation));
 
         return back()->with('success', 'Invitation sent successfully!');
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | INVITE EXPERT (LOCAL EXPERT)
+    |--------------------------------------------------------------------------
+    */
+    public function inviteExpert(Request $request, Itinerary $itinerary)
+    {
+        $this->authorize('update', $itinerary);
+
+        $validated = $request->validate([
+            'expert_id' => ['required', 'integer', 'exists:experts,id'],
+            'message'   => ['nullable', 'string', 'max:500'],
+        ]);
+
+        $traveler = Auth::user()->traveler;
+        $expert = Expert::with('user')->findOrFail($validated['expert_id']);
+
+        // Create or update expert invitation
+        $invitation = ExpertItineraryInvitation::updateOrCreate(
+            [
+                'itinerary_id' => $itinerary->id,
+                'expert_id'    => $expert->id
+            ],
+            [
+                'traveler_id' => $traveler->id,
+                'status'      => 'pending',
+                'message'     => $validated['message'] ?? null,
+                'token'       => Str::uuid()->toString(),
+            ]
+        );
+
+        // If the expert has a linked user account → send email
+        if ($expert->user && $expert->user->email) {
+            Mail::to($expert->user->email)
+                ->send(new ItineraryInvitationMail($invitation));
+        }
+
+        return back()->with('success', 'Expert has been invited successfully!');
     }
 
     /*
@@ -355,7 +395,7 @@ class ItineraryController extends Controller
                 ]
             );
 
-            // Invitation created; expert will see this in their dashboard in-app
+            // The expert sees these in their dashboard
         }
     }
 }

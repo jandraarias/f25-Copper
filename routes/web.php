@@ -192,6 +192,13 @@ Route::middleware(['auth', 'role:traveler'])
         Route::post('itineraries/{itinerary}/invite', [TravelerItineraryController::class, 'invite'])
             ->name('itineraries.invite');
 
+        /*
+         * NEW: Invite Local Expert
+         */
+        Route::post('itineraries/{itinerary}/invite-expert', 
+            [TravelerItineraryController::class, 'inviteExpert']
+        )->name('itineraries.invite-expert');
+
         Route::post('itineraries/{itinerary}/enable-collaboration', [TravelerItineraryController::class, 'enableCollaboration'])
             ->name('itineraries.enable-collaboration');
 
@@ -290,4 +297,3 @@ Route::get('/itineraries/{itinerary}/pdf', ItineraryPdfController::class)
 */
 
 require __DIR__ . '/auth.php';
-
