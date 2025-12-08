@@ -127,6 +127,23 @@
                             <p><span class="font-semibold">Countries:</span> {{ $itinerary->countries->pluck('name')->join(', ') ?: '—' }}</p>
                             <p><span class="font-semibold">City:</span> {{ $itinerary->location ?? '—' }}</p>
                             <p><span class="font-semibold">Preference Profile:</span> {{ $itinerary->preferenceProfile->name ?? '—' }}</p>
+                            @php
+                                $acceptedExpertInvite = $itinerary->expertInvitations->firstWhere('status', 'accepted');
+                                $pendingExpertInvite = $itinerary->expertInvitations->firstWhere('status', 'pending');
+                            @endphp
+                            <p>
+                                <span class="font-semibold">Assigned Local Expert:</span>
+                                @if ($acceptedExpertInvite)
+                                    <a href="{{ route('traveler.experts.show', $acceptedExpertInvite->expert) }}"
+                                       class="text-copper hover:underline font-semibold">
+                                        {{ $acceptedExpertInvite->expert->name ?? '—' }}
+                                    </a>
+                                @elseif ($pendingExpertInvite)
+                                    Pending Approval
+                                @else
+                                    —
+                                @endif
+                            </p>
                             <p><span class="font-semibold">Dates:</span>
                                 {{ $itinerary->start_date?->format('M j, Y') ?? '—' }}
                                 –

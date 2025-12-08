@@ -124,7 +124,7 @@ class ItineraryController extends Controller
     {
         $this->authorize('view', $itinerary);
 
-        $itinerary->load(['items.place', 'countries', 'collaborators', 'invitations']);
+        $itinerary->load(['items.place', 'countries', 'collaborators', 'invitations', 'expertInvitations.expert']);
 
         return view('traveler.itineraries.show', [
             'itinerary' => $itinerary,
