@@ -23,6 +23,11 @@ class ItineraryGenerationService
      */
     public function generateForItinerary(Itinerary $itinerary, array $options = []): array
     {
+        // Allow longer execution time for generation (may call external APIs)
+        if (function_exists('set_time_limit')) {
+            @set_time_limit((int) env('ITINERARY_GENERATION_MAX_SECONDS', 120));
+        }
+
         // ------------------------------------------------------------------
         // 0) Guard clauses
         // ------------------------------------------------------------------
@@ -257,21 +262,29 @@ class ItineraryGenerationService
      * This function checks if the App is running locally and if it is we create our OpenAI client with SSL disabled
      */
     private function getOpenAIClient() {
-        $apikey = getenv('OPENAI_API_KEY');
+        $apikey = getenv('OPENAI_API_KEY') ?: config('openai.api_key');
+
+        // Configurable timeouts (seconds) - fallback to config value or default
+        $requestTimeout = (int) (env('OPENAI_REQUEST_TIMEOUT', config('openai.request_timeout', 120)));
+        $connectTimeout = (int) (env('OPENAI_CONNECT_TIMEOUT', 10));
+
+        $httpOptions = [
+            'timeout' => $requestTimeout,
+            'connect_timeout' => $connectTimeout,
+        ];
+
         if (App::isLocal()) {
-            $httpClient = new Client([
-                'verify' => false, // This is the option to disable SSL verification
-            ]);
-            $clientLocal = OpenAI::factory()
-                ->withAPIKey($apikey)
-                ->withHttpClient($httpClient)
-                ->make();
-            return $clientLocal;
+            // Disable SSL verification locally if needed
+            $httpOptions['verify'] = false;
         }
-        else {
-            $clientLive = OpenAI::client($apikey);
-            return $clientLive;
-        }
+
+        $httpClient = new Client($httpOptions);
+
+        // Use the factory so our custom client and api key are always applied
+        return OpenAI::factory()
+            ->withApiKey($apikey)
+            ->withHttpClient($httpClient)
+            ->make();
         
     }
 
