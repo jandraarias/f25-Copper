@@ -284,6 +284,55 @@ class ItineraryController extends Controller
 
         return back()->with('success', 'Invitation sent successfully!');
     }
+    public function placesJson($itineraryId)
+    {
+        $itinerary = auth()->user()->traveler
+            ->itineraries()
+            ->with('items.place') 
+            ->findOrFail($itineraryId);
+
+        $williamsburgLat = 37.2707;
+        $williamsburgLon = -76.7075;
+
+        // Haversine formula
+        $haversineMiles = function($lat1, $lon1, $lat2, $lon2){
+            $earthRadius = 3958.8; // in miles
+    
+            $latDelta = deg2rad($lat2 - $lat1);
+            $lonDelta = deg2rad($lon2 - $lon1);
+
+            $a = sin($latDelta / 2) ** 2 +
+                cos(deg2rad($lat1)) * cos(deg2rad($lat2)) *
+                sin($lonDelta / 2) ** 2;
+
+            $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
+
+            return $earthRadius * $c;
+        };        
+
+        // Collect places attached to itinerary items
+        $places = $itinerary->items
+            ->map(function($item) {
+                return $item->place;
+            })
+            ->filter() 
+            ->values()
+            ->map(function($place) use ($williamsburgLat, $williamsburgLon, $haversineMiles) {
+            return [
+                'id'        => $place->id,
+                'name'      => $place->name,
+                'lat'       => $place->lat,
+                'lon'       => $place->lon,
+                'photo_url' => $place->photo_url,
+                'distance_from_williamsburg' => round(
+                    $haversineMiles($williamsburgLat, $williamsburgLon, $place->lat, $place->lon),
+                    2
+            ),
+        ];
+    });
+
+        return response()->json($places);
+    }
 
     /*
     |--------------------------------------------------------------------------

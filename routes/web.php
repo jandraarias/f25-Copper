@@ -201,6 +201,11 @@ Route::middleware(['auth', 'role:traveler'])
         Route::resource('itineraries.items', ItineraryItemController::class)
             ->shallow()
             ->only(['store', 'update', 'destroy']);
+            
+      Route::get('/itineraries/{itinerary}/places', [TravelerItineraryController::class, 'placesJson']
+            )->name('itineraries.places');
+
+
 
         /*
         |--------------------------------------------------------------------------

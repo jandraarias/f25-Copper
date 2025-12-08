@@ -25,6 +25,7 @@
 
     {{-- ALPINE ROOT FOR PAGE STATE --}}
     <div x-data="{ showCollaboratorsModal: false, showDisableConfirm: false }">
+    
 
         {{-- MAIN BODY --}}
         <div class="py-12 bg-sand dark:bg-sand-900 min-h-screen">
@@ -47,6 +48,69 @@
                         </div>
                     </div>
                 @endif
+
+                
+                {{-- Leaflet CSS --}}
+                <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+                {{-- Itinerary Map --}}
+                <div id="itinerary-map" 
+                    data-itinerary-id="{{ $itinerary->id }}"
+                    x-data
+                    x-init="initItineraryMap()"
+                    style="width:100%; height:400px;"
+                    class="w-full rounded-2xl shadow-soft mb-8">
+                </div>
+
+                <script>
+                function initItineraryMap() {
+
+                    const el = document.getElementById('itinerary-map');
+                    const itineraryId = el.dataset.itineraryId;
+                    console.log("Initializing map for itinerary", itineraryId);
+                    
+                    const map = L.map(el).setView([37.2702, -76.7075], 13);
+
+                    // Add OpenStreetMap tiles
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+                        attribution: '&copy; OpenStreetMap contributors'
+                    }).addTo(map);
+
+                    // Fetch Itinerary places
+                    fetch(`/traveler/itineraries/${itineraryId}/places`)
+                        .then(response => response.json())
+                        .then(places => {
+                            console.log("Loaded places:", places);
+                            if(!places.length) return;
+
+                            const markers = [];
+
+                            places.forEach(place => {
+                                if(place.lat && place.lon) {
+                                    const popupContent = `
+                                        <strong>${place.name}</strong><br>
+                                        ${place.description ?? ''}<br>
+                                        Distance from Williamsburg: ${place.distance_from_williamsburg} miles
+                                        `;
+                                    
+                                        const marker = L.marker([place.lat, place.lon])
+                                        .addTo(map)
+                                        .bindPopup(popupContent);
+
+                                markers.push(marker);
+                            }
+                        });
+
+                        if(markers.length) {
+                            const group = L.featureGroup(markers);
+                            map.fitBounds(group.getBounds().pad(0.2));
+                        }
+                    })
+                    .catch(err => console.error('Error loading places:', err));
+                }
+            </script>
+
+            {{-- Leaflet JS --}}
+            <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script> 
 
                 {{-- OVERVIEW CARD --}}
                 <div class="bg-white dark:bg-sand-800 border border-sand-200 dark:border-ink-700 rounded-3xl shadow-soft hover:shadow-glow hover:scale-[1.01] transition-all duration-300">
@@ -443,4 +507,5 @@
             </div>
         @endif
     </div>
+     
 </x-app-layout>
