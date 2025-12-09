@@ -119,10 +119,10 @@
                                value="{{ old('experience_years', $expert->experience_years) }}">
                     </div>
 
-                     {{-- HOURLY RATE --}}
+                     {{-- RATE --}}
                     <div>
                         <label class="block text-sm font-medium text-ink-700 dark:text-ink-200 mb-1">
-                            Hourly Rate (USD)
+                            Rate (USD)
                         </label>
                         <input type="number" 
                             name="hourly_rate" 

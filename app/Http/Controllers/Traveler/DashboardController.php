@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Itinerary;
 use App\Models\ItineraryInvitation;
+use App\Models\ExpertSuggestion;
 
 class DashboardController extends Controller
 {
@@ -27,6 +28,15 @@ class DashboardController extends Controller
             ->with('itinerary.traveler.user')
             ->get();
 
-        return view('traveler.dashboard', compact('traveler', 'itineraries', 'pendingInvitations'));
+        // Pending expert suggestions for traveler's itineraries
+        $pendingSuggestions = ExpertSuggestion::whereHas('itineraryItem.itinerary', function($q) use ($traveler) {
+                $q->where('traveler_id', $traveler->id);
+            })
+            ->where('status', 'pending')
+            ->with(['itineraryItem.itinerary', 'expert.user', 'place'])
+            ->latest()
+            ->get();
+
+        return view('traveler.dashboard', compact('traveler', 'itineraries', 'pendingInvitations', 'pendingSuggestions'));
     }
 }

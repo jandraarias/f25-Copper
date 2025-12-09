@@ -17,6 +17,7 @@
         $itineraries = $itineraries ?? collect();
         $preferenceProfiles = optional($traveler)->preferenceProfiles ?? collect();
         $pendingInvitations = $pendingInvitations ?? collect();
+        $pendingSuggestions = $pendingSuggestions ?? collect();
     @endphp
 
     <div class="py-12 bg-sand dark:bg-sand-900 min-h-screen transition-colors duration-300">
@@ -81,6 +82,61 @@
                                             Decline
                                         </button>
                                     </form>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            @endif
+
+            {{-- ================= Pending Expert Suggestions ================= --}}
+            @if($pendingSuggestions->isNotEmpty())
+                <div class="bg-white dark:bg-sand-800 shadow-soft rounded-3xl border border-sand-200 dark:border-ink-700
+                            p-8 transition-all duration-200 ease-out hover:shadow-glow hover:scale-[1.01]">
+                    <div class="flex items-center mb-6">
+                        <div class="w-10 h-10 flex items-center justify-center rounded-full bg-amber-500/10 mr-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-semibold text-ink-900 dark:text-ink-100">Pending Expert Suggestions</h3>
+                    </div>
+
+                    <p class="text-sm text-ink-600 dark:text-ink-300 mb-4">
+                        You have {{ $pendingSuggestions->count() }} {{ Str::plural('suggestion', $pendingSuggestions->count()) }} awaiting your review:
+                    </p>
+
+                    <div class="divide-y divide-sand-200 dark:divide-ink-700">
+                        @foreach($pendingSuggestions as $suggestion)
+                            <div class="py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                                <div>
+                                    <h4 class="font-semibold text-ink-900 dark:text-ink-100">
+                                        {{ $suggestion->itineraryItem->itinerary->name }}
+                                    </h4>
+                                    <p class="text-sm text-ink-500 dark:text-ink-300">
+                                        Expert {{ $suggestion->expert->name }} suggested 
+                                        @if($suggestion->type === 'replacement')
+                                            replacing <span class="font-medium">{{ $suggestion->itineraryItem->title }}</span>
+                                            @if($suggestion->place)
+                                                with <span class="font-medium">{{ $suggestion->place->name }}</span>
+                                            @endif
+                                        @else
+                                            a new place
+                                        @endif
+                                    </p>
+                                    @if($suggestion->reason)
+                                        <p class="text-xs text-ink-400 dark:text-ink-400 mt-1 italic">
+                                            "{{ Str::limit($suggestion->reason, 80) }}"
+                                        </p>
+                                    @endif
+                                </div>
+
+                                <div class="flex gap-2">
+                                    <a href="{{ route('traveler.itineraries.suggestions.index', $suggestion->itineraryItem->itinerary) }}"
+                                       class="px-4 py-1.5 rounded-full bg-gradient-copper text-white font-medium text-sm
+                                              hover:shadow-glow hover:scale-[1.03] transition-all duration-200 ease-out">
+                                        Review
+                                    </a>
                                 </div>
                             </div>
                         @endforeach

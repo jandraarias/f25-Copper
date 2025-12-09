@@ -199,7 +199,7 @@
 
                             {{-- View Expert Suggestions --}}
                             @if ($itinerary->expertInvitations()->where('status', 'accepted')->exists())
-                                <a href="{{ route('traveler.itineraries.manage-suggestions', $itinerary) }}"
+                                <a href="{{ route('traveler.itineraries.suggestions.index', $itinerary) }}"
                                    class="group flex items-center justify-center gap-2 px-6 py-2.5 rounded-full border border-blue-400 text-blue-700 dark:text-blue-200
                                           hover:bg-blue-600 hover:text-white hover:shadow-glow hover:scale-[1.03]
                                           transition-all duration-200 ease-out font-semibold shadow-soft dark:border-blue-600">

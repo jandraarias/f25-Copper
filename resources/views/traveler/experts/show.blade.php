@@ -1,4 +1,4 @@
-{{-- resources/views/traveler/experts/show.blade.php --}}
+﻿{{-- resources/views/traveler/experts/show.blade.php --}}
 
 <x-app-layout>
 
@@ -123,11 +123,11 @@
                                 </p>
                             </div>
 
-                            {{-- Hourly Rate & Availability --}}
+                            {{-- Rate & Availability --}}
                             <div class="space-y-4 mt-8 px-4 py-3 rounded-2xl bg-sand-50 
                                         dark:bg-sand-900/40 border border-sand-200 dark:border-ink-700">
 
-                                {{-- Hourly Rate --}}
+                                {{-- Rate --}}
                                 <p class="text-lg flex items-center gap-2">
                                     <svg xmlns="http://www.w3.org/2000/svg" 
                                         class="w-5 h-5 text-copper" fill="none"
@@ -136,7 +136,7 @@
                                             d="M12 8c-1.657 0-3 1.343-3 3s1.343 3 3 3m0 0c1.657 0 3-1.343 3-3s-1.343-3-3-3m0 3v6m0-12v3" />
                                     </svg>
 
-                                    <strong>Hourly Rate:</strong>
+                                    <strong>Rate:</strong>
 
                                     @if($expert->hourly_rate)
                                         <span class="text-ink-800 dark:text-sand-100">
