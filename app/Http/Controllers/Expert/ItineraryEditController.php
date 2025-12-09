@@ -282,7 +282,7 @@ class ItineraryEditController extends Controller
         }
 
         return redirect()
-            ->route('traveler.itineraries.manage-suggestions', $itinerary)
+            ->route('traveler.itineraries.suggestions.index', $itinerary)
             ->with('success', 'Suggestion approved successfully');
     }
 
@@ -309,7 +309,7 @@ class ItineraryEditController extends Controller
         }
 
         return redirect()
-            ->route('traveler.itineraries.manage-suggestions', $itinerary)
+            ->route('traveler.itineraries.suggestions.index', $itinerary)
             ->with('success', 'Suggestion rejected');
     }
 }

@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use App\Mail\ItineraryInvitationMail;
+use App\Mail\ExpertItineraryInvitationMail;
 
 class ItineraryController extends Controller
 {
@@ -364,7 +365,6 @@ class ItineraryController extends Controller
 
         $validated = $request->validate([
             'expert_id' => ['required', 'integer', 'exists:experts,id'],
-            'message'   => ['nullable', 'string', 'max:500'],
         ]);
 
         $traveler = Auth::user()->traveler;
@@ -379,15 +379,13 @@ class ItineraryController extends Controller
             [
                 'traveler_id' => $traveler->id,
                 'status'      => 'pending',
-                'message'     => $validated['message'] ?? null,
-                'token'       => Str::uuid()->toString(),
             ]
         );
 
         // If the expert has a linked user account → send email
         if ($expert->user && $expert->user->email) {
             Mail::to($expert->user->email)
-                ->send(new ItineraryInvitationMail($invitation));
+                ->send(new ExpertItineraryInvitationMail($invitation));
         }
 
         return back()->with('success', 'Expert has been invited successfully!');

@@ -244,7 +244,7 @@ Route::middleware(['auth', 'role:traveler'])
 
         // Expert Suggestions Management
         Route::get('/itineraries/{itinerary}/suggestions', [ExpertItineraryEditController::class, 'manageSuggestions'])
-            ->name('itineraries.manage-suggestions');
+            ->name('itineraries.suggestions.index');
         Route::post('/suggestions/{suggestion}/approve', [ExpertItineraryEditController::class, 'approveSuggestion'])
             ->name('suggestions.approve');
         Route::post('/suggestions/{suggestion}/reject', [ExpertItineraryEditController::class, 'rejectSuggestion'])

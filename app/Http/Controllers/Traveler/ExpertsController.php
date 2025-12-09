@@ -27,7 +27,6 @@ class ExpertsController extends Controller
 
         // === Build Query ===
         $query = Expert::query()
-            ->withCount('reviews') // ->reviews_count
             ->with('user')         // preload associated user
             ->when(!empty($cities), fn($q2) => $q2->whereIn('city', $cities))
             ->when($q, function ($q2) use ($q) {
@@ -42,7 +41,7 @@ class ExpertsController extends Controller
         match ($sort) {
             'alphabetical' => $query->orderBy('name'),
             'newest'       => $query->orderBy('created_at', 'desc'),
-            default        => $query->orderBy('reviews_count', 'desc'),
+            default        => $query->orderBy('created_at', 'desc'), // Default to newest
         };
 
         // === Final Paginated Results ===
@@ -66,11 +65,21 @@ class ExpertsController extends Controller
         // Eager loading: ensures no N+1 queries
         $expert->load([
             'user',
-            'reviews.user',  // reviewer info
         ]);
+
+        // Get traveler's itineraries that don't have this expert assigned
+        $traveler = auth()->user()->traveler;
+        $availableItineraries = $traveler ? $traveler->itineraries()
+            ->whereDoesntHave('expertInvitations', function($q) use ($expert) {
+                $q->where('expert_id', $expert->id)
+                  ->whereIn('status', ['pending', 'accepted']);
+            })
+            ->orderBy('created_at', 'desc')
+            ->get() : collect();
 
         return view('traveler.experts.show', [
             'expert' => $expert,
+            'availableItineraries' => $availableItineraries,
         ]);
     }
 }

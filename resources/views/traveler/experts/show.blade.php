@@ -1,4 +1,4 @@
-{{-- resources/views/traveler/experts/show.blade.php --}}
+﻿{{-- resources/views/traveler/experts/show.blade.php --}}
 
 <x-app-layout>
 
@@ -123,11 +123,11 @@
                                 </p>
                             </div>
 
-                            {{-- Hourly Rate & Availability --}}
+                            {{-- Rate & Availability --}}
                             <div class="space-y-4 mt-8 px-4 py-3 rounded-2xl bg-sand-50 
                                         dark:bg-sand-900/40 border border-sand-200 dark:border-ink-700">
 
-                                {{-- Hourly Rate --}}
+                                {{-- Rate --}}
                                 <p class="text-lg flex items-center gap-2">
                                     <svg xmlns="http://www.w3.org/2000/svg" 
                                         class="w-5 h-5 text-copper" fill="none"
@@ -136,7 +136,7 @@
                                             d="M12 8c-1.657 0-3 1.343-3 3s1.343 3 3 3m0 0c1.657 0 3-1.343 3-3s-1.343-3-3-3m0 3v6m0-12v3" />
                                     </svg>
 
-                                    <strong>Hourly Rate:</strong>
+                                    <strong>Rate:</strong>
 
                                     @if($expert->hourly_rate)
                                         <span class="text-ink-800 dark:text-sand-100">
@@ -174,6 +174,75 @@
                     </div>
                 </div>
             </div>
+
+            {{-- ========================== Add to Itinerary ========================== --}}
+            @if($availableItineraries->isNotEmpty())
+                <div class="bg-white dark:bg-sand-800 border border-sand-200 dark:border-ink-700
+                            rounded-3xl shadow-soft hover:shadow-glow hover:scale-[1.01]
+                            transition-all duration-200 ease-out">
+
+                    <div class="p-8 sm:p-10 text-ink-900 dark:text-ink-100">
+
+                        <h3 class="text-2xl font-bold mb-6 flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg"
+                                 class="w-6 h-6 text-copper" fill="none"
+                                 viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                      d="M12 4v16m8-8H4" />
+                            </svg>
+                            Add Expert to Itinerary
+                        </h3>
+
+                        <p class="text-sm text-ink-600 dark:text-ink-300 mb-6">
+                            Request {{ $expert->name }} to collaborate on one of your existing itineraries.
+                        </p>
+
+                        <form method="POST" action="{{ route('traveler.itineraries.invite-expert', ['itinerary' => '__ITINERARY_ID__']) }}"
+                              x-data="{ selectedItinerary: '' }"
+                              @submit.prevent="if(selectedItinerary) { $el.action = $el.action.replace('__ITINERARY_ID__', selectedItinerary); $el.submit(); }">
+                            @csrf
+                            <input type="hidden" name="expert_id" value="{{ $expert->id }}">
+
+                            <div class="flex flex-col sm:flex-row gap-4 items-end">
+                                <div class="flex-1">
+                                    <label for="itinerary_select" class="block text-sm font-medium text-ink-700 dark:text-ink-200 mb-2">
+                                        Select Itinerary
+                                    </label>
+                                    <select id="itinerary_select" 
+                                            x-model="selectedItinerary"
+                                            required
+                                            class="w-full rounded-xl px-4 py-2.5 bg-white dark:bg-sand-900
+                                                   border border-sand-300 dark:border-ink-700 text-ink-800 dark:text-sand-100
+                                                   focus:ring focus:ring-copper/30 focus:border-copper transition">
+                                        <option value="">Choose an itinerary...</option>
+                                        @foreach($availableItineraries as $itinerary)
+                                            <option value="{{ $itinerary->id }}">
+                                                {{ $itinerary->name }}
+                                                @if($itinerary->location)
+                                                    - {{ $itinerary->location }}
+                                                @endif
+                                                @if($itinerary->start_date)
+                                                    ({{ $itinerary->start_date->format('M j, Y') }})
+                                                @endif
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+
+                                <button type="submit"
+                                        class="px-6 py-2.5 rounded-full bg-gradient-copper text-white font-semibold shadow-soft
+                                               hover:shadow-glow hover:scale-[1.03] transition-all duration-200 ease-out
+                                               disabled:opacity-50 disabled:cursor-not-allowed"
+                                        :disabled="!selectedItinerary">
+                                    Send Request
+                                </button>
+                            </div>
+                        </form>
+
+                    </div>
+                </div>
+            @endif
+
         </div>
     </div>
 

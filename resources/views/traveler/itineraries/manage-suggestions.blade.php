@@ -59,7 +59,7 @@
                             rounded-3xl shadow-soft p-8">
 
                     <h3 class="text-xl font-semibold text-ink-900 dark:text-ink-100 mb-6">
-                        {{ ucfirst($type) }}s
+                        {{ ucfirst(Str::plural($type)) }}
                     </h3>
 
                     @foreach($items as $item)
@@ -209,17 +209,6 @@
                     </p>
                 </div>
             @endforelse
-
-            {{-- Info Card --}}
-            <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-3xl p-8">
-                <h4 class="font-semibold text-blue-900 dark:text-blue-100 mb-2">How Suggestions Work</h4>
-                <ul class="text-sm text-blue-800 dark:text-blue-200 space-y-2">
-                    <li>✓ Experts can suggest replacements from existing places in our database</li>
-                    <li>✓ Experts can submit new place suggestions that you approve</li>
-                    <li>✓ You can approve or reject each suggestion individually</li>
-                    <li>✓ Approved suggestions automatically update your itinerary</li>
-                </ul>
-            </div>
 
         </div>
     </div>
