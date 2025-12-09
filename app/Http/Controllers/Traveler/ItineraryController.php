@@ -69,7 +69,10 @@ class ItineraryController extends Controller
     public function create()
     {
         $experts = Expert::with('user', 'reviews')
-            ->select('id', 'name', 'city', 'expertise', 'languages', 'experience_years', 'hourly_rate', 'availability', 'user_id')
+            ->select(
+                'id', 'name', 'city', 'expertise', 'languages',
+                'experience_years', 'hourly_rate', 'availability', 'user_id'
+            )
             ->get();
         
         return view('traveler.itineraries.create', compact('experts'));
@@ -125,7 +128,14 @@ class ItineraryController extends Controller
     {
         $this->authorize('view', $itinerary);
 
-        $itinerary->load(['items.place', 'countries', 'collaborators', 'invitations', 'expertInvitations.expert']);
+        // ⭐ Added rewards eager-loading here
+        $itinerary->load([
+            'items.place.rewards',
+            'countries',
+            'collaborators',
+            'invitations',
+            'expertInvitations.expert',
+        ]);
 
         return view('traveler.itineraries.show', [
             'itinerary' => $itinerary,
@@ -290,11 +300,17 @@ class ItineraryController extends Controller
 
         return back()->with('success', 'Invitation sent successfully!');
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | PLACES JSON (MAP ENDPOINT)
+    |--------------------------------------------------------------------------
+    */
     public function placesJson($itineraryId)
     {
         $itinerary = auth()->user()->traveler
             ->itineraries()
-            ->with('items.place') 
+            ->with('items.place.rewards')  // ⭐ Load rewards also
             ->findOrFail($itineraryId);
 
         $williamsburgLat = 37.2707;
@@ -303,7 +319,7 @@ class ItineraryController extends Controller
         // Haversine formula
         $haversineMiles = function($lat1, $lon1, $lat2, $lon2){
             $earthRadius = 3958.8; // in miles
-    
+
             $latDelta = deg2rad($lat2 - $lat1);
             $lonDelta = deg2rad($lon2 - $lon1);
 
@@ -314,28 +330,26 @@ class ItineraryController extends Controller
             $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
 
             return $earthRadius * $c;
-        };        
+        };
 
-        // Collect places attached to itinerary items
         $places = $itinerary->items
-            ->map(function($item) {
-                return $item->place;
-            })
-            ->filter() 
+            ->map(fn($item) => $item->place)
+            ->filter()
             ->values()
             ->map(function($place) use ($williamsburgLat, $williamsburgLon, $haversineMiles) {
-            return [
-                'id'        => $place->id,
-                'name'      => $place->name,
-                'lat'       => $place->lat,
-                'lon'       => $place->lon,
-                'photo_url' => $place->photo_url,
-                'distance_from_williamsburg' => round(
-                    $haversineMiles($williamsburgLat, $williamsburgLon, $place->lat, $place->lon),
-                    2
-            ),
-        ];
-    });
+                return [
+                    'id'        => $place->id,
+                    'name'      => $place->name,
+                    'lat'       => $place->lat,
+                    'lon'       => $place->lon,
+                    'photo_url' => $place->photo_url,
+                    'has_reward' => $place->rewards->isNotEmpty(), // ⭐ NEW
+                    'distance_from_williamsburg' => round(
+                        $haversineMiles($williamsburgLat, $williamsburgLon, $place->lat, $place->lon),
+                        2
+                    ),
+                ];
+            });
 
         return response()->json($places);
     }
@@ -446,8 +460,6 @@ class ItineraryController extends Controller
                     'status' => 'pending'
                 ]
             );
-
-            // The expert sees these in their dashboard
         }
     }
 }

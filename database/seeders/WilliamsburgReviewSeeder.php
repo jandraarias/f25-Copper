@@ -11,7 +11,7 @@ class WilliamsburgReviewSeeder extends Seeder
      */
     public function run(): void
     {
-        // ✅ Correct path for your CSV file (based on your screenshot)
+        //  Correct path for your CSV file (based on your screenshot)
         $path = storage_path('app/data/reviews/reviews.csv');
 
         if (!file_exists($path)) {

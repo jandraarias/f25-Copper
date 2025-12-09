@@ -17,7 +17,11 @@ class Reward extends Model
         'expires_at',
     ];
 
-    public function place(){
+    /**
+     * A reward belongs to a specific place.
+     */
+    public function place()
+    {
         return $this->belongsTo(Place::class);
     }
 }

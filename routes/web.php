@@ -223,7 +223,7 @@ Route::middleware(['auth', 'role:traveler'])
             ->name('itineraries.invite');
 
         /*
-         * NEW: Invite Local Expert
+         * Invite Local Expert
          */
         Route::post('itineraries/{itinerary}/invite-expert', 
             [TravelerItineraryController::class, 'inviteExpert']
@@ -270,6 +270,12 @@ Route::middleware(['auth', 'role:traveler'])
         */
         Route::get('/rewards', [RewardsController::class, 'index'])
             ->name('rewards');
+
+        Route::post('/rewards/{reward}/apply', [RewardsController::class, 'apply'])
+            ->name('rewards.apply');
+
+        Route::post('/rewards/apply', [RewardsController::class, 'applyToItinerary'])
+            ->name('places.add-to-itinerary-reward');
 
         /*
         |--------------------------------------------------------------------------
