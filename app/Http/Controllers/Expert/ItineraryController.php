@@ -10,6 +10,9 @@ use Illuminate\Support\Carbon;
 
 class ItineraryController extends Controller
 {
+    /**
+     * List itineraries this expert has accepted invitations for.
+     */
     public function index()
     {
         $expert = Auth::user()->expert;
@@ -64,5 +67,30 @@ class ItineraryController extends Controller
         $itinerary->load(['items.place', 'countries', 'traveler.user']);
 
         return view('expert.itineraries.show', compact('itinerary'));
+    }
+
+    /**
+     * Edit a specific itinerary.
+     */
+    public function edit(Itinerary $itinerary)
+    {
+        $this->authorize('update', $itinerary);
+
+        return view('expert.itineraries.edit', compact('itinerary'));
+    }
+
+    /**
+     * Update a specific itinerary.
+     */
+    public function update(Request $request, Itinerary $itinerary)
+    {
+        $this->authorize('update', $itinerary);
+
+        // add your update logic here
+        // $itinerary->update($request->validated());
+
+        return redirect()
+            ->route('expert.itineraries.show', $itinerary)
+            ->with('success', 'Itinerary updated successfully.');
     }
 }

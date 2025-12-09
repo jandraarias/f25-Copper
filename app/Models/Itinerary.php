@@ -20,98 +20,126 @@ class Itinerary extends Model
         'description',
         'traveler_id',
         'destination',
-        'location',               // city/location support
-        'preference_profile_id',  // foreign key to PreferenceProfile
-        'is_collaborative',       // for easier mass assignment
+        'location',
+        'preference_profile_id',
+        'is_collaborative',
     ];
 
     protected $casts = [
-        'start_date' => 'date',
-        'end_date'   => 'date',
-        'is_collaborative' => 'boolean', // ensures consistent type
+        'start_date'       => 'date',
+        'end_date'         => 'date',
+        'is_collaborative' => 'boolean',
     ];
 
-    /**
-     * The traveler who owns the itinerary.
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | Boot Logic
+    |--------------------------------------------------------------------------
+    */
+    protected static function booted(): void
+    {
+        static::creating(function (self $model): void {
+            $user = Auth::user();
+            if (!$model->traveler_id && $user && $user->traveler) {
+                $model->traveler_id = $user->traveler->id;
+            }
+        });
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Core Relations
+    |--------------------------------------------------------------------------
+    */
+
+    /** Owner: Traveler */
     public function traveler(): BelongsTo
     {
         return $this->belongsTo(Traveler::class);
     }
 
-    /**
-     * The preference profile this itinerary is based on.
-     */
+    /** Optional preference profile */
     public function preferenceProfile(): BelongsTo
     {
         return $this->belongsTo(PreferenceProfile::class, 'preference_profile_id');
     }
 
-    /**
-     * Items belonging to the itinerary.
-     */
+    /** Itinerary items (places, activities, etc.) */
     public function items(): HasMany
     {
         return $this->hasMany(ItineraryItem::class);
     }
 
-    /**
-     * Countries associated with this itinerary.
-     */
+    /** Countries associated with this itinerary */
     public function countries(): BelongsToMany
     {
         return $this->belongsToMany(Country::class, 'country_itinerary')
             ->withTimestamps();
     }
 
-    /**
-     * Auto-assign the traveler's ID when creating.
-     */
-    protected static function booted(): void
-    {
-        static::creating(function (self $model): void {
-            $user = Auth::user();
-            if (! $model->traveler_id && $user && $user->traveler) {
-                $model->traveler_id = $user->traveler->id;
-            }
-        });
-    }
+    /*
+    |--------------------------------------------------------------------------
+    | Collaboration (Travelers)
+    |--------------------------------------------------------------------------
+    */
 
-    /**
-     * Invitations sent for collaboration.
-     */
+    /** Pending email-based invitations (travelers) */
     public function invitations(): HasMany
     {
         return $this->hasMany(ItineraryInvitation::class);
     }
 
-    /**
-     * Collaborators who can edit this itinerary.
-     */
+    /** Traveler collaborators */
     public function collaborators(): BelongsToMany
     {
-        return $this->belongsToMany(User::class, 'itinerary_user')->withTimestamps();
+        return $this->belongsToMany(User::class, 'itinerary_user')
+            ->withTimestamps();
     }
 
-    /**
-     * The original creator (User model reference).
-     */
-    public function creator(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'user_id');
-    }
+    /*
+    |--------------------------------------------------------------------------
+    | Collaboration (Local Experts)
+    |--------------------------------------------------------------------------
+    */
 
-    /**
-     * Expert invitations for this itinerary.
-     */
+    /** All expert invitations (pending, accepted, declined) */
     public function expertInvitations(): HasMany
     {
         return $this->hasMany(ExpertItineraryInvitation::class);
     }
 
-    /**
-     * Helper method for readability.
-     */
+    /** Only pending expert invitations */
+    public function pendingExpertInvitations(): HasMany
+    {
+        return $this->hasMany(ExpertItineraryInvitation::class)
+            ->where('status', 'pending');
+    }
+
+    /** Experts who have accepted */
+    public function experts(): BelongsToMany
+    {
+        return $this->belongsToMany(Expert::class, 'expert_itinerary_invitations', 'itinerary_id', 'expert_id')
+            ->wherePivot('status', 'accepted');
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Creator (Optional — legacy support)
+    |--------------------------------------------------------------------------
+    */
+
+    /** The original creator (backwards compatibility) */
+    public function creator(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Helpers
+    |--------------------------------------------------------------------------
+    */
+
     public function isCollaborative(): bool
     {
         return (bool) $this->is_collaborative;

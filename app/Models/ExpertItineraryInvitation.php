@@ -10,11 +10,22 @@ class ExpertItineraryInvitation extends Model
 {
     use HasFactory;
 
+    /*
+    |--------------------------------------------------------------------------
+    | Status Constants
+    |--------------------------------------------------------------------------
+    */
+    public const STATUS_PENDING  = 'pending';
+    public const STATUS_ACCEPTED = 'accepted';
+    public const STATUS_DECLINED = 'declined';
+
     protected $fillable = [
         'itinerary_id',
         'expert_id',
         'traveler_id',
         'status',
+        'token',       // NEW — used for invitation link routing
+        'message',     // NEW — traveler → expert message
     ];
 
     protected $casts = [
@@ -28,25 +39,19 @@ class ExpertItineraryInvitation extends Model
     |--------------------------------------------------------------------------
     */
 
-    /**
-     * The itinerary this invitation is for.
-     */
+    /** The itinerary this invitation applies to. */
     public function itinerary(): BelongsTo
     {
         return $this->belongsTo(Itinerary::class);
     }
 
-    /**
-     * The expert being invited.
-     */
+    /** The invited expert. */
     public function expert(): BelongsTo
     {
         return $this->belongsTo(Expert::class);
     }
 
-    /**
-     * The traveler who created the itinerary.
-     */
+    /** The traveler who owns the itinerary / issued the invitation. */
     public function traveler(): BelongsTo
     {
         return $this->belongsTo(Traveler::class);
@@ -60,17 +65,17 @@ class ExpertItineraryInvitation extends Model
 
     public function scopePending($query)
     {
-        return $query->where('status', 'pending');
+        return $query->where('status', self::STATUS_PENDING);
     }
 
     public function scopeAccepted($query)
     {
-        return $query->where('status', 'accepted');
+        return $query->where('status', self::STATUS_ACCEPTED);
     }
 
     public function scopeDeclined($query)
     {
-        return $query->where('status', 'declined');
+        return $query->where('status', self::STATUS_DECLINED);
     }
 
     /*
@@ -80,18 +85,22 @@ class ExpertItineraryInvitation extends Model
     */
 
     /**
-     * Accept the invitation and attach the expert's user as a collaborator.
+     * Accept the invitation.
+     *
+     * Also attaches the expert's User to the itinerary collaborators,
+     * mirroring traveler-based invitation behavior.
      */
     public function accept(): void
     {
-        if ($this->status !== 'pending') {
+        if ($this->status !== self::STATUS_PENDING) {
             return;
         }
 
-        $this->update(['status' => 'accepted']);
+        $this->update(['status' => self::STATUS_ACCEPTED]);
 
-        // Attach expert's user to itinerary as collaborator if not already attached
+        // Attach expert's user to collaborators table
         $user = $this->expert->user;
+
         if ($user && !$this->itinerary->collaborators()->where('user_id', $user->id)->exists()) {
             $this->itinerary->collaborators()->attach($user->id);
         }
@@ -102,8 +111,29 @@ class ExpertItineraryInvitation extends Model
      */
     public function decline(): void
     {
-        if ($this->status === 'pending') {
-            $this->update(['status' => 'declined']);
+        if ($this->status === self::STATUS_PENDING) {
+            $this->update(['status' => self::STATUS_DECLINED]);
         }
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Helpers
+    |--------------------------------------------------------------------------
+    */
+
+    public function isPending(): bool
+    {
+        return $this->status === self::STATUS_PENDING;
+    }
+
+    public function isAccepted(): bool
+    {
+        return $this->status === self::STATUS_ACCEPTED;
+    }
+
+    public function isDeclined(): bool
+    {
+        return $this->status === self::STATUS_DECLINED;
     }
 }
