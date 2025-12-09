@@ -23,9 +23,6 @@
         </div>
     </x-slot>
 
-
-
-
     {{-- =============================== MAIN CONTENT =============================== --}}
     <div class="py-12 bg-sand dark:bg-sand-900 min-h-screen">
         <div class="mx-auto max-w-5xl sm:px-6 lg:px-8 space-y-12">
@@ -177,47 +174,6 @@
                     </div>
                 </div>
             </div>
-
-
-
-
-            {{-- ============================== REVIEWS ============================== --}}
-            @if($expert->reviews && $expert->reviews->count())
-                <div class="bg-white dark:bg-sand-800 border border-sand-200 dark:border-ink-700
-                            rounded-3xl shadow-soft hover:shadow-glow transition-all duration-200">
-
-                    <div class="p-8 sm:p-10">
-                        <h3 class="text-2xl font-bold mb-6 flex items-center gap-2 text-ink-900 dark:text-ink-100">
-                            <svg xmlns="http://www.w3.org/2000/svg"
-                                 class="w-6 h-6 text-copper" fill="none"
-                                 viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                      d="M11.3 2.3a1 1 0 011.4 0l2 3.7 4.1.6a1 1 0 01.6 1.7l-3 2.9.7 4a1 1 0 01-1.5 1l-3.6-1.9-3.6 1.9a1 1 0 01-1.5-1l.7-4-3-2.9a1 1 0 01.6-1.7l4.1-.6 2-3.7z" />
-                            </svg>
-                            Reviews ({{ $expert->reviews->count() }})
-                        </h3>
-
-                        <div class="space-y-4">
-                            @foreach ($expert->reviews as $review)
-                                <div class="p-5 rounded-2xl bg-sand-50 dark:bg-sand-900
-                                            border border-sand-200 dark:border-ink-700 shadow-sm">
-
-                                    <p class="text-sm text-ink-800 dark:text-sand-100 leading-relaxed">
-                                        “{{ $review->content }}”
-                                    </p>
-
-                                    <p class="text-xs text-ink-500 dark:text-sand-300 mt-1">
-                                        — Rated {{ $review->rating }}/5
-                                    </p>
-                                </div>
-                            @endforeach
-                        </div>
-
-                    </div>
-                </div>
-            @endif
-
-
         </div>
     </div>
 
