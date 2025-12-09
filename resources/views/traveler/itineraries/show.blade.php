@@ -31,6 +31,25 @@
         <div class="py-12 bg-sand dark:bg-sand-900 min-h-screen">
             <div class="mx-auto max-w-6xl sm:px-6 lg:px-8 space-y-10">
 
+                {{-- Flash Messages --}}
+                @if (session('success'))
+                    <div class="p-4 rounded-2xl border border-emerald-200 bg-emerald-50 text-emerald-900 shadow-soft">
+                        {{ session('success') }}
+                    </div>
+                @endif
+
+                @if (session('warning'))
+                    <div class="p-4 rounded-2xl border border-amber-200 bg-amber-50 text-amber-900 shadow-soft">
+                        {{ session('warning') }}
+                    </div>
+                @endif
+
+                @if (session('error'))
+                    <div class="p-4 rounded-2xl border border-red-200 bg-red-50 text-red-900 shadow-soft">
+                        {{ session('error') }}
+                    </div>
+                @endif
+
                 {{-- AI Generation Info --}}
                 @if ($itinerary->preferenceProfile)
                     <div class="p-5 rounded-2xl bg-gradient-to-br from-sand-100 to-sand-50 dark:from-sand-800 dark:to-sand-900 border border-sand-200 dark:border-ink-700 shadow-soft">
@@ -177,6 +196,19 @@
                                 </svg>
                                 Edit Itinerary
                             </a>
+
+                            {{-- View Expert Suggestions --}}
+                            @if ($itinerary->expertInvitations()->where('status', 'accepted')->exists())
+                                <a href="{{ route('traveler.itineraries.manage-suggestions', $itinerary) }}"
+                                   class="group flex items-center justify-center gap-2 px-6 py-2.5 rounded-full border border-blue-400 text-blue-700 dark:text-blue-200
+                                          hover:bg-blue-600 hover:text-white hover:shadow-glow hover:scale-[1.03]
+                                          transition-all duration-200 ease-out font-semibold shadow-soft dark:border-blue-600">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    Expert Suggestions
+                                </a>
+                            @endif
 
                             @if (Auth::id() === optional($itinerary->traveler->user)->id)
                                 {{-- Collaboration Toggle + Manage --}}

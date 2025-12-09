@@ -9,42 +9,47 @@
         </div>
     </x-slot>
 
+    @php
+        $itineraries = $itineraries ?? collect();
+    @endphp
+
     <div class="py-12 bg-sand dark:bg-sand-900 min-h-screen transition-colors duration-300">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-10">
 
-            {{-- SUMMARY CARDS --}}
+            {{-- Summary / Stats --}}
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
 
-                {{-- Total --}}
-                <div class="bg-white dark:bg-sand-800 p-6 rounded-3xl shadow-soft 
-                            border border-sand-200 dark:border-ink-700">
+                <div class="bg-white dark:bg-sand-800 p-6 rounded-3xl shadow-soft border border-sand-200 dark:border-ink-700">
                     <p class="text-sm text-ink-500 dark:text-ink-300">Total Itineraries</p>
                     <p class="text-2xl font-semibold text-ink-900 dark:text-ink-100">
-                        {{ $itineraries->count() }}
+                        {{ $total ?? (method_exists($itineraries, 'total') ? $itineraries->total() : $itineraries->count()) }}
                     </p>
                 </div>
 
-                {{-- Upcoming --}}
-                <div class="bg-white dark:bg-sand-800 p-6 rounded-3xl shadow-soft 
-                            border border-sand-200 dark:border-ink-700">
+                <div class="bg-white dark:bg-sand-800 p-6 rounded-3xl shadow-soft border border-sand-200 dark:border-ink-700">
                     <p class="text-sm text-ink-500 dark:text-ink-300">Upcoming Trips</p>
                     <p class="text-2xl font-semibold text-ink-900 dark:text-ink-100">
-                        {{ $itineraries->filter(fn($i) => $i->start_date >= now())->count() }}
+                        {{ $upcomingCount ?? ( (method_exists($itineraries, 'filter') ? $itineraries->filter(fn($i) => $i->start_date >= now())->count() : 0) ) }}
                     </p>
                 </div>
 
-                {{-- Past --}}
-                <div class="bg-white dark:bg-sand-800 p-6 rounded-3xl shadow-soft 
-                            border border-sand-200 dark:border-ink-700">
+                <div class="bg-white dark:bg-sand-800 p-6 rounded-3xl shadow-soft border border-sand-200 dark:border-ink-700">
                     <p class="text-sm text-ink-500 dark:text-ink-300">Past Trips</p>
                     <p class="text-2xl font-semibold text-ink-900 dark:text-ink-100">
-                        {{ $itineraries->filter(fn($i) => $i->end_date < now())->count() }}
+                        {{ $pastCount ?? ( (method_exists($itineraries, 'filter') ? $itineraries->filter(fn($i) => $i->end_date < now())->count() : 0) ) }}
                     </p>
                 </div>
 
             </div>
 
-            {{-- ITINERARIES LIST CARD --}}
+            {{-- Pagination Links --}}
+            @if (isset($itineraries) && $itineraries instanceof \Illuminate\Pagination\LengthAwarePaginator)
+                <div class="mt-4">
+                    {{ $itineraries->links() }}
+                </div>
+            @endif
+
+            {{-- ================ Itineraries List ================ --}}
             <div class="bg-white dark:bg-sand-800 shadow-soft rounded-3xl border border-sand-200 dark:border-ink-700
                         p-8 transition-all duration-200 ease-out hover:shadow-glow hover:scale-[1.005]">
 
@@ -57,17 +62,18 @@
                     @php
                         $sd = $itinerary->start_date ? \Carbon\Carbon::parse($itinerary->start_date)->format('M d, Y') : '—';
                         $ed = $itinerary->end_date ? \Carbon\Carbon::parse($itinerary->end_date)->format('M d, Y') : '—';
-                        $traveler = $itinerary->traveler->user->name ?? 'Unknown traveler';
                     @endphp
 
                     <div class="mb-6 pb-6 border-b border-sand-200 dark:border-ink-700 last:border-0 last:mb-0 last:pb-0">
 
                         <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
 
-                            {{-- LEFT SIDE --}}
+                            {{-- Left side --}}
                             <div>
                                 <p class="font-semibold text-lg text-ink-900 dark:text-ink-100">
-                                    {{ $itinerary->name }}
+                                    <a href="{{ route('expert.itineraries.show', $itinerary) }}" class="hover:underline text-ink-900 dark:text-ink-100">
+                                        {{ $itinerary->name }}
+                                    </a>
                                 </p>
 
                                 <p class="text-sm text-ink-500 dark:text-ink-300">
@@ -77,55 +83,40 @@
                                 <p class="text-sm text-ink-600 dark:text-ink-300 mt-1">
                                     Traveler:
                                     <span class="font-medium">
-                                        {{ $traveler }}
+                                        {{ $itinerary->traveler->user->name ?? 'Unknown traveler' }}
                                     </span>
                                 </p>
                             </div>
 
-                            {{-- RIGHT SIDE: ACTION BUTTONS --}}
-                            <div class="flex flex-col sm:flex-row gap-2">
+                            {{-- Right side --}}
+                                     <div class="flex items-center gap-2">
+                                        <a href="{{ route('expert.itineraries.edit', $itinerary) }}"
+                                           class="group inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-sand-300 dark:border-ink-600 text-ink-800 dark:text-sand-100 font-medium text-sm
+                                                  hover:bg-sand-200 dark:hover:bg-ink-700 hover:shadow-glow transition-all duration-200 ease-out">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                            </svg>
+                                            Suggest Changes
+                                        </a>
 
-                                {{-- VIEW --}}
-                                <a href="{{ route('expert.itineraries.show', $itinerary) }}"
-                                   class="group inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-ink-500
-                                          text-ink-700 dark:text-sand-100 text-sm
-                                          hover:border-copper hover:text-copper
-                                          hover:shadow-glow transition">
-
-                                    <svg xmlns="http://www.w3.org/2000/svg"
-                                         class="w-4 h-4 transition-transform group-hover:translate-x-0.5"
-                                         fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
-                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                              d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                              d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 
-                                                   4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                                    </svg>
-                                    View Details
-                                </a>
-
-                                {{-- EDIT --}}
-                                <a href="{{ route('expert.itineraries.edit', $itinerary) }}"
-                                class="group flex items-center gap-2 px-4 py-1.5 rounded-full
-                                        border border-copper text-copper font-medium text-sm
-                                        hover:bg-copper hover:text-white hover:shadow-glow
-                                        hover:scale-[1.03] transition-all duration-200 ease-out">
-
-                                    <svg xmlns="http://www.w3.org/2000/svg"
-                                        class="w-4 h-4 transition-colors duration-200 group-hover:text-white"
-                                        fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                            d="M15.232 5.232a3 3 0 114.243 4.243L7.5
-                                                21H3v-4.5l12.232-11.268z"/>
-                                    </svg>
-
-                                    <span>Edit</span>
-                                </a>
-                            </div>
+                                        <a href="{{ route('expert.itineraries.show', $itinerary) }}"
+                                           class="group inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-copper text-copper font-medium text-sm
+                                                  hover:bg-copper hover:text-white hover:shadow-glow transition-all duration-200 ease-out">
+                                            <svg xmlns="http://www.w3.org/2000/svg"
+                                                 class="w-4 h-4 transition-transform group-hover:translate-x-0.5"
+                                                 fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                      d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                            </svg>
+                                            View Details
+                                        </a>
+                                    </div>
 
                         </div>
 
-                        {{-- TOP ITEMS PREVIEW --}}
+                        {{-- Preview of Top Items --}}
                         @if($itinerary->items?->count())
                             <ul class="list-disc ml-6 mt-3 text-sm text-ink-700 dark:text-sand-100">
                                 @foreach ($itinerary->items->take(3) as $item)
@@ -153,8 +144,8 @@
                 @empty
                     <p class="italic text-ink-600 dark:text-ink-300">No itineraries assigned yet.</p>
                 @endforelse
-
             </div>
+
         </div>
     </div>
 </x-app-layout>

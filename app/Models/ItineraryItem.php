@@ -51,6 +51,14 @@ class ItineraryItem extends Model
         return $this->belongsTo(Place::class);
     }
 
+    /**
+     * Expert suggestions for replacing this item.
+     */
+    public function expertSuggestions()
+    {
+        return $this->hasMany(ExpertSuggestion::class);
+    }
+
     /* -----------------------------------------------------------------
      |  Accessors / Mutators
      |------------------------------------------------------------------*/
