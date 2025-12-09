@@ -123,8 +123,12 @@ namespace App\Models{
  * @property-read string $profile_photo_url
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ExpertItineraryInvitation> $itineraryInvitations
  * @property-read int|null $itinerary_invitations_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PlaceSuggestion> $placeSuggestions
+ * @property-read int|null $place_suggestions_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ExpertReview> $reviews
  * @property-read int|null $reviews_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ExpertSuggestion> $suggestions
+ * @property-read int|null $suggestions_count
  * @property-read \App\Models\User $user
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Expert newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Expert newQuery()
@@ -197,6 +201,42 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ExpertReview whereUpdatedAt($value)
  */
 	class ExpertReview extends \Eloquent {}
+}
+
+namespace App\Models{
+/**
+ * @property int $id
+ * @property int $itinerary_item_id
+ * @property int $expert_id
+ * @property int|null $place_id
+ * @property string $type
+ * @property string $status
+ * @property string|null $reason
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\Expert $expert
+ * @property-read \App\Models\ItineraryItem $itineraryItem
+ * @property-read \App\Models\Place|null $place
+ * @property-read \App\Models\PlaceSuggestion|null $placeSuggestion
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ExpertSuggestion approved()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ExpertSuggestion newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ExpertSuggestion newPlace()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ExpertSuggestion newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ExpertSuggestion pending()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ExpertSuggestion query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ExpertSuggestion rejected()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ExpertSuggestion replacement()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ExpertSuggestion whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ExpertSuggestion whereExpertId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ExpertSuggestion whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ExpertSuggestion whereItineraryItemId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ExpertSuggestion wherePlaceId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ExpertSuggestion whereReason($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ExpertSuggestion whereStatus($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ExpertSuggestion whereType($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ExpertSuggestion whereUpdatedAt($value)
+ */
+	class ExpertSuggestion extends \Eloquent {}
 }
 
 namespace App\Models{
@@ -295,6 +335,8 @@ namespace App\Models{
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read mixed $duration
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ExpertSuggestion> $expertSuggestions
+ * @property-read int|null $expert_suggestions_count
  * @property-read \App\Models\Itinerary $itinerary
  * @property-read mixed $label
  * @property-read \App\Models\Place|null $place
@@ -404,6 +446,57 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Place whereUpdatedAt($value)
  */
 	class Place extends \Eloquent {}
+}
+
+namespace App\Models{
+/**
+ * @property int $id
+ * @property int|null $expert_suggestion_id
+ * @property int $expert_id
+ * @property string $name
+ * @property string|null $description
+ * @property string|null $location
+ * @property string|null $type
+ * @property float|null $lat
+ * @property float|null $lon
+ * @property float|null $rating
+ * @property int|null $num_reviews
+ * @property string|null $phone
+ * @property string|null $website
+ * @property string|null $google_maps_url
+ * @property string $status
+ * @property int|null $place_id
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\Expert $expert
+ * @property-read \App\Models\ExpertSuggestion|null $expertSuggestion
+ * @property-read \App\Models\Place|null $place
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PlaceSuggestion approved()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PlaceSuggestion convertedToPlace()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PlaceSuggestion newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PlaceSuggestion newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PlaceSuggestion pending()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PlaceSuggestion query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PlaceSuggestion whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PlaceSuggestion whereDescription($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PlaceSuggestion whereExpertId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PlaceSuggestion whereExpertSuggestionId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PlaceSuggestion whereGoogleMapsUrl($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PlaceSuggestion whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PlaceSuggestion whereLat($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PlaceSuggestion whereLocation($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PlaceSuggestion whereLon($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PlaceSuggestion whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PlaceSuggestion whereNumReviews($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PlaceSuggestion wherePhone($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PlaceSuggestion wherePlaceId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PlaceSuggestion whereRating($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PlaceSuggestion whereStatus($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PlaceSuggestion whereType($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PlaceSuggestion whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PlaceSuggestion whereWebsite($value)
+ */
+	class PlaceSuggestion extends \Eloquent {}
 }
 
 namespace App\Models{
