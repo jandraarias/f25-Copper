@@ -197,6 +197,19 @@
                                 Edit Itinerary
                             </a>
 
+                            {{-- Add Expert (only if no expert assigned or pending) --}}
+                            @if (!$acceptedExpertInvite && !$pendingExpertInvite)
+                                <a href="{{ route('traveler.experts.index') }}"
+                                   class="group flex items-center justify-center gap-2 px-6 py-2.5 rounded-full border border-copper text-copper
+                                          hover:bg-copper hover:text-white hover:shadow-glow hover:scale-[1.03]
+                                          transition-all duration-200 ease-out font-semibold shadow-soft">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+                                    </svg>
+                                    Add Expert
+                                </a>
+                            @endif
+
                             {{-- View Expert Suggestions --}}
                             @if ($itinerary->expertInvitations()->where('status', 'accepted')->exists())
                                 <a href="{{ route('traveler.itineraries.suggestions.index', $itinerary) }}"

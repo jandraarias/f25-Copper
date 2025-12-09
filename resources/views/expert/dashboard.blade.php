@@ -123,7 +123,8 @@
 
             {{-- ================= Assigned Itineraries ================= --}}
             <div class="bg-white dark:bg-sand-800 shadow-soft rounded-3xl border border-sand-200 dark:border-ink-700
-                        p-8 transition-all duration-200 ease-out hover:shadow-glow hover:scale-[1.01]">
+                        p-8 transition-all duration-200 ease-out hover:shadow-glow hover:scale-[1.01]"
+                        id="assigned-itineraries-section">
                 <div class="flex items-center mb-6">
                     <div class="w-10 h-10 flex items-center justify-center rounded-full bg-copper/10 mr-3">
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-copper" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
@@ -134,6 +135,7 @@
                     <h3 class="text-xl font-semibold text-ink-900 dark:text-ink-100">Assigned Itineraries</h3>
                 </div>
 
+                <div id="itineraries-list">
                 @forelse ($itineraries as $itinerary)
 
                     @php
@@ -190,6 +192,7 @@
                 @empty
                     <p class="text-sm text-ink-500 dark:text-sand-100 italic">No itineraries assigned yet.</p>
                 @endforelse
+                </div>
             </div>
 
         </div>
@@ -198,6 +201,7 @@
         <script>
             (function(){
                 const csrf = '{{ csrf_token() }}';
+                let lastItineraryCount = {{ $itineraries->count() }};
 
                 function updatePendingCount(delta) {
                     const el = document.querySelector('.pending-invitations-count');
@@ -205,6 +209,50 @@
                     const current = parseInt(el.textContent || '0', 10);
                     el.textContent = Math.max(0, current + delta);
                 }
+
+                // Poll for itinerary updates
+                async function checkForNewItineraries() {
+                    try {
+                        const res = await fetch('{{ route("expert.dashboard") }}', {
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest',
+                                'Accept': 'application/json'
+                            }
+                        });
+                        
+                        if (res.ok) {
+                            const html = await res.text();
+                            const parser = new DOMParser();
+                            const doc = parser.parseFromString(html, 'text/html');
+                            const newItinerariesList = doc.querySelector('#itineraries-list');
+                            const currentItinerariesList = document.querySelector('#itineraries-list');
+                            
+                            if (newItinerariesList && currentItinerariesList) {
+                                const newContent = newItinerariesList.innerHTML;
+                                const currentContent = currentItinerariesList.innerHTML;
+                                
+                                // Update if content changed
+                                if (newContent !== currentContent) {
+                                    currentItinerariesList.innerHTML = newContent;
+                                    
+                                    // Flash animation to indicate update
+                                    const section = document.querySelector('#assigned-itineraries-section');
+                                    if (section) {
+                                        section.classList.add('ring-2', 'ring-copper');
+                                        setTimeout(() => {
+                                            section.classList.remove('ring-2', 'ring-copper');
+                                        }, 2000);
+                                    }
+                                }
+                            }
+                        }
+                    } catch (err) {
+                        console.error('Failed to check for itinerary updates:', err);
+                    }
+                }
+
+                // Start polling every 5 seconds
+                setInterval(checkForNewItineraries, 5000);
 
                 document.querySelectorAll('.ajax-invite-form').forEach(form => {
                     form.addEventListener('submit', async (e) => {
@@ -237,6 +285,11 @@
                             if (card) card.remove();
                             // Decrement pending count if present
                             updatePendingCount(-1);
+
+                            // Trigger immediate update of itineraries list if accepted
+                            if (data.status === 'accepted') {
+                                setTimeout(checkForNewItineraries, 500);
+                            }
 
                             // Optionally redirect when accepted to itinerary show
                             if (data.status === 'accepted' && data.itinerary) {

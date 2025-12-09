@@ -119,11 +119,12 @@
                                 {{ $expert->city }}
                             </p>
 
-                            {{-- Reviews --}}
-                            <p class="text-center text-sm text-copper font-semibold mt-2">
-                                {{ $expert->reviews_count }}
-                                {{ Str::plural('review', $expert->reviews_count) }}
-                            </p>
+                            {{-- Rate --}}
+                            @if($expert->hourly_rate)
+                                <p class="text-center text-sm text-copper font-semibold mt-2">
+                                    Rate: ${{ number_format($expert->hourly_rate, 2) }}
+                                </p>
+                            @endif
 
                             {{-- Bio preview --}}
                             @if($expert->bio)
