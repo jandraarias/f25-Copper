@@ -101,24 +101,24 @@
 
                                     <div class="flex justify-between items-start mb-4">
                                         <div>
-                                            <p class="font-semibold text-ink-900 dark:text-ink-100">
+                                            <p class="font-semibold text-black">
                                                 {{ ucfirst($item->type) }} — {{ $item->title }}
                                             </p>
 
                                             @if($item->location)
-                                                <p class="text-sm text-ink-600 dark:text-ink-300 mt-1">
+                                                <p class="text-sm text-black mt-1">
                                                     📍 {{ $item->location }}
                                                 </p>
                                             @endif
 
                                             @if($item->place && $item->place->rating)
-                                                <p class="text-sm text-ink-600 dark:text-ink-300 mt-1">
+                                                <p class="text-sm text-black mt-1">
                                                     ⭐ {{ $item->place->rating }} ({{ $item->place->num_reviews ?? 0 }} reviews)
                                                 </p>
                                             @endif
 
                                             @if($item->start_time)
-                                                <p class="text-xs text-ink-500 dark:text-ink-400 mt-2">
+                                                <p class="text-xs text-black mt-2">
                                                     🕐 {{ \Carbon\Carbon::parse($item->start_time)->format('g:i A') }}
                                                     @if($item->end_time)
                                                         - {{ \Carbon\Carbon::parse($item->end_time)->format('g:i A') }}
@@ -129,7 +129,7 @@
 
                                         {{-- Edit Button --}}
                                         <button @click="toggleEditor()"
-                                                class="px-3 py-1.5 text-sm rounded-lg border border-copper text-copper font-medium
+                                                class="px-3 py-1.5 text-sm rounded-lg border border-copper text-copper dark:text-copper-300 font-medium
                                                        hover:bg-copper hover:text-white transition duration-200">
                                             Suggest Edit
                                         </button>
@@ -166,19 +166,19 @@
                                     @endif
 
                                     @if($approvedSuggestions->count() > 0)
-                                        <div class="mt-4 p-3 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
-                                            <p class="text-xs font-semibold text-green-800 dark:text-green-200 mb-2">
+                                        <div class="mt-4 p-3 bg-green-800 dark:bg-green-900 rounded-lg border border-green-900 dark:border-green-950">
+                                            <p class="text-xs font-semibold text-white mb-2">
                                                 ✓ Approved Suggestions ({{ $approvedSuggestions->count() }})
                                             </p>
                                             <div class="space-y-2">
                                                 @foreach($approvedSuggestions as $suggestion)
-                                                    <div class="text-xs text-green-700 dark:text-green-300 p-2 bg-white dark:bg-ink-800 rounded">
+                                                    <div class="text-xs text-black p-2 bg-white dark:bg-white rounded">
                                                         @if($suggestion->type === 'replacement' && $suggestion->place)
                                                             <strong>{{ $suggestion->place->name }}</strong> — {{ $suggestion->place->address ?? $suggestion->place->location }}
                                                         @elseif($suggestion->placeSuggestion)
                                                             <strong>{{ $suggestion->placeSuggestion->name }}</strong> (New suggestion)
                                                         @endif
-                                                        <p class="mt-1 text-green-600 dark:text-green-400 text-xs">Applied to itinerary</p>
+                                                        <p class="mt-1 text-black text-xs">Applied to itinerary</p>
                                                     </div>
                                                 @endforeach
                                             </div>
@@ -186,19 +186,19 @@
                                     @endif
 
                                     @if($rejectedSuggestions->count() > 0)
-                                        <div class="mt-4 p-3 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800">
-                                            <p class="text-xs font-semibold text-red-800 dark:text-red-200 mb-2">
+                                        <div class="mt-4 p-3 bg-red-800 dark:bg-red-900 rounded-lg border border-red-900 dark:border-red-950">
+                                            <p class="text-xs font-semibold text-white mb-2">
                                                 ✗ Rejected Suggestions ({{ $rejectedSuggestions->count() }})
                                             </p>
                                             <div class="space-y-2">
                                                 @foreach($rejectedSuggestions as $suggestion)
-                                                    <div class="text-xs text-red-700 dark:text-red-300 p-2 bg-white dark:bg-ink-800 rounded">
+                                                    <div class="text-xs text-black p-2 bg-white dark:bg-white rounded">
                                                         @if($suggestion->type === 'replacement' && $suggestion->place)
                                                             <strong>{{ $suggestion->place->name }}</strong> — {{ $suggestion->place->address ?? $suggestion->place->location }}
                                                         @elseif($suggestion->placeSuggestion)
                                                             <strong>{{ $suggestion->placeSuggestion->name }}</strong> (New suggestion)
                                                         @endif
-                                                        <p class="mt-1 text-red-600 dark:text-red-400 text-xs">Declined by traveler</p>
+                                                        <p class="mt-1 text-black text-xs">Declined by traveler</p>
                                                     </div>
                                                 @endforeach
                                             </div>
