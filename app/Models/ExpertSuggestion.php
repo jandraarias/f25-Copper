@@ -49,7 +49,7 @@ class ExpertSuggestion extends Model
      */
     public function place(): BelongsTo
     {
-        return $this->belongsTo(Place::class)->withTrashed();
+        return $this->belongsTo(Place::class);
     }
 
     /**

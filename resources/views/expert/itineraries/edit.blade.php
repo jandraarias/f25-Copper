@@ -136,14 +136,20 @@
                                     </div>
 
                                     {{-- Existing Suggestions --}}
-                                    @if($item->expertSuggestions->count() > 0)
-                                        <div class="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
-                                            <p class="text-xs font-semibold text-blue-800 dark:text-blue-200 mb-2">
-                                                Pending Suggestions ({{ $item->expertSuggestions->count() }})
+                                    @php
+                                        $pendingSuggestions = $item->expertSuggestions->where('status', 'pending');
+                                        $approvedSuggestions = $item->expertSuggestions->where('status', 'approved');
+                                        $rejectedSuggestions = $item->expertSuggestions->where('status', 'rejected');
+                                    @endphp
+
+                                    @if($pendingSuggestions->count() > 0)
+                                        <div class="mt-4 p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border border-yellow-200 dark:border-yellow-800">
+                                            <p class="text-xs font-semibold text-yellow-800 dark:text-yellow-200 mb-2">
+                                                ⏳ Pending Suggestions ({{ $pendingSuggestions->count() }})
                                             </p>
                                             <div class="space-y-2">
-                                                @foreach($item->expertSuggestions as $suggestion)
-                                                    <div class="text-xs text-blue-700 dark:text-blue-300 p-2 bg-white dark:bg-ink-800 rounded">
+                                                @foreach($pendingSuggestions as $suggestion)
+                                                    <div class="text-xs text-yellow-700 dark:text-yellow-300 p-2 bg-white dark:bg-ink-800 rounded">
                                                         @if($suggestion->type === 'replacement' && $suggestion->place)
                                                             <strong>{{ $suggestion->place->name }}</strong> — {{ $suggestion->place->address ?? $suggestion->place->location }}
                                                         @elseif($suggestion->placeSuggestion)
@@ -152,6 +158,47 @@
                                                         @if($suggestion->reason)
                                                             <p class="mt-1 italic">"{{ $suggestion->reason }}"</p>
                                                         @endif
+                                                        <p class="mt-1 text-yellow-600 dark:text-yellow-400 text-xs">Awaiting traveler approval</p>
+                                                    </div>
+                                                @endforeach
+                                            </div>
+                                        </div>
+                                    @endif
+
+                                    @if($approvedSuggestions->count() > 0)
+                                        <div class="mt-4 p-3 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
+                                            <p class="text-xs font-semibold text-green-800 dark:text-green-200 mb-2">
+                                                ✓ Approved Suggestions ({{ $approvedSuggestions->count() }})
+                                            </p>
+                                            <div class="space-y-2">
+                                                @foreach($approvedSuggestions as $suggestion)
+                                                    <div class="text-xs text-green-700 dark:text-green-300 p-2 bg-white dark:bg-ink-800 rounded">
+                                                        @if($suggestion->type === 'replacement' && $suggestion->place)
+                                                            <strong>{{ $suggestion->place->name }}</strong> — {{ $suggestion->place->address ?? $suggestion->place->location }}
+                                                        @elseif($suggestion->placeSuggestion)
+                                                            <strong>{{ $suggestion->placeSuggestion->name }}</strong> (New suggestion)
+                                                        @endif
+                                                        <p class="mt-1 text-green-600 dark:text-green-400 text-xs">Applied to itinerary</p>
+                                                    </div>
+                                                @endforeach
+                                            </div>
+                                        </div>
+                                    @endif
+
+                                    @if($rejectedSuggestions->count() > 0)
+                                        <div class="mt-4 p-3 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800">
+                                            <p class="text-xs font-semibold text-red-800 dark:text-red-200 mb-2">
+                                                ✗ Rejected Suggestions ({{ $rejectedSuggestions->count() }})
+                                            </p>
+                                            <div class="space-y-2">
+                                                @foreach($rejectedSuggestions as $suggestion)
+                                                    <div class="text-xs text-red-700 dark:text-red-300 p-2 bg-white dark:bg-ink-800 rounded">
+                                                        @if($suggestion->type === 'replacement' && $suggestion->place)
+                                                            <strong>{{ $suggestion->place->name }}</strong> — {{ $suggestion->place->address ?? $suggestion->place->location }}
+                                                        @elseif($suggestion->placeSuggestion)
+                                                            <strong>{{ $suggestion->placeSuggestion->name }}</strong> (New suggestion)
+                                                        @endif
+                                                        <p class="mt-1 text-red-600 dark:text-red-400 text-xs">Declined by traveler</p>
                                                     </div>
                                                 @endforeach
                                             </div>

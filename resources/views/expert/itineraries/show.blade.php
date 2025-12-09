@@ -83,18 +83,24 @@
                     </h3>
                 </div>
 
-                @forelse($itinerary->items->groupBy('day') as $day => $items)
+                @forelse($itinerary->items->groupBy(function ($item) {
+                    return $item->start_time ? \Carbon\Carbon::parse($item->start_time)->format('Y-m-d') : 'unscheduled';
+                }) as $date => $items)
                     <div class="mb-8 pb-6 border-b border-sand-200 dark:border-ink-700 last:border-none last:pb-0">
 
-                        <h4 class="text-lg font-semibold text-ink-900 dark:text-ink-100 mb-3">
-                            Day {{ $day }}
+                        <h4 class="text-lg font-semibold text-ink-900 dark:text-ink-100 mb-4">
+                            @if($date !== 'unscheduled')
+                                {{ \Carbon\Carbon::parse($date)->format('l, M d, Y') }}
+                            @else
+                                Unscheduled Activities
+                            @endif
                         </h4>
 
                         <div class="space-y-4">
 
                             @foreach($items as $item)
                                 <div class="p-4 rounded-xl bg-sand-100 dark:bg-ink-800 border border-sand-200 dark:border-ink-700
-                                            shadow-sm flex justify-between items-start">
+                                            shadow-sm">
 
                                     <div>
                                         <p class="font-semibold text-ink-900 dark:text-ink-100">
@@ -102,19 +108,32 @@
                                         </p>
 
                                         @if($item->location)
-                                            <p class="text-sm text-ink-600 dark:text-ink-300">
-                                                {{ $item->location }}
+                                            <p class="text-sm text-ink-600 dark:text-ink-300 mt-1">
+                                                📍 {{ $item->location }}
                                             </p>
                                         @endif
 
-                                        @if($item->notes)
+                                        @if($item->place && $item->place->rating)
+                                            <p class="text-sm text-ink-600 dark:text-ink-300 mt-1">
+                                                ⭐ {{ $item->place->rating }} ({{ $item->place->num_reviews ?? 0 }} reviews)
+                                            </p>
+                                        @endif
+
+                                        @if($item->start_time)
+                                            <p class="text-xs text-ink-500 dark:text-ink-400 mt-2">
+                                                🕐 {{ \Carbon\Carbon::parse($item->start_time)->format('g:i A') }}
+                                                @if($item->end_time)
+                                                    - {{ \Carbon\Carbon::parse($item->end_time)->format('g:i A') }}
+                                                @endif
+                                            </p>
+                                        @endif
+
+                                        @if($item->details)
                                             <p class="text-xs text-ink-500 dark:text-ink-400 mt-2 italic">
-                                                "{{ $item->notes }}"
+                                                {{ $item->details }}
                                             </p>
                                         @endif
                                     </div>
-
-                                    {{-- Future: Add expert tag, comment, approve button --}}
                                 </div>
                             @endforeach
 

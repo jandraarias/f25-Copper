@@ -35,8 +35,19 @@ class ItineraryController extends Controller
 
         // Counts across the full matching set
         $total = (clone $base)->count();
-        $upcomingCount = (clone $base)->whereDate('start_date', '>=', today())->count();
-        $pastCount = (clone $base)->whereDate('end_date', '<', today())->count();
+        
+        // Upcoming: trips that haven't ended yet (includes current trips)
+        $upcomingCount = (clone $base)
+            ->where(function($q) {
+                $q->where('end_date', '>=', today())
+                  ->orWhereNull('end_date');
+            })
+            ->count();
+        
+        // Past: trips that have already ended
+        $pastCount = (clone $base)
+            ->where('end_date', '<', today())
+            ->count();
 
         // Paginate results for the list view
         $itineraries = $base->with(['traveler.user', 'items'])
