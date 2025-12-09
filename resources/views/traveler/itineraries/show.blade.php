@@ -31,6 +31,25 @@
         <div class="py-12 bg-sand dark:bg-sand-900 min-h-screen">
             <div class="mx-auto max-w-6xl sm:px-6 lg:px-8 space-y-10">
 
+                {{-- Flash Messages --}}
+                @if (session('success'))
+                    <div class="p-4 rounded-2xl border border-emerald-200 bg-emerald-50 text-emerald-900 shadow-soft">
+                        {{ session('success') }}
+                    </div>
+                @endif
+
+                @if (session('warning'))
+                    <div class="p-4 rounded-2xl border border-amber-200 bg-amber-50 text-amber-900 shadow-soft">
+                        {{ session('warning') }}
+                    </div>
+                @endif
+
+                @if (session('error'))
+                    <div class="p-4 rounded-2xl border border-red-200 bg-red-50 text-red-900 shadow-soft">
+                        {{ session('error') }}
+                    </div>
+                @endif
+
                 {{-- AI Generation Info --}}
                 @if ($itinerary->preferenceProfile)
                     <div class="p-5 rounded-2xl bg-gradient-to-br from-sand-100 to-sand-50 dark:from-sand-800 dark:to-sand-900 border border-sand-200 dark:border-ink-700 shadow-soft">

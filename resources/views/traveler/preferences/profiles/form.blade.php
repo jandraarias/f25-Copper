@@ -47,6 +47,13 @@
                         @method('PUT')
                     @endif
 
+                    {{-- Minimum preferences error (your $validator->after(...) message) --}}
+                    @error('preferences')
+                        <div class="p-4 mb-6 rounded-2xl border border-red-200 bg-red-50 text-red-900 shadow-soft">
+                            {{ $message }}
+                        </div>
+                    @enderror
+
                     {{-- Profile Name --}}
                     <div class="mb-8">
                         <label class="block text-sm font-semibold text-ink-700 dark:text-ink-200 mb-2">Profile Name</label>
