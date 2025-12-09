@@ -132,11 +132,34 @@ Route::middleware(['auth', 'role:expert'])
         Route::post('/itinerary-invitations/{invitation}/accept', [ExpertItineraryInvitationController::class, 'accept'])->name('itinerary-invitations.accept');
         Route::post('/itinerary-invitations/{invitation}/decline', [ExpertItineraryInvitationController::class, 'decline'])->name('itinerary-invitations.decline');
 
-        // Itineraries
+        /*
+        |--------------------------------------------------------------------------
+        | Expert Itineraries
+        |--------------------------------------------------------------------------
+        */
         Route::get('/itineraries', [ExpertItineraryController::class, 'index'])->name('itineraries.index');
         Route::get('/itineraries/{itinerary}', [ExpertItineraryController::class, 'show'])->name('itineraries.show');
 
-        // Travelers
+        // Edit page allowed; update route exists but policy will restrict meta fields
+        Route::get('/itineraries/{itinerary}/edit', [ExpertItineraryController::class, 'edit'])->name('itineraries.edit');
+        Route::match(['put', 'patch'], '/itineraries/{itinerary}', [ExpertItineraryController::class, 'update'])->name('itineraries.update');
+
+        // Map data endpoint for expert UI (reuses traveler controller action)
+        Route::get('/itineraries/{itinerary}/places', [TravelerItineraryController::class, 'placesJson'])
+            ->name('itineraries.places');
+
+        /*
+        |--------------------------------------------------------------------------
+        | Expert Itinerary Items (Add/Edit/Delete only)
+        |--------------------------------------------------------------------------
+        */
+        Route::get('/itineraries/{itinerary}/items/create', [ExpertItemController::class, 'create'])->name('items.create');
+        Route::post('/itineraries/{itinerary}/items', [ExpertItemController::class, 'store'])->name('items.store');
+        Route::get('/items/{item}/edit', [ExpertItemController::class, 'edit'])->name('items.edit');
+        Route::put('/items/{item}', [ExpertItemController::class, 'update'])->name('items.update');
+        Route::delete('/items/{item}', [ExpertItemController::class, 'destroy'])->name('items.destroy');
+
+        // Travelers (view-only for experts)
         Route::get('/travelers', [ExpertTravelerController::class, 'index'])->name('travelers.index');
         Route::get('/travelers/{traveler}', [ExpertTravelerController::class, 'show'])->name('travelers.show');
 
@@ -145,7 +168,7 @@ Route::middleware(['auth', 'role:expert'])
         Route::get('/messages/{traveler}', [ExpertMessageController::class, 'show'])->name('messages.show');
         Route::post('/messages/{traveler}', [ExpertMessageController::class, 'store'])->name('messages.store');
 
-        // Expert's own profile
+        // Expert Profile
         Route::get('/profile', [ExpertProfileController::class, 'show'])->name('profile.show');
         Route::get('/profile/edit', [ExpertProfileController::class, 'edit'])->name('profile.edit');
         Route::patch('/profile', [ExpertProfileController::class, 'update'])->name('profile.update');
@@ -191,6 +214,13 @@ Route::middleware(['auth', 'role:traveler'])
 
         Route::post('itineraries/{itinerary}/invite', [TravelerItineraryController::class, 'invite'])
             ->name('itineraries.invite');
+
+        /*
+         * NEW: Invite Local Expert
+         */
+        Route::post('itineraries/{itinerary}/invite-expert', 
+            [TravelerItineraryController::class, 'inviteExpert']
+        )->name('itineraries.invite-expert');
 
         Route::post('itineraries/{itinerary}/enable-collaboration', [TravelerItineraryController::class, 'enableCollaboration'])
             ->name('itineraries.enable-collaboration');
@@ -295,4 +325,3 @@ Route::get('/itineraries/{itinerary}/pdf', ItineraryPdfController::class)
 */
 
 require __DIR__ . '/auth.php';
-

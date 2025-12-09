@@ -116,20 +116,26 @@ namespace App\Models{
  * @property string|null $expertise
  * @property string|null $languages
  * @property int|null $experience_years
+ * @property string|null $hourly_rate
+ * @property string|null $availability
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read string $profile_photo_url
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ExpertItineraryInvitation> $itineraryInvitations
+ * @property-read int|null $itinerary_invitations_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ExpertReview> $reviews
  * @property-read int|null $reviews_count
  * @property-read \App\Models\User $user
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Expert newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Expert newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Expert query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Expert whereAvailability($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Expert whereBio($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Expert whereCity($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Expert whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Expert whereExperienceYears($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Expert whereExpertise($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Expert whereHourlyRate($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Expert whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Expert whereLanguages($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Expert whereName($value)
@@ -138,6 +144,35 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Expert whereUserId($value)
  */
 	class Expert extends \Eloquent {}
+}
+
+namespace App\Models{
+/**
+ * @property int $id
+ * @property int $itinerary_id
+ * @property int $expert_id
+ * @property int $traveler_id
+ * @property string $status
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\Expert $expert
+ * @property-read \App\Models\Itinerary $itinerary
+ * @property-read \App\Models\Traveler $traveler
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ExpertItineraryInvitation accepted()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ExpertItineraryInvitation declined()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ExpertItineraryInvitation newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ExpertItineraryInvitation newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ExpertItineraryInvitation pending()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ExpertItineraryInvitation query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ExpertItineraryInvitation whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ExpertItineraryInvitation whereExpertId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ExpertItineraryInvitation whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ExpertItineraryInvitation whereItineraryId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ExpertItineraryInvitation whereStatus($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ExpertItineraryInvitation whereTravelerId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ExpertItineraryInvitation whereUpdatedAt($value)
+ */
+	class ExpertItineraryInvitation extends \Eloquent {}
 }
 
 namespace App\Models{
@@ -184,10 +219,16 @@ namespace App\Models{
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Country> $countries
  * @property-read int|null $countries_count
  * @property-read \App\Models\User|null $creator
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ExpertItineraryInvitation> $expertInvitations
+ * @property-read int|null $expert_invitations_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Expert> $experts
+ * @property-read int|null $experts_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ItineraryInvitation> $invitations
  * @property-read int|null $invitations_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ItineraryItem> $items
  * @property-read int|null $items_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ExpertItineraryInvitation> $pendingExpertInvitations
+ * @property-read int|null $pending_expert_invitations_count
  * @property-read \App\Models\PreferenceProfile|null $preferenceProfile
  * @property-read \App\Models\Traveler $traveler
  * @method static \Database\Factories\ItineraryFactory factory($count = null, $state = [])
