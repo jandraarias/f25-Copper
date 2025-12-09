@@ -178,6 +178,19 @@
                                 Edit Itinerary
                             </a>
 
+                            {{-- View Expert Suggestions --}}
+                            @if ($itinerary->expertInvitations()->where('status', 'accepted')->exists())
+                                <a href="{{ route('traveler.itineraries.manage-suggestions', $itinerary) }}"
+                                   class="group flex items-center justify-center gap-2 px-6 py-2.5 rounded-full border border-blue-400 text-blue-700 dark:text-blue-200
+                                          hover:bg-blue-600 hover:text-white hover:shadow-glow hover:scale-[1.03]
+                                          transition-all duration-200 ease-out font-semibold shadow-soft dark:border-blue-600">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    Expert Suggestions
+                                </a>
+                            @endif
+
                             @if (Auth::id() === optional($itinerary->traveler->user)->id)
                                 {{-- Collaboration Toggle + Manage --}}
 

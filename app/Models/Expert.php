@@ -39,6 +39,22 @@ class Expert extends Model
     }
 
     /**
+     * Expert suggestions made by this expert.
+     */
+    public function suggestions()
+    {
+        return $this->hasMany(ExpertSuggestion::class);
+    }
+
+    /**
+     * Place suggestions submitted by this expert.
+     */
+    public function placeSuggestions()
+    {
+        return $this->hasMany(PlaceSuggestion::class);
+    }
+
+    /**
      * Profile Photo Accessor (Unified)
      *
      * Priority:

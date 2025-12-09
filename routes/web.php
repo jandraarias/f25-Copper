@@ -30,6 +30,7 @@ use App\Http\Controllers\Traveler\MessageController as TravelerMessageController
 // Expert Controllers
 use App\Http\Controllers\Expert\DashboardController as ExpertDashboardController;
 use App\Http\Controllers\Expert\ItineraryController as ExpertItineraryController;
+use App\Http\Controllers\Expert\ItineraryEditController as ExpertItineraryEditController;
 use App\Http\Controllers\Expert\TravelerController as ExpertTravelerController;
 use App\Http\Controllers\Expert\ProfileController as ExpertProfileController;
 use App\Http\Controllers\Expert\MessageController as ExpertMessageController;
@@ -135,6 +136,12 @@ Route::middleware(['auth', 'role:expert'])
         // Itineraries
         Route::get('/itineraries', [ExpertItineraryController::class, 'index'])->name('itineraries.index');
         Route::get('/itineraries/{itinerary}', [ExpertItineraryController::class, 'show'])->name('itineraries.show');
+        Route::get('/itineraries/{itinerary}/edit', [ExpertItineraryEditController::class, 'edit'])->name('itineraries.edit');
+
+        // Expert Editing & Suggestions
+        Route::post('/itineraries/{itinerary}/suggest-replacement', [ExpertItineraryEditController::class, 'suggestReplacement'])->name('itineraries.suggest-replacement');
+        Route::get('/itineraries/{itinerary}/items/{item}/suggestions', [ExpertItineraryEditController::class, 'getItemSuggestions'])->name('itineraries.item-suggestions');
+        Route::get('/search-places', [ExpertItineraryEditController::class, 'searchPlaces'])->name('search-places');
 
         // Travelers
         Route::get('/travelers', [ExpertTravelerController::class, 'index'])->name('travelers.index');
@@ -204,6 +211,14 @@ Route::middleware(['auth', 'role:traveler'])
             
       Route::get('/itineraries/{itinerary}/places', [TravelerItineraryController::class, 'placesJson']
             )->name('itineraries.places');
+
+        // Expert Suggestions Management
+        Route::get('/itineraries/{itinerary}/suggestions', [ExpertItineraryEditController::class, 'manageSuggestions'])
+            ->name('itineraries.manage-suggestions');
+        Route::post('/suggestions/{suggestion}/approve', [ExpertItineraryEditController::class, 'approveSuggestion'])
+            ->name('suggestions.approve');
+        Route::post('/suggestions/{suggestion}/reject', [ExpertItineraryEditController::class, 'rejectSuggestion'])
+            ->name('suggestions.reject');
 
 
 

@@ -22,25 +22,32 @@
                 <div class="bg-white dark:bg-sand-800 p-6 rounded-3xl shadow-soft border border-sand-200 dark:border-ink-700">
                     <p class="text-sm text-ink-500 dark:text-ink-300">Total Itineraries</p>
                     <p class="text-2xl font-semibold text-ink-900 dark:text-ink-100">
-                        {{ $itineraries->count() }}
+                        {{ $total ?? (method_exists($itineraries, 'total') ? $itineraries->total() : $itineraries->count()) }}
                     </p>
                 </div>
 
                 <div class="bg-white dark:bg-sand-800 p-6 rounded-3xl shadow-soft border border-sand-200 dark:border-ink-700">
                     <p class="text-sm text-ink-500 dark:text-ink-300">Upcoming Trips</p>
                     <p class="text-2xl font-semibold text-ink-900 dark:text-ink-100">
-                        {{ $itineraries->filter(fn($i) => $i->start_date >= now())->count() }}
+                        {{ $upcomingCount ?? ( (method_exists($itineraries, 'filter') ? $itineraries->filter(fn($i) => $i->start_date >= now())->count() : 0) ) }}
                     </p>
                 </div>
 
                 <div class="bg-white dark:bg-sand-800 p-6 rounded-3xl shadow-soft border border-sand-200 dark:border-ink-700">
                     <p class="text-sm text-ink-500 dark:text-ink-300">Past Trips</p>
                     <p class="text-2xl font-semibold text-ink-900 dark:text-ink-100">
-                        {{ $itineraries->filter(fn($i) => $i->end_date < now())->count() }}
+                        {{ $pastCount ?? ( (method_exists($itineraries, 'filter') ? $itineraries->filter(fn($i) => $i->end_date < now())->count() : 0) ) }}
                     </p>
                 </div>
 
             </div>
+
+            {{-- Pagination Links --}}
+            @if (isset($itineraries) && $itineraries instanceof \Illuminate\Pagination\LengthAwarePaginator)
+                <div class="mt-4">
+                    {{ $itineraries->links() }}
+                </div>
+            @endif
 
             {{-- ================ Itineraries List ================ --}}
             <div class="bg-white dark:bg-sand-800 shadow-soft rounded-3xl border border-sand-200 dark:border-ink-700
@@ -64,7 +71,9 @@
                             {{-- Left side --}}
                             <div>
                                 <p class="font-semibold text-lg text-ink-900 dark:text-ink-100">
-                                    {{ $itinerary->name }}
+                                    <a href="{{ route('expert.itineraries.show', $itinerary) }}" class="hover:underline text-ink-900 dark:text-ink-100">
+                                        {{ $itinerary->name }}
+                                    </a>
                                 </p>
 
                                 <p class="text-sm text-ink-500 dark:text-ink-300">
@@ -80,19 +89,30 @@
                             </div>
 
                             {{-- Right side --}}
-                            <a href="#"
-                               class="group inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-copper text-copper font-medium text-sm
-                                      hover:bg-copper hover:text-white hover:shadow-glow transition-all duration-200 ease-out">
-                                <svg xmlns="http://www.w3.org/2000/svg"
-                                     class="w-4 h-4 transition-transform group-hover:translate-x-0.5"
-                                     fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
-                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                          d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                          d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                                </svg>
-                                View Details
-                            </a>
+                                     <div class="flex items-center gap-2">
+                                        <a href="{{ route('expert.itineraries.edit', $itinerary) }}"
+                                           class="group inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-sand-300 dark:border-ink-600 text-ink-800 dark:text-sand-100 font-medium text-sm
+                                                  hover:bg-sand-200 dark:hover:bg-ink-700 hover:shadow-glow transition-all duration-200 ease-out">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                            </svg>
+                                            Suggest Changes
+                                        </a>
+
+                                        <a href="{{ route('expert.itineraries.show', $itinerary) }}"
+                                           class="group inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-copper text-copper font-medium text-sm
+                                                  hover:bg-copper hover:text-white hover:shadow-glow transition-all duration-200 ease-out">
+                                            <svg xmlns="http://www.w3.org/2000/svg"
+                                                 class="w-4 h-4 transition-transform group-hover:translate-x-0.5"
+                                                 fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                      d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                            </svg>
+                                            View Details
+                                        </a>
+                                    </div>
 
                         </div>
 

@@ -7,11 +7,19 @@
                 {{ $itinerary->name }}
             </h2>
 
-            <a href="{{ route('expert.itineraries.index') }}"
-               class="px-4 py-2 rounded-full bg-sand-200 dark:bg-ink-700 text-ink-800 dark:text-sand-100 text-sm
-                      hover:bg-sand-300 dark:hover:bg-ink-600 shadow-soft transition">
-                ← Back to Itineraries
-            </a>
+            <div class="flex gap-2">
+                <a href="{{ route('expert.itineraries.edit', $itinerary) }}"
+                   class="px-4 py-2 rounded-full bg-copper text-white text-sm font-medium
+                          hover:shadow-glow hover:scale-[1.03] transition shadow-soft">
+                    ✏️ Edit & Suggest
+                </a>
+
+                <a href="{{ route('expert.itineraries.index') }}"
+                   class="px-4 py-2 rounded-full bg-sand-200 dark:bg-ink-700 text-ink-800 dark:text-sand-100 text-sm
+                          hover:bg-sand-300 dark:hover:bg-ink-600 shadow-soft transition">
+                    ← Back to Itineraries
+                </a>
+            </div>
         </div>
     </x-slot>
 
