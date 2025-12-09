@@ -16,15 +16,18 @@ return new class extends Migration
             $table->string('name');
             $table->string('city')->index();
 
-            $table->string('profile_photo_path')->nullable();   // <-- RENAMED
+            // Profile photo fields
+            $table->string('profile_photo_path')->nullable();   // local upload
+            $table->string('photo_url')->nullable();            // remote URL support
+
             $table->text('bio')->nullable();
 
+            // Profile meta
             $table->string('expertise')->nullable();
             $table->string('languages')->nullable();
             $table->integer('experience_years')->nullable();
             $table->decimal('hourly_rate', 8, 2)->nullable();
             $table->string('availability')->nullable();
-            
 
             $table->timestamps();
         });
