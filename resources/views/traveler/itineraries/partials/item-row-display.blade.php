@@ -5,12 +5,23 @@
     $st = $item->start_time ? Carbon::parse($item->start_time) : null;
     $et = $item->end_time ? Carbon::parse($item->end_time) : null;
     $isLong = !empty($item->details) && Str::length(strip_tags($item->details)) > 200;
+
     $place = $item->place;
     $photo = $place?->photo_url;
+
+    // NEW — reward detection
+    $hasReward = $place && $place->rewards && $place->rewards->isNotEmpty();
 @endphp
 
 <div x-data="{ expanded: false }"
-     class="relative flex flex-col border border-sand-200 dark:border-ink-700 rounded-2xl bg-white dark:bg-sand-800 shadow-soft hover:shadow-glow hover:-translate-y-0.5 transition-all duration-200 overflow-hidden">
+     class="relative flex flex-col rounded-2xl overflow-hidden transition-all duration-200
+            shadow-soft hover:shadow-glow hover:-translate-y-0.5
+            bg-white dark:bg-sand-800
+            border 
+            {{ $hasReward 
+                ? 'border-copper shadow-glow bg-copper/5 dark:border-copper-400' 
+                : 'border-sand-200 dark:border-ink-700' 
+            }}">
 
     {{-- Photo Section --}}
     @if ($place)
@@ -25,6 +36,7 @@
         {{-- Header Row --}}
         <div class="flex justify-between items-start mb-3">
             <div class="flex-1 min-w-0">
+
                 {{-- Title --}}
                 <h4 class="text-lg font-semibold text-ink-900 dark:text-ink-100 leading-tight break-words">
                     {{ $item->title ?? 'Untitled' }}
@@ -36,6 +48,23 @@
                         {{ ucfirst($item->type) }}
                     </span>
                 @endif
+
+                {{-- NEW — Reward Badge --}}
+                @if ($hasReward)
+                    <a href="{{ route('traveler.rewards') }}"
+                       class="mt-2 inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold
+                              bg-copper/10 text-copper hover:bg-copper hover:text-white transition-all shadow-soft">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none"
+                             viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                  d="M11.7 2.3a1 1 0 011.6 0l2.1 3.8 4.3.6a1 1 0 01.6 1.7l-3.1 3 
+                                     0.7 4.2a1 1 0 01-1.5 1l-3.8-2-3.8 2a1 1 0 01-1.5-1l0.7-4.2-3.1-3
+                                     a1 1 0 01.6-1.7l4.3-.6 2.1-3.8z" />
+                        </svg>
+                        Reward Available
+                    </a>
+                @endif
+
             </div>
 
             {{-- Time Badge --}}
@@ -68,6 +97,7 @@
                 <h5 class="text-xs uppercase tracking-wide font-semibold text-copper-700 dark:text-copper-300 mb-1">
                     Address
                 </h5>
+
                 @if (!empty($item->location))
                     <p class="text-sm text-ink-800 dark:text-sand-100 mb-1 break-words">
                         @linkify($item->location)
@@ -77,7 +107,8 @@
                 @if (!empty($item->google_maps_url))
                     <a href="{{ $item->google_maps_url }}" target="_blank" rel="noopener noreferrer"
                        class="inline-flex items-center gap-1 text-sm text-blue-600 dark:text-blue-400 hover:underline">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" 
+                             viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
                         </svg>
                         View on Google Maps
@@ -89,13 +120,18 @@
         {{-- Details Section --}}
         @if (!empty($item->details))
             <div class="mt-4 pt-3 border-t border-sand-200 dark:border-ink-700">
-                <h5 class="text-xs uppercase tracking-wide font-semibold text-copper-700 dark:text-copper-300 mb-1">Details</h5>
-                <p class="text-sm text-ink-700 dark:text-sand-100 leading-relaxed transition-all duration-200 break-words"
+                <h5 class="text-xs uppercase tracking-wide font-semibold text-copper-700 dark:text-copper-300 mb-1">
+                    Details
+                </h5>
+
+                <p class="text-sm text-ink-700 dark:text-sand-100 leading-relaxed break-words transition-all duration-200"
                    :class="{ 'line-clamp-none': expanded, 'line-clamp-3': !expanded && {{ $isLong ? 'true' : 'false' }} }">
                     @linkify($item->details)
                 </p>
+
                 @if ($isLong)
-                    <button @click="expanded = !expanded" class="mt-1 text-xs text-copper hover:underline">
+                    <button @click="expanded = !expanded" 
+                            class="mt-1 text-xs text-copper hover:underline">
                         <span x-show="!expanded">Read more</span>
                         <span x-show="expanded">Show less</span>
                     </button>
@@ -111,7 +147,8 @@
                 </h5>
                 <div class="flex flex-wrap gap-2">
                     @foreach ($place->preferences as $pref)
-                        <span class="px-2 py-0.5 text-xs rounded-full bg-copper-100 text-copper-800 dark:bg-copper-800 dark:text-copper-100">
+                        <span class="px-2 py-0.5 text-xs rounded-full bg-copper-100 text-copper-800 
+                                     dark:bg-copper-800 dark:text-copper-100">
                             {{ $pref->name }}
                         </span>
                     @endforeach
@@ -123,9 +160,12 @@
         @if ($place)
             <div class="mt-5">
                 <a href="{{ route('places.show', $place) }}"
-                   class="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-full border border-copper text-copper hover:bg-copper hover:text-white hover:shadow-glow transition-all duration-200">
+                   class="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-full 
+                          border border-copper text-copper
+                          hover:bg-copper hover:text-white hover:shadow-glow transition-all duration-200">
                     <span>View Details</span>
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" 
+                         viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
                     </svg>
                 </a>

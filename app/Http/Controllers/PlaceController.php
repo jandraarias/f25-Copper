@@ -35,14 +35,14 @@ class PlaceController extends Controller
         $perPage = in_array($perPage, [5, 10, 25, 50, 100]) ? $perPage : 10;
 
         /**
-         * ✅ Fetch ALL reviews — full dataset
+         *  Fetch ALL reviews — full dataset
          */
         $allReviews = $place->reviews()
             ->orderByDesc('published_at_date')
             ->get();
 
         /**
-         * ✅ Apply filters (rating / photos)
+         *  Apply filters (rating / photos)
          */
         if ($rating) {
             $allReviews = $allReviews->filter(fn($r) => $r->rating >= (int)$rating);
@@ -53,7 +53,7 @@ class PlaceController extends Controller
         }
 
         /**
-         * ✅ Apply sorting (all four modes)
+         *  Apply sorting (all four modes)
          */
         switch ($sort) {
             case 'oldest':
@@ -75,14 +75,14 @@ class PlaceController extends Controller
         }
 
         /**
-         * ✅ Deduplicate reviews AFTER sorting
+         *  Deduplicate reviews AFTER sorting
          */
         $allReviews = $allReviews
             ->unique(fn($r) => $r->author . '|' . $r->content)
             ->values();
 
         /**
-         * ✅ Manual pagination
+         *  Manual pagination
          */
         $currentPage = $request->query('page', 1);
 

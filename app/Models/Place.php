@@ -53,28 +53,37 @@ class Place extends Model
         return $this->hasMany(ItineraryItem::class);
     }
 
-    public function rewards(){
+    /**
+     * Rewards associated with this place.
+     * (Used for highlighting in itinerary display)
+     */
+    public function rewards()
+    {
         return $this->hasMany(Reward::class);
     }
 
     public function preferenceOptions()
-{
-    //Need to explicitly specific columns so that it doesn't get place.id and preference_options.id confused
-    return $this->belongsToMany(PreferenceOption::class, 'place_preference_option')->select('preference_options.id', 'name', 'type', 'parent_id');
-}
+    {
+        //Need to explicitly specific columns so that it doesn't get place.id and preference_options.id confused
+        return $this->belongsToMany(PreferenceOption::class, 'place_preference_option')
+            ->select('preference_options.id', 'name', 'type', 'parent_id');
+    }
 
     /* -----------------------------------------------------------------
      |  Accessors – expose normalized fields from meta
      |------------------------------------------------------------------*/
-    /**
-     * Price level extracted from meta (may be numeric or "$$").
-     */
 
+    /**
+     * Main category extracted from meta.
+     */
     protected function mainCategory(): Attribute
     {
         return Attribute::get(fn () => $this->meta['main_category'] ?? $this->category);
     }
 
+    /**
+     * Price level extracted from meta.
+     */
     protected function priceLevel(): Attribute
     {
         $value = $this->meta['price_level'] ?? null;
@@ -89,8 +98,10 @@ class Place extends Model
 
         return Attribute::get(fn () => null);
     }
+
     /**
-     * Distinguish between "food" and "activity" based on prference_options parent_ids text.
+     * Distinguish between "food" and "activity"
+     * based on preference_options parent_ids.
      */
     protected function type(): Attribute
     {
@@ -99,19 +110,20 @@ class Place extends Model
             $foodParentIds = [12, 17, 30];
             
             $options = $this->relationLoaded('preferenceOptions')
-            ? $this->preferenceOptions
-            : $this->preferenceOptions()->get(['id', 'parent_id']);
+                ? $this->preferenceOptions
+                : $this->preferenceOptions()->get(['id', 'parent_id']);
 
             // Check if any related preference option has a food parent
             $isFood = $options->contains(fn($opt) =>
-            in_array($opt->parent_id, $foodParentIds)
+                in_array($opt->parent_id, $foodParentIds)
             );
+
             return $isFood ? 'food' : 'activity';
         });
     }
 
     /**
-     * Returns a valid photo URL OR a clean fallback Unsplash image.
+     * Returns an explicit photo URL or a fallback Unsplash image.
      */
     protected function photoUrl(): Attribute
     {
@@ -137,8 +149,6 @@ class Place extends Model
     protected $appends = [
         'price_level',
         'type',
-
-        // Append resolved photo URL to API & Blade output
         'photo_url',
     ];
 
@@ -178,9 +188,9 @@ class Place extends Model
             $q->whereNull('category')
               ->orWhere(function ($q2) {
                   $q2->where('category', 'not like', '%restaurant%')
-                      ->where('category', 'not like', '%food%')
-                      ->where('category', 'not like', '%cafe%')
-                      ->where('category', 'not like', '%bar%');
+                     ->where('category', 'not like', '%food%')
+                     ->where('category', 'not like', '%cafe%')
+                     ->where('category', 'not like', '%bar%');
               });
         });
     }
@@ -188,7 +198,7 @@ class Place extends Model
     public function scopeHasAnyTags($query, array $tags)
     {
         return $query->whereHas('preferenceOptions', function ($q) use ($tags) {
-        $q->whereIn('name', $tags);
+            $q->whereIn('name', $tags);
         });
     }
 

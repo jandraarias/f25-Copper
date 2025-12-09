@@ -1,51 +1,76 @@
 <x-app-layout>
-    {{-- HEADER --}}
+    {{-- =========================================================
+        HEADER
+    ========================================================== --}}
     <x-slot name="header">
         <div class="flex items-center justify-between py-4 px-2 bg-gradient-to-r from-copper-100/60 to-transparent dark:from-copper-900/20 rounded-2xl shadow-soft">
             <h2 class="text-3xl font-bold tracking-tight text-ink-900 dark:text-sand-100 flex items-center gap-2">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7 text-copper" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7 text-copper" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true" focusable="false">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7H3v12a2 2 0 002 2z"/>
                 </svg>
                 {{ $itinerary->name }}
             </h2>
 
-            <a href="{{ route('traveler.itineraries.index') }}"
-               class="group flex items-center gap-2 px-5 py-2.5 rounded-full border border-copper text-copper 
-                      hover:bg-copper hover:text-white hover:shadow-glow hover:scale-[1.03] 
-                      transition-all duration-200 ease-out font-medium shadow-soft">
-                <svg xmlns="http://www.w3.org/2000/svg"
-                     class="w-4 h-4 transition-transform duration-200 group-hover:-translate-x-0.5"
-                     fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
-                </svg>
-                Back
-            </a>
+            <div class="flex items-center gap-2">
+                <a href="{{ route('traveler.itineraries.index') }}"
+                   class="group flex items-center gap-2 px-5 py-2.5 rounded-full border border-copper text-copper 
+                          hover:bg-copper hover:text-white hover:shadow-glow hover:scale-[1.03] 
+                          transition-all duration-200 ease-out font-medium shadow-soft">
+                    <svg xmlns="http://www.w3.org/2000/svg"
+                         class="w-4 h-4 transition-transform duration-200 group-hover:-translate-x-0.5"
+                         fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+                    </svg>
+                    Back
+                </a>
+            </div>
         </div>
     </x-slot>
 
-    {{-- ALPINE ROOT FOR PAGE STATE --}}
-    <div x-data="{ showCollaboratorsModal: false, showDisableConfirm: false }">
-    
+    {{-- =========================================================
+        PAGE ROOT (Alpine state)
+        - showCollaboratorsModal: existing collaboration modal
+        - showDisableConfirm: existing disable confirm modal
+        - showRewardsSidebar: NEW (controls slide-in rewards panel)
+    ========================================================== --}}
+    <div x-data="{ showCollaboratorsModal: false, showDisableConfirm: false, showRewardsSidebar: false }" class="relative">
 
-        {{-- MAIN BODY --}}
+        {{-- =========================================================
+            FLOATING REWARDS TOGGLE (Option A)
+        ========================================================== --}}
+        <button
+            type="button"
+            aria-label="Open rewards panel"
+            aria-controls="rewards-sidebar"
+            @click="showRewardsSidebar = true"
+            class="fixed right-4 top-[35vh] z-40 flex items-center gap-2 rounded-full px-4 py-2 bg-gradient-to-r from-copper-600 to-copper-500 text-white shadow-glow
+                   hover:scale-[1.03] focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-copper"
+        >
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false">
+                <path d="M11.7 2.3a1 1 0 011.6 0l2.1 3.8 4.3.6a1 1 0 01.6 1.7l-3.1 3 .7 4.2a1 1 0 01-1.5 1l-3.8-2-3.8 2a1 1 0 01-1.5-1l.7-4.2-3.1-3a1 1 0 01.6-1.7l4.3-.6 2.1-3.8z"/>
+            </svg>
+            <span class="text-sm font-semibold">Rewards</span>
+        </button>
+
+        {{-- =========================================================
+            MAIN BODY (single column remains)
+        ========================================================== --}}
         <div class="py-12 bg-sand dark:bg-sand-900 min-h-screen">
             <div class="mx-auto max-w-6xl sm:px-6 lg:px-8 space-y-10">
 
                 {{-- Flash Messages --}}
                 @if (session('success'))
-                    <div class="p-4 rounded-2xl border border-emerald-200 bg-emerald-50 text-emerald-900 shadow-soft">
+                    <div class="p-4 rounded-2xl border border-emerald-200 bg-emerald-50 text-emerald-900 shadow-soft" role="status">
                         {{ session('success') }}
                     </div>
                 @endif
-
                 @if (session('warning'))
-                    <div class="p-4 rounded-2xl border border-amber-200 bg-amber-50 text-amber-900 shadow-soft">
+                    <div class="p-4 rounded-2xl border border-amber-200 bg-amber-50 text-amber-900 shadow-soft" role="status">
                         {{ session('warning') }}
                     </div>
                 @endif
-
                 @if (session('error'))
-                    <div class="p-4 rounded-2xl border border-red-200 bg-red-50 text-red-900 shadow-soft">
+                    <div class="p-4 rounded-2xl border border-red-200 bg-red-50 text-red-900 shadow-soft" role="alert">
                         {{ session('error') }}
                     </div>
                 @endif
@@ -54,7 +79,7 @@
                 @if ($itinerary->preferenceProfile)
                     <div class="p-5 rounded-2xl bg-gradient-to-br from-sand-100 to-sand-50 dark:from-sand-800 dark:to-sand-900 border border-sand-200 dark:border-ink-700 shadow-soft">
                         <div class="flex items-start gap-3">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-copper mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-copper mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                       d="M13 16h-1v-4h-1m1-4h.01M12 18a9 9 0 100-18 9 9 0 000 18z" />
                             </svg>
@@ -68,74 +93,112 @@
                     </div>
                 @endif
 
-                
-                {{-- Leaflet CSS --}}
-                <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-                {{-- Itinerary Map --}}
-                <div id="itinerary-map" 
+                {{-- =========================================================
+                    MAP (accessible, async Leaflet, reward markers)
+                ========================================================== --}}
+                <link rel="preload" as="style" href="https://unpkg.com/leaflet/dist/leaflet.css" onload="this.rel='stylesheet'">
+                <noscript><link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" /></noscript>
+
+                <div id="itinerary-map"
                     data-itinerary-id="{{ $itinerary->id }}"
-                    x-data
-                    x-init="initItineraryMap()"
-                    style="width:100%; height:400px;"
-                    class="w-full rounded-2xl shadow-soft mb-8">
+                    role="region"
+                    aria-label="Map displaying itinerary locations"
+                    class="w-full rounded-2xl shadow-soft mb-8 overflow-hidden"
+                    style="width:100%; height:400px;">
                 </div>
 
+                {{-- Defer Leaflet for performance --}}
+                <script defer src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
                 <script>
-                function initItineraryMap() {
-
-                    const el = document.getElementById('itinerary-map');
-                    const itineraryId = el.dataset.itineraryId;
-                    console.log("Initializing map for itinerary", itineraryId);
-                    
-                    const map = L.map(el).setView([37.2702, -76.7075], 13);
-
-                    // Add OpenStreetMap tiles
-                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
-                        attribution: '&copy; OpenStreetMap contributors'
-                    }).addTo(map);
-
-                    // Fetch Itinerary places
-                    fetch(`/traveler/itineraries/${itineraryId}/places`)
-                        .then(response => response.json())
-                        .then(places => {
-                            console.log("Loaded places:", places);
-                            if(!places.length) return;
-
-                            const markers = [];
-
-                            places.forEach(place => {
-                                if(place.lat && place.lon) {
-                                    const popupContent = `
-                                        <strong>${place.name}</strong><br>
-                                        ${place.description ?? ''}<br>
-                                        Distance from Williamsburg: ${place.distance_from_williamsburg} miles
-                                        `;
-                                    
-                                        const marker = L.marker([place.lat, place.lon])
-                                        .addTo(map)
-                                        .bindPopup(popupContent);
-
-                                markers.push(marker);
-                            }
+                    document.addEventListener('DOMContentLoaded', () => {
+                        // If Leaflet hasn't loaded yet, wait a bit
+                        const ready = () => typeof L !== 'undefined';
+                        const waitForLeaflet = (tries = 20) => new Promise(resolve => {
+                            const t = setInterval(() => {
+                                if (ready() || tries-- <= 0) { clearInterval(t); resolve(); }
+                            }, 50);
                         });
 
-                        if(markers.length) {
-                            const group = L.featureGroup(markers);
-                            map.fitBounds(group.getBounds().pad(0.2));
-                        }
-                    })
-                    .catch(err => console.error('Error loading places:', err));
-                }
-            </script>
+                        waitForLeaflet().then(() => initItineraryMap());
+                    });
 
-            {{-- Leaflet JS --}}
-            <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script> 
+                    function initItineraryMap() {
+                        const el = document.getElementById('itinerary-map');
+                        if (!el || typeof L === 'undefined') return;
 
-                {{-- OVERVIEW CARD --}}
+                        const itineraryId = el.dataset.itineraryId;
+
+                        const map = L.map(el, {
+                            scrollWheelZoom: false,
+                            tap: false
+                        }).setView([37.2702, -76.7075], 13);
+
+                        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                            attribution: '&copy; OpenStreetMap contributors'
+                        }).addTo(map);
+
+                        const defaultIcon = L.icon({
+                            iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+                            shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+                            iconSize: [25, 41],
+                            iconAnchor: [12, 41],
+                            popupAnchor: [1, -34],
+                            shadowSize: [41, 41]
+                        });
+
+                        const rewardIcon = L.divIcon({
+                            className: '',
+                            html: `
+                                <svg width="32" height="48" viewBox="0 0 24 36" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+                                    <title>Reward available</title>
+                                    <path d="M12 0C5.4 0 0 5.4 0 12c0 9 12 24 12 24s12-15 12-24C24 5.4 18.6 0 12 0z"
+                                        fill="#c67c48" stroke="#8a5632" stroke-width="2"/>
+                                    <circle cx="12" cy="12" r="5" fill="white"/>
+                                </svg>
+                            `,
+                            iconSize: [32, 48],
+                            iconAnchor: [16, 48],
+                            popupAnchor: [0, -45]
+                        });
+
+                        fetch(`/traveler/itineraries/${itineraryId}/places`)
+                            .then(r => r.json())
+                            .then(places => {
+                                if (!Array.isArray(places) || !places.length) return;
+
+                                const markers = [];
+
+                                for (const place of places) {
+                                    if (!place.lat || !place.lon) continue;
+
+                                    const icon = place.has_reward ? rewardIcon : defaultIcon;
+                                    const marker = L.marker([place.lat, place.lon], { icon })
+                                        .bindPopup(`
+                                            <strong>${place.name}</strong><br>
+                                            Distance from Williamsburg: ${place.distance_from_williamsburg} miles<br>
+                                            ${place.has_reward ? '<span style="color:#c67c48;font-weight:bold;">⭐ Reward Available</span>' : ''}
+                                        `);
+
+                                    marker.addTo(map);
+                                    markers.push(marker);
+                                }
+
+                                if (markers.length) {
+                                    const group = L.featureGroup(markers);
+                                    map.fitBounds(group.getBounds().pad(0.2));
+                                }
+                            })
+                            .catch(err => console.error('Error loading places:', err));
+                    }
+                </script>
+
+                {{-- =========================================================
+                    OVERVIEW CARD
+                ========================================================== --}}
                 <div class="bg-white dark:bg-sand-800 border border-sand-200 dark:border-ink-700 rounded-3xl shadow-soft hover:shadow-glow hover:scale-[1.01] transition-all duration-300">
                     <div class="p-8 sm:p-10 text-ink-900 dark:text-ink-100">
                         <h3 class="text-2xl font-bold mb-8 flex items-center gap-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-copper" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-copper" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M4 4h16v16H4zM4 9h16"/>
                             </svg>
                             Overview
@@ -185,13 +248,11 @@
 
                         {{-- ACTION BUTTONS --}}
                         <div class="mt-10 flex flex-wrap gap-4 justify-end">
-
                             {{-- Edit --}}
                             <a href="{{ route('traveler.itineraries.edit', $itinerary) }}"
                                class="group flex items-center justify-center gap-2 px-6 py-2.5 rounded-full bg-gradient-copper text-white font-semibold shadow-soft 
                                       hover:shadow-glow hover:scale-[1.03] transition-all duration-200 ease-out">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 group-hover:rotate-6 transition-transform duration-200"
-                                     fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 group-hover:rotate-6 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M11 5h2M12 19v2M12 3v2M15 9h.01M9 9h.01" />
                                 </svg>
                                 Edit Itinerary
@@ -216,7 +277,7 @@
                                    class="group flex items-center justify-center gap-2 px-6 py-2.5 rounded-full border border-blue-400 text-blue-700 dark:text-blue-200
                                           hover:bg-blue-600 hover:text-white hover:shadow-glow hover:scale-[1.03]
                                           transition-all duration-200 ease-out font-semibold shadow-soft dark:border-blue-600">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                     </svg>
                                     Expert Suggestions
@@ -224,9 +285,7 @@
                             @endif
 
                             @if (Auth::id() === optional($itinerary->traveler->user)->id)
-                                {{-- Collaboration Toggle + Manage --}}
-
-                                {{-- Enable button (only when OFF) --}}
+                                {{-- Enable collaboration (when off) --}}
                                 @if (! $itinerary->isCollaborative())
                                     <form method="POST" action="{{ route('traveler.itineraries.enable-collaboration', $itinerary) }}">
                                         @csrf
@@ -237,7 +296,7 @@
                                                        transition-all duration-200 ease-out font-semibold shadow-soft">
                                             <svg xmlns="http://www.w3.org/2000/svg"
                                                  class="w-4 h-4 transition-transform duration-200 group-hover:rotate-6"
-                                                 fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                 fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
                                                 <path stroke-linecap="round" stroke-linejoin="round"
                                                       d="M17 20h5v-2a3 3 0 00-3-3h-2m-6 5H3v-2a3 3 0 013-3h2m0-5a4 4 0 118 0v1H8v-1zm4 4v4" />
                                             </svg>
@@ -246,7 +305,7 @@
                                     </form>
                                 @endif
 
-                                {{-- Manage + Disable (only when ON) --}}
+                                {{-- Manage collaborators + Disable (when on) --}}
                                 @if ($itinerary->isCollaborative())
                                     <button type="button"
                                             @click="showCollaboratorsModal = true"
@@ -256,7 +315,7 @@
                                                    transition-all duration-200 ease-out font-semibold shadow-soft">
                                         <svg xmlns="http://www.w3.org/2000/svg"
                                              class="w-4 h-4 transition-transform duration-200 group-hover:rotate-6"
-                                             fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                             fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
                                             <path stroke-linecap="round" stroke-linejoin="round"
                                                   d="M17 20h5v-2a3 3 0 00-3-3h-2m-6 5H3v-2a3 3 0 013-3h2m0-5a4 4 0 118 0v1H8v-1zm4 4v4" />
                                         </svg>
@@ -264,28 +323,26 @@
                                     </button>
 
                                     <button type="button"
-                                        @click="showDisableConfirm = true"
-                                        class="group flex items-center justify-center gap-2 
-                                            px-6 py-2.5 rounded-full
-                                            bg-red-50 text-red-700 border border-red-300
-                                            dark:bg-red-900/30 dark:text-red-300 dark:border-red-700
-                                            hover:bg-red-600 hover:text-white hover:border-red-600
-                                            dark:hover:bg-red-600 dark:hover:text-white dark:hover:border-red-600
-                                            hover:shadow-glow hover:scale-[1.03]
-                                            transition-all duration-200 ease-out font-semibold shadow-soft">
-                                    <svg xmlns="http://www.w3.org/2000/svg"
-                                        class="w-4 h-4 transition-transform duration-200 group-hover:rotate-6"
-                                        fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                            d="M6 18L18 6M6 6l12 12" />
-                                    </svg>
-                                    Disable Collaboration
-                                </button>
+                                            @click="showDisableConfirm = true"
+                                            class="group flex items-center justify-center gap-2 
+                                                   px-6 py-2.5 rounded-full
+                                                   bg-red-50 text-red-700 border border-red-300
+                                                   dark:bg-red-900/30 dark:text-red-300 dark:border-red-700
+                                                   hover:bg-red-600 hover:text-white hover:border-red-600
+                                                   dark:hover:bg-red-600 dark:hover:text-white dark:hover:border-red-600
+                                                   hover:shadow-glow hover:scale-[1.03]
+                                                   transition-all duration-200 ease-out font-semibold shadow-soft">
+                                        <svg xmlns="http://www.w3.org/2000/svg"
+                                             class="w-4 h-4 transition-transform duration-200 group-hover:rotate-6"
+                                             fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                  d="M6 18L18 6M6 6l12 12" />
+                                        </svg>
+                                        Disable Collaboration
+                                    </button>
                                 @endif
-                            @endif
 
-                            {{-- Regenerate --}}
-                            @if (Auth::id() === optional($itinerary->traveler->user)->id)
+                                {{-- Regenerate --}}
                                 <form method="POST" action="{{ route('traveler.itineraries.generate', $itinerary) }}">
                                     @csrf
                                     <button type="submit"
@@ -293,7 +350,7 @@
                                                    hover:bg-copper hover:text-white hover:shadow-glow hover:scale-[1.03] 
                                                    transition-all duration-200 ease-out font-semibold shadow-soft">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 group-hover:rotate-[15deg] transition-transform duration-200"
-                                             fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                             fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v6h6M20 20v-6h-6M20 4l-6 6M4 20l6-6" />
                                         </svg>
                                         Regenerate Itinerary
@@ -304,12 +361,14 @@
                     </div>
                 </div>
 
-                {{-- PLANNED ACTIVITIES --}}
+                {{-- =========================================================
+                    PLANNED ACTIVITIES
+                ========================================================== --}}
                 <div class="bg-white dark:bg-sand-800 border border-sand-200 dark:border-ink-700 rounded-3xl shadow-soft transition-all duration-200 ease-out">
                     <div class="p-8 text-ink-900 dark:text-ink-100">
                         <h3 class="text-2xl font-bold mb-8 flex items-center gap-2">
                             <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-copper" fill="none" viewBox="0 0 24 24"
-                                 stroke="currentColor" stroke-width="2">
+                                 stroke="currentColor" stroke-width="2" aria-hidden="true">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7H3v12a2 2 0 002 2z"/>
                             </svg>
                             Planned Activities
@@ -332,23 +391,23 @@
                             <div class="space-y-8">
                                 @foreach ($grouped as $date => $items)
                                     <div x-data="{ open: true }" class="rounded-2xl border border-sand-200 dark:border-ink-700 shadow-sm">
-
                                         {{-- Day Header --}}
                                         <button @click="open = !open"
                                                 class="w-full flex items-center justify-between px-6 py-4 bg-sand-50 dark:bg-sand-900/50 
                                                        text-copper-700 dark:text-copper-300 font-semibold text-lg rounded-t-2xl 
-                                                       hover:bg-sand-100 dark:hover:bg-sand-800 transition-all">
+                                                       hover:bg-sand-100 dark:hover:bg-sand-800 transition-all"
+                                                :aria-expanded="open.toString()">
                                             <span>
                                                 {{ $date === 'unscheduled'
                                                     ? 'Unscheduled Items'
                                                     : \Illuminate\Support\Carbon::parse($date)->format('l, M j, Y') }}
                                             </span>
                                             <svg x-show="!open" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none"
-                                                 viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                 viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 5v14m7-7H5" />
                                             </svg>
                                             <svg x-show="open" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none"
-                                                 viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                 viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
                                             </svg>
                                         </button>
@@ -361,7 +420,6 @@
                                                 @endforeach
                                             </div>
                                         </div>
-
                                     </div>
                                 @endforeach
                             </div>
@@ -369,7 +427,9 @@
                     </div>
                 </div>
 
-                {{-- COLLABORATORS SUMMARY CARD --}}
+                {{-- =========================================================
+                    COLLABORATORS SUMMARY CARD
+                ========================================================== --}}
                 @if ($itinerary->isCollaborative() && ($itinerary->collaborators->isNotEmpty() || $itinerary->invitations->isNotEmpty()))
                     <div class="bg-white dark:bg-sand-800 border border-sand-200 dark:border-ink-700 rounded-3xl shadow-soft p-8">
                         <div class="flex items-center justify-between mb-4">
@@ -403,7 +463,9 @@
             </div>
         </div>
 
-        {{-- MANAGE COLLABORATORS MODAL --}}
+        {{-- =========================================================
+            COLLABORATORS MODAL
+        ========================================================== --}}
         @if (Auth::id() === optional($itinerary->traveler->user)->id && $itinerary->isCollaborative())
             <div x-cloak
                  x-show="showCollaboratorsModal"
@@ -418,7 +480,7 @@
                     <div class="flex items-start justify-between gap-3 mb-4">
                         <div>
                             <h2 class="text-lg font-semibold text-ink-900 dark:text-sand-100 flex items-center gap-2">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-copper" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-copper" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
                                     <path stroke-linecap="round" stroke-linejoin="round"
                                           d="M17 20h5v-2a3 3 0 00-3-3h-2m-6 5H3v-2a3 3 0 013-3h2m0-5a4 4 0 118 0v1H8v-1zm4 4v4" />
                                 </svg>
@@ -430,8 +492,9 @@
                         </div>
                         <button type="button"
                                 @click="showCollaboratorsModal = false"
-                                class="text-ink-400 hover:text-ink-700 dark:hover:text-ink-100">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                class="text-ink-400 hover:text-ink-700 dark:hover:text-ink-100"
+                                aria-label="Close collaborators modal">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                             </svg>
                         </button>
@@ -507,7 +570,9 @@
             </div>
         @endif
 
-        {{-- DISABLE COLLABORATION CONFIRM MODAL --}}
+        {{-- =========================================================
+            DISABLE COLLABORATION CONFIRM MODAL
+        ========================================================== --}}
         @if (Auth::id() === optional($itinerary->traveler->user)->id)
             <div
                 x-cloak
@@ -526,7 +591,7 @@
                     <div class="flex items-start justify-between gap-3 mb-4">
                         <div>
                             <h2 class="text-lg font-semibold text-ink-900 dark:text-sand-100 flex items-center gap-2">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
                                     <path stroke-linecap="round" stroke-linejoin="round"
                                           d="M12 9v2m0 4h.01M4.93 4.93l14.14 14.14M12 2a10 10 0 00-7.07 17.07L19.07 4.93A9.96 9.96 0 0012 2z" />
                                 </svg>
@@ -541,8 +606,9 @@
                             type="button"
                             @click="showDisableConfirm = false"
                             class="text-ink-400 hover:text-ink-700 dark:hover:text-ink-100"
+                            aria-label="Close confirmation modal"
                         >
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                             </svg>
                         </button>
@@ -568,6 +634,36 @@
                 </div>
             </div>
         @endif
+
+        {{-- =========================================================
+            REWARDS SIDEBAR (NEW) — slide-in off-canvas
+            Only partial reference added per your request.
+        ========================================================== --}}
+        <div
+            x-cloak
+            x-show="showRewardsSidebar"
+            x-transition.opacity.duration.200ms
+            class="fixed inset-0 z-[998] bg-black/40 backdrop-blur-sm"
+            @click.self="showRewardsSidebar = false"
+            aria-hidden="true">
+        </div>
+
+        <aside id="rewards-sidebar"
+               x-cloak
+               x-show="showRewardsSidebar"
+               x-transition:enter="transform transition ease-in-out duration-200"
+               x-transition:enter-start="translate-x-full"
+               x-transition:enter-end="translate-x-0"
+               x-transition:leave="transform transition ease-in-out duration-200"
+               x-transition:leave-start="translate-x-0"
+               x-transition:leave-end="translate-x-full"
+               class="fixed right-0 top-0 bottom-0 w-full sm:w-[420px] max-w-[90vw] z-[999]
+                      bg-white dark:bg-sand-900 border-l border-sand-200 dark:border-ink-700 shadow-glow"
+               role="dialog"
+               aria-modal="true"
+               aria-label="Rewards panel">
+            @include('traveler.itineraries.partials.rewards-sidebar', ['itinerary' => $itinerary, 'closeVar' => 'showRewardsSidebar'])
+        </aside>
+
     </div>
-     
 </x-app-layout>
