@@ -221,7 +221,12 @@ class ItineraryController extends Controller
         }
 
         try {
-            $this->generationService->generateForItinerary($itinerary);
+            $result = $this->generationService->generateForItinerary($itinerary, ['force' => true]);
+
+            if (!$result['ok']) {
+                return back()->with('warning', $result['error']);
+            }
+
             return back()->with('success', 'Your itinerary has been regenerated successfully!');
         } catch (\Throwable $e) {
             report($e);
