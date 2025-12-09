@@ -8,6 +8,7 @@ use App\Models\PreferenceProfile;
 use App\Models\PreferenceOption;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
 
 class PreferenceProfileController extends Controller
 {
@@ -43,9 +44,41 @@ class PreferenceProfileController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
-            'name' => ['required', 'string', 'max:255'],
+        // $request->validate([
+        //     'name' => ['required', 'string', 'max:255'],
+        // ]);
+
+        $validator = Validator::make($request->all(), [
+        'name' => ['required', 'string', 'max:255'],
+
+        'activities' => ['nullable', 'array'],
+        'activities.*' => ['integer', 'exists:preference_options,id'],
+
+        'cuisine' => ['nullable', 'array'],
+        'cuisine.*' => ['string'],
+
+        'dietary' => ['nullable', 'array'],
+        'dietary.*' => ['string'],
+
+        'budget' => ['nullable', 'array'],
+        'budget.*' => ['string'],
         ]);
+
+        $validator->after(function ($v) use ($request) {
+            $activities = $request->input('activities', []);
+            $cuisine    = $request->input('cuisine', []);
+            $dietary    = $request->input('dietary', []);
+
+            // Count only “variety” inputs (exclude budget if you want)
+            $total = count($activities) + count($cuisine) + count($dietary);
+
+            $MIN_PROFILE_PREFS = 3; // hard minimum here
+            if ($total < $MIN_PROFILE_PREFS) {
+                $v->errors()->add('preferences', "Please select at least {$MIN_PROFILE_PREFS} total preferences (activities + cuisines + dietary). You selected {$total}.");
+            }
+        });
+
+        $validator->validate();
 
         $traveler = Auth::user()->traveler;
 

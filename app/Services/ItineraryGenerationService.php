@@ -61,6 +61,24 @@ class ItineraryGenerationService
         $profile = $itinerary->preferenceProfile()->with('preferences')->first();
         $prefs = $profile->toPreferenceValueArray();
 
+        // Determine the total length of the trip in days.
+        $start      = Carbon::parse($itinerary->start_date);
+        $end        = Carbon::parse($itinerary->end_date);
+        $numDays    = $start->diffInDays($end) + 1;
+
+        $minPrefs = $this->minPreferencesForDays($numDays);
+
+        // Optional escape hatch: allow_sparse_prefs => true to bypass this check
+        $allowSparse = (bool)($options['allow_sparse_prefs'] ?? false);
+
+        if (!$allowSparse && count($prefs) < $minPrefs) {
+            return [
+                'ok'    => false,
+                'error' => "For a {$numDays}-day trip, please choose at least {$minPrefs} preferences " .
+                           "to generate a varied itinerary (currently: " . count($prefs) . ").",
+            ];
+        }
+
         // ------------------------------------------------------------------
         // 2) Query candidate places for city
         //     We filter by address containing the city string.
@@ -410,5 +428,21 @@ class ItineraryGenerationService
                 ->values();
         }
         return $chosenPlaces;
+    }
+
+    /**
+     * Compute a minimum number of preferences required for a given trip length.
+     */
+    private function minPreferencesForDays(int $days): int
+    {
+        if ($days <= 3) {
+            return 1;   // weekend trip
+        } elseif ($days <= 7) {
+            return 2;   // up to 1 week
+        } elseif ($days <= 14) {
+            return 3;   // 1–2 weeks
+        }
+
+        return 4;       // very long trips
     }
 }
